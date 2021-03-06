@@ -1,4 +1,4 @@
-![oxylogo.png](https://bitbucket.org/repo/p6xdM7/images/2318018827-oxylogo.png)
+![dynamophp-logo.png](http://54.207.208.255/dynamophp-docs/wp-includes/images/media/logo-dynamophp.png)
 
 
 
