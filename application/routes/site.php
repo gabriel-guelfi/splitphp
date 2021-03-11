@@ -5,29 +5,18 @@ class Site extends Rest_service
   {
     parent::__construct();
 
-    $this->set404template($this->theme . '/routenotfound', ['themePath' => $this->theme]);
-
     // Home Page Endpoints:
-    $this->addEndpoint('GET', '/home', 'homepage');
-
-    // 404 Route:
-    $this->addEndpoint('GET', '/not-found', 'notFound');
+    $this->addEndpoint('GET', '/home/example', 'showHomepage');
+    $this->addEndpoint('GET', '/home', 'showHomepage');
   }
 
-  public function homepage($params)
+  public function showHomepage($params)
   {
     $response = new Response();
 
     return $response
     ->withStatus(200)
-    ->withHTML($this->renderTemplate('site/home', []));
-  }
-
-  public function notFound($params)
-  {
-    $response = new Response();
-
-    return $response->withStatus(200)->withHTML($this->renderTemplate($this->theme . '/routenotfound', ['themePath' => $this->theme]));
+    ->withHTML($this->renderTemplate('site/home', $params));
   }
 
 }
