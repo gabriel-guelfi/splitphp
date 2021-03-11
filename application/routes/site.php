@@ -13,10 +13,12 @@ class Site extends Rest_service
   public function showHomepage($params)
   {
     $response = new Response();
+    
+    $message = $this->getService('example')->welcomeMsg();
 
     return $response
     ->withStatus(200)
-    ->withHTML($this->renderTemplate('site/home', $params));
+    ->withHTML($this->renderTemplate('site/home', ['message' => $message]));
   }
 
 }
