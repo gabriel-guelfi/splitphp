@@ -4,7 +4,7 @@ Dynamo is a Micro-service architecture, RESTful friendly micro framework. It is 
 
 A documentation is being built. You can refer to what is already in place in [here](http://docs.dynamophp.org)
 
-## Server Host Config ##
+## Server Host Config (Nginx Server Block) ##
 
 ```conf
 
