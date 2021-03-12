@@ -28,6 +28,7 @@ server {
 
   location ~ \.php$ {
     try_files $uri /index.php =404;
+    # This line below is a default path to PHP in linux systems. If your PHP is installed in another location, change it to your actual path.
     fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
     fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
