@@ -4,6 +4,42 @@ Dynamo is a Micro-service architecture, RESTful friendly micro framework. It is 
 
 A documentation is being built. You can refer to what is already in place in [here](http://docs.dynamophp.org)
 
+## Server Host Config ##
+
+```conf
+
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name example.com.br;
+
+  root /path/to/your/app/root/public;
+  index index.php;
+
+  location / {
+    try_files $uri $uri/ /index.php?$query_string;
+    fastcgi_param QUERY_STRING $query_string;
+  }
+
+  location /resources {
+    try_files $uri $uri/ =404;
+  }
+
+  location ~ \.php$ {
+    try_files $uri /index.php =404;
+    fastcgi_pass unix:/var/run/php/php7.2-fpm.sock;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
+  }
+  location ~ \.git {
+    deny all;
+  }
+}
+```
+
+
 #### Contact me: ####
 * Skype: gabriel-guelfi
 * Email: gabriel.valguelfi@gmail.com
