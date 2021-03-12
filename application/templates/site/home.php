@@ -6,4 +6,4 @@
 
 <p>For further information, please refer to the <a href="http://docs.dynamophp.org/" target="_blank">Dynamo Docs</a>.</p>
 
-<h6>Have fun! ;)</h6>
+<p><b>Have fun! ;)</b></p>
