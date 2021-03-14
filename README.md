@@ -10,7 +10,7 @@ A documentation is being built. You can refer to what is already in place in [he
 
 server {
   listen 80;
-  listen [::]:80;
+  listen [::]:80 ipv6only=on;
 
   server_name example.com.br;
 
