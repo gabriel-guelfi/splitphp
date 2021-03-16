@@ -122,6 +122,7 @@ class System
   private static function exceptionBuildLog(Exception $exc)
   {
     return (object) [
+      "datetime" => date('Y-m-d H:i:s'),
       "message" => $exc->getMessage(),
       "stack_trace" => $exc->getTrace(),
       "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious()) : null),
