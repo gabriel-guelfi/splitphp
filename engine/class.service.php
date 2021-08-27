@@ -2,7 +2,6 @@
 
 class Service extends Dao
 {
-  // protected $pesticide;
   protected $utils;
 
   public function __construct()
@@ -10,8 +9,6 @@ class Service extends Dao
     parent::__construct();
 
     $this->utils = System::loadClass(INCLUDE_PATH . "/engine/class.utils.php", "utils");
-
-    // $this->pesticide = System::loadClass(INCLUDE_PATH . '/public/utils/Pesticide/class.pesticide.php', 'pesticide', ['/utils']);
   }
   protected final function getService($path, $args = [])
   {

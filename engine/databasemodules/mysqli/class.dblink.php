@@ -16,8 +16,6 @@ class Dblink
   private $cnnerror;
   // An array of MysqliException objects for query errors
   private $queryerrors;
-  // An instance of Debugger class utility
-  private $pesticide;
 
   /* Verifies if database connection data is valid, then sets the properties with those values.
      * Connect to mysql server and save the connection in a property.
@@ -27,7 +25,6 @@ class Dblink
   {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    $this->pesticide = System::loadClass(INCLUDE_PATH . '/public/utils/Pesticide/class.pesticide.php', 'pesticide', ['/utils']);
     $this->cnnerror = 0;
     $this->queryerrors = [];
 
