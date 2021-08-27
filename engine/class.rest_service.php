@@ -107,7 +107,7 @@ abstract class Rest_service extends Service
     ];
   }
 
-  protected function respond(Response $res)
+  protected final function respond(Response $res)
   {
     http_response_code($res->getStatus());
 
@@ -119,7 +119,7 @@ abstract class Rest_service extends Service
     return $res;
   }
 
-  protected function set404template($path, $args = [])
+  protected final function set404template($path, $args = [])
   {
     $this->template404 = (object) [
       "path" => $path,
