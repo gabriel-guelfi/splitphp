@@ -19,8 +19,6 @@ class Dblink
   private $cnnerror;
   // An array of PDOException objects for query errors
   private $queryerrors;
-  // An instance of Debugger class utility
-  private $pesticide;
 
   /* Verifies if database connection data is valid, then sets the properties with those values.
      * Connect to database server and save the connection in a property.
@@ -28,8 +26,6 @@ class Dblink
 
   public function __construct(array $dbinfo)
   {
-    $this->pesticide = System::loadClass(INCLUDE_PATH . '/public/utils/Pesticide/class.pesticide.php', 'pesticide', ['/utils']);
-
     $this->cnnerror = 0;
     $this->queryerrors = [];
     $this->datatypes = array(
