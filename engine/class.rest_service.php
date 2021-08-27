@@ -4,6 +4,7 @@ abstract class Rest_service extends Service
   protected $routes;
   protected $routeIndex;
   private $template404;
+  private $dblink;
 
   public function __construct()
   {
@@ -17,6 +18,8 @@ abstract class Rest_service extends Service
     ];
 
     $this->routeIndex = [];
+
+    $this->dblink = $this->dbCnn();
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -45,8 +48,18 @@ abstract class Rest_service extends Service
     }
 
     try {
-      return $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+      if (DB_TRANSACTIONAL == "on") {
+        $this->dblink->startTransaction();
+        $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $this->dblink->commitTransaction();
+      } else {
+        $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+      }
+      return $return;
     } catch (Exception $exc) {
+      if (DB_TRANSACTIONAL == "on")
+        $this->dblink->rollbackTransaction();
+
       $status = $this->userFriendlyErrorStatus($exc);
       $err = (object) [
         "error" => true,
@@ -283,5 +296,18 @@ abstract class Rest_service extends Service
 
     $this->respond($response->withStatus(404)->withHTML($this->renderTemplate($this->template404->path, $this->template404->args)));
     die;
+  }
+
+  private function dbCnn()
+  {
+    $dbconfig = [
+      'dbhost' => DBHOST,
+      'dbname' => DBNAME,
+      'dbuser' => DBUSER,
+      'dbpass' => DBPASS,
+      'dbtype' => DBTYPE
+    ];
+
+    return System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink', [$dbconfig]);
   }
 }
