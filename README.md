@@ -1,4 +1,4 @@
-![dynamophp-logo.png](https://lh3.google.com/u/0/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB=w1920-h1008-iv1) DynamoPHP Framework
+![dynamophp-logo.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing) DynamoPHP Framework
 
 Knowing the language should be enough!
 
