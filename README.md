@@ -36,14 +36,20 @@ sudo chown -Rf www-data:www-data [path/to/your/application/root]
 ```
 
 2. And then the permissions:
-`sudo chmod -Rf u=rwx,g=rx,o=rx [path/to/your/application/root]`
+```shell
+sudo chmod -Rf u=rwx,g=rx,o=rx [path/to/your/application/root]
+```
 
 If you're setting up a DEV environment on your local machine, for example, you'd rather provide ownership for both: the www-data user and your user as well:
 1. First the ownership:
-`sudo chown -Rf www-data:[your user group name] [path/to/your/application/root]`
+```shell
+sudo chown -Rf www-data:[your user group name] [path/to/your/application/root]
+```
 
 2. And then the permissions:
-`sudo chmod -Rf u=rwx,g=rwx,o=rx [path/to/your/application/root]`
+```shell
+sudo chmod -Rf u=rwx,g=rwx,o=rx [path/to/your/application/root]
+```
 
 The differences between the two setups are slight: in the second, we provide ownership to www-data user and to all users in the group of your personal user, as well, and an additional *write* permission to users belonging to that group.
 ### Nginx Server Block ###
@@ -51,7 +57,7 @@ This framework was designed to work with Nginx Web Server, which is a much more 
 
 Nginx works with *Server Blocks*, which are files with settings about the web server, similar to the *virtual hosts* from Apache. If you don't know how to setup an *Nginx Server Block* file, take a look and follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-nginx-server-blocks-virtual-hosts-on-ubuntu-16-04) before continue.
 
-Below is an example of a *Nginx Server Block* file:
+Below is an example of a typical **DynamoPHP** *Nginx Server Block* file setup:
 
 ```conf
 
