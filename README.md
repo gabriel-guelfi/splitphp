@@ -1,8 +1,8 @@
-![dynamophp-logo.png](http://docs.dynamophp.org/wp-content/uploads/2021/03/dynamo-logo-medium.png)
+![dynamophp-logo.png](https://lh3.google.com/u/0/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB=w1920-h1008-iv1) DynamoPHP Framework
 
-Dynamo is a Service oriented, RESTful friendly micro framework. It is made to be simple and lean, with a low learning curve. Its mission is to be a ready-to-work tool with simplified installation and interface. Knowledge required to understand and maintain an application written with this framework is basic PHP and OOP. No more installing and configuring thousands of softwares just to begin to code. 
+Knowing the language should be enough!
 
-A documentation is being built. You can refer to what is already in place in [here](http://docs.dynamophp.org)
+Dynamo is a modern Service oriented, RESTful friendly framework. It is designed to be simple and lean, with a low learning curve. Its mission is to be a light tool with simplified interface. Knowledge required to understand and maintain an application written with this framework is basic PHP and OOP. No more installing and configuring thousands of softwares and learning how to turn comments into alien executable code just to begin to work. You don't have to be a "framework developer", being a PHP programmer should be enough. ;)
 
 ## Server Host Config (Nginx Server Block) ##
 
@@ -41,7 +41,7 @@ server {
 ```
 
 
-#### Contact me: ####
+## Authoring ##
 * Skype: gabriel-guelfi
 * Email: gabriel.valguelfi@gmail.com
 * Linkedin: [Gabriel Guelfi](https://br.linkedin.com/in/gabriel-valentoni-guelfi-30ba8b4b)

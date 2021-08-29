@@ -279,7 +279,7 @@ abstract class Rest_service extends Service
   private function actualizeEmptyValues($data)
   {
     foreach ($data as $key => $value) {
-      if (gettype($value) == 'array' || (gettype($value) == 'ojbect' && $value instanceof StdClass)) {
+      if (gettype($value) == 'array' || (gettype($value) == 'object' && $value instanceof StdClass)) {
         $data[$key] = $this->actualizeEmptyValues($data[$key]);
         continue;
       }
