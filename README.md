@@ -6,10 +6,10 @@
 **DynamoPHP** is a modern Service oriented, RESTful friendly framework. It is designed to be simple and lean, with a low learning curve. Its mission is to be a light tool with simplified interface. Knowledge required to understand and maintain an application written with this framework is basic PHP and OOP. No more installing and configuring thousands of softwares and learning how to turn comments into alien executable code just to begin to work. You don't have to be a "framework developer", being a PHP programmer should be enough. ;)
 
 ### What's New ###
-* Version: 1.1.0
+* Version: 1.1.3
 * Date: 2021-08-28
 
-This release 1.1.0 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
+This release 1.1.3 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
 See the *Release Notes.txt* file for further details.
 
 ### Requirements ###
@@ -31,7 +31,9 @@ See the *Release Notes.txt* file for further details.
 **DynamoPHP** writes automatic content on the directories within your application, like specific log files and database metadata cache files, so you must provide the right permissions and ownership to the Nginx user, which is named "www-data":
 
 1. First the ownership:
-`sudo chown -Rf www-data:www-data [path/to/your/application/root]`
+```shell
+sudo chown -Rf www-data:www-data [path/to/your/application/root]
+```
 
 2. And then the permissions:
 `sudo chmod -Rf u=rwx,g=rx,o=rx [path/to/your/application/root]`
@@ -47,7 +49,7 @@ The differences between the two setups are slight: in the second, we provide own
 ### Nginx Server Block ###
 This framework was designed to work with Nginx Web Server, which is a much more performative and modern option. It doesn't mean that it won't work in older solutions as Apache, for example, but it was never tested. For more information about Nginx, visit the official website (https://www.nginx.com/resources/wiki/).
 
-Nginx works with *Server Blocks*, which are files with setting about the web server, similar to the *virtual hosts* from Apache. If you don't know how to setup an *Nginx Server Block* file, take a look and follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-nginx-server-blocks-virtual-hosts-on-ubuntu-16-04) before continue.
+Nginx works with *Server Blocks*, which are files with settings about the web server, similar to the *virtual hosts* from Apache. If you don't know how to setup an *Nginx Server Block* file, take a look and follow this [tutorial](https://www.digitalocean.com/community/tutorials/how-to-set-up-nginx-server-blocks-virtual-hosts-on-ubuntu-16-04) before continue.
 
 Below is an example of a *Nginx Server Block* file:
 
