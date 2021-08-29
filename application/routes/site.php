@@ -8,8 +8,6 @@ class Site extends Rest_service
     // Home Page Endpoints:
     $this->addEndpoint('GET', '/home/example', 'showHomepage');
     $this->addEndpoint('GET', '/home', 'showHomepage');
-    
-    $this->addEndpoint('GET', '/test', 'test');
   }
 
   public function showHomepage($params)
@@ -20,17 +18,5 @@ class Site extends Rest_service
     return $response
       ->withStatus(200)
       ->withHTML($this->renderTemplate('site/home', ['message' => $message]));
-  }
-
-  public function test($params){
-    $response = new Response();
-
-    $data = $this->getTable('TST_TEST')->insert([
-      'ds_key' => 'tst-'.uniqid(),
-      'ds_first_name' => "Smith",
-      'ds_last_name' => "Technology"
-    ]);
-
-    return $response->withData($data);
   }
 }
