@@ -139,11 +139,11 @@ Visit the [Official Documentation](http://docs.dynamophp.org) to learn more abou
 
 This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to DynamoPHP's Slack Channel.
 
-Ah, if liked the work, don't forget to star it and follow this repository to be up to date with our new features. Thx!
+Ah, if you liked the work, don't forget to star it and follow this repository to be up to date with our new features. Thx!
 ### Authors ###
 * Gabriel Valentoni Guelfi(first author and founder)
-  > Skype: gabriel-guelfi
   > Email: gabriel.valguelfi@gmail.com
+
   > Linkedin: [Gabriel Guelfi](https://br.linkedin.com/in/gabriel-valentoni-guelfi-30ba8b4b)
 
 ### Acknowledgments ###
