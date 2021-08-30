@@ -17,7 +17,7 @@
 
   <p>This is an example page, just to show how this works. Welcome message above comes from a service and is generated in run time</p>
 
-  <p>For further information, please refer to the <a href="http://docs.dynamophp.org/" target="_blank">Dynamo Docs</a>.</p>
+  <p>For further information, please refer to the <a href="http://docs.dynamophp.org/" target="_blank">DynamoPHP Docs</a>.</p>
 
   <p><b>Have fun! ;)</b></p>
 </body>
