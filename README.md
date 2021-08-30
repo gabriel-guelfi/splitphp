@@ -134,6 +134,16 @@ Then, you can render it in *Services* and *Rest services*. (See the Rest Service
 
 ***PS: For more information visit the [Official Documentation](http://docs.dynamophp.org)**
 
+### Presets ###
+There are some presets, which consist of packages of *Services*, *Rest Services* and some *SQL* sometimes. They are already pre-built functionalities often used in systems,that you can import inside your application without having to develop'em every time. Here are some that I created myself:
+
+* [IAM](https://github.com/gabriel-guelfi/IAM)
+* [Utils Service Pack](https://github.com/gabriel-guelfi/Utils-Service-Pack)
+* [Log Web Viewer](https://github.com/gabriel-guelfi/Log-Webviewer)
+* [Application Modules](https://github.com/gabriel-guelfi/Application-Modules)
+
+If you create some cool abstract functionality with **DynamoPHP**, share it with the community.
+
 ### Conclusion ###
 **DynamoPHP** requires only basic software setup: a web server, a database server and the PHP itself, its syntax has nothing different from the PHP proper syntax, no "special comments" that are something more than comments, no other engines other than its own to make it work fully.
 
