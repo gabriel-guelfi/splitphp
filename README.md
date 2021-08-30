@@ -1,5 +1,5 @@
 ### Introduction ###
-![dynamophp-logo.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing) **DynamoPHP Framework**
+![dynamophp-logo.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/DynamoPHP-logo.png) **DynamoPHP Framework**
 
 ***Knowing the language should be enough!***
 
