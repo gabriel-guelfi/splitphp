@@ -108,13 +108,13 @@ A web application functions mainly through request/response cycles("I/O" refers 
 
 **DynamoPHP** works on *server-side*, processing the requests, basically in this order: 
 1. Server receives the request and calls System(the entry point class of Dynamo)
-2. System sets the configs and calls the right Rest Service
-3. Rest Service resolves the request input data and call Services
-4. Services do all the work, as updating data on the database, for instance, and responds to Rest Service
+2. System sets the configs and calls the proper Rest Service
+3. Rest Service resolves the request input data and call the Services
+4. Services do all the work, as updating data on the database, for instance, and responds to the Rest Service
 5. Rest Service builds a *response* object and send it back to the *client*
 
 **See a diagram of this cycle below:**
-![dynamophp-cycle.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
+![dynamophp-cycle.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/DynamoPHP+Architecture.png)
 
 ### Interface ###
 Your application will be basically built within three main folders under "/application"
