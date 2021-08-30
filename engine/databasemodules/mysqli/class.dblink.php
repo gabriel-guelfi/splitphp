@@ -14,10 +14,6 @@ class Dblink
   private $transaction_mode;
   // An Exception object for connection errors.
   private $cnnerror;
-  // An array of MysqliException objects for query errors
-  private $queryerrors;
-  // An instance of Debugger class utility
-  private $pesticide;
 
   /* Verifies if database connection data is valid, then sets the properties with those values.
      * Connect to mysql server and save the connection in a property.
@@ -27,9 +23,7 @@ class Dblink
   {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    $this->pesticide = System::loadClass(INCLUDE_PATH . '/public/utils/Pesticide/class.pesticide.php', 'pesticide', ['/utils']);
     $this->cnnerror = 0;
-    $this->queryerrors = [];
 
     $this->cnnInfo = "No connection info.";
     $this->transaction_mode = false;
@@ -99,13 +93,8 @@ class Dblink
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $res = $this->runsql($sqlobj, $currentTry + 1);
       } else {
-        $this->queryerrors[] = $ex;
-
-        if ($this->transaction_mode) {
-          $this->endTransaction();
-        } else {
-          System::errorLog('db_error', $ex);
-        }
+        System::errorLog('db_error', $ex);
+        throw $ex;
       }
     }
 
@@ -143,41 +132,39 @@ class Dblink
     return true;
   }
 
-  public function endTransaction()
+  public function commitTransaction()
   {
-    $r = false;
-
     if ($this->transaction_mode) {
       $this->transaction_mode = false;
 
-      if (!empty($this->queryerrors)) {
-        foreach ($this->queryerrors as $ex) {
-          System::log('db_error', $ex->getMessage());
-        }
-
-        $this->connection->rollBack();
-
-        throw new Exception('There were some errors processing current transaction. You will find more info on the file located at: "/application/log/db_error.log".');
-      } else {
-        $this->connection->commit();
-        $r = true;
-      }
+      $this->connection->commit();
     }
+  }
 
-    return $r;
+  public function rollbackTransaction()
+  {
+    if ($this->transaction_mode) {
+      $this->transaction_mode = false;
+
+      $this->connection->rollBack();
+    }
   }
 
   public function transaction($sqlset)
   {
     try {
+      $result = [];
       $this->startTransaction();
 
       foreach ($sqlset as $sql) {
-        $this->runsql($sql);
+        $result[] = $this->runsql($sql);
       }
 
-      return $this->endTransaction();
+      if ($this->commitTransaction()) {
+        return $result;
+      } else throw new Exception("Something went wrong on the attempt to commit database transaction.");
     } catch (Exception $ex) {
+      $this->rollbackTransaction();
       System::errorLog('db_error', $ex);
     }
   }

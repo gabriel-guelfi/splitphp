@@ -4,9 +4,12 @@ abstract class Rest_service extends Service
   protected $routes;
   protected $routeIndex;
   private $template404;
+  private $dblink;
 
   public function __construct()
   {
+    parent::__construct();
+    
     require_once __DIR__ . '/class.response.php';
 
     $this->routes = [
@@ -17,6 +20,8 @@ abstract class Rest_service extends Service
     ];
 
     $this->routeIndex = [];
+
+    $this->dblink = $this->dbCnn();
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -45,8 +50,18 @@ abstract class Rest_service extends Service
     }
 
     try {
-      return $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+      if (DB_TRANSACTIONAL == "on") {
+        $this->dblink->startTransaction();
+        $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $this->dblink->commitTransaction();
+      } else {
+        $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+      }
+      return $return;
     } catch (Exception $exc) {
+      if (DB_TRANSACTIONAL == "on")
+        $this->dblink->rollbackTransaction();
+
       $status = $this->userFriendlyErrorStatus($exc);
       $err = (object) [
         "error" => true,
@@ -94,7 +109,7 @@ abstract class Rest_service extends Service
     ];
   }
 
-  protected function respond(Response $res)
+  protected final function respond(Response $res)
   {
     http_response_code($res->getStatus());
 
@@ -106,7 +121,7 @@ abstract class Rest_service extends Service
     return $res;
   }
 
-  protected function set404template($path, $args = [])
+  protected final function set404template($path, $args = [])
   {
     $this->template404 = (object) [
       "path" => $path,
@@ -161,11 +176,11 @@ abstract class Rest_service extends Service
         $params = $this->actualizeEmptyValues(array_merge($params, $_GET));
         break;
       case 'POST':
-        $params = $this->actualizeEmptyValues(array_merge($params, $_POST));
+        $params = $this->actualizeEmptyValues(array_merge($params, array_merge($_POST, $_GET)));
         break;
       case 'PUT':
         global $_PUT;
-        $params = $this->actualizeEmptyValues(array_merge($params, $_PUT));
+        $params = $this->actualizeEmptyValues(array_merge($params, array_merge($_PUT, $_GET)));
         break;
       case 'DELETE':
         $params = $this->actualizeEmptyValues(array_merge($params, $_REQUEST));
@@ -266,7 +281,7 @@ abstract class Rest_service extends Service
   private function actualizeEmptyValues($data)
   {
     foreach ($data as $key => $value) {
-      if (gettype($value) == 'array' || (gettype($value) == 'ojbect' && $value instanceof StdClass)) {
+      if (gettype($value) == 'array' || (gettype($value) == 'object' && $value instanceof StdClass)) {
         $data[$key] = $this->actualizeEmptyValues($data[$key]);
         continue;
       }
@@ -283,5 +298,18 @@ abstract class Rest_service extends Service
 
     $this->respond($response->withStatus(404)->withHTML($this->renderTemplate($this->template404->path, $this->template404->args)));
     die;
+  }
+
+  private function dbCnn()
+  {
+    $dbconfig = [
+      'dbhost' => DBHOST,
+      'dbname' => DBNAME,
+      'dbuser' => DBUSER,
+      'dbpass' => DBPASS,
+      'dbtype' => DBTYPE
+    ];
+
+    return System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink', [$dbconfig]);
   }
 }

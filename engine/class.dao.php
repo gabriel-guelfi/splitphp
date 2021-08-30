@@ -95,8 +95,8 @@ class Dao
 
     $sql = $this->sql->delete($this->workingTable);
     if (!empty($this->filters))
-    $sql->where($this->filters);
-    
+      $sql->where($this->filters);
+
     if ($debug)
       return $sql->output(true);
 
@@ -108,7 +108,7 @@ class Dao
     return $res;
   }
 
-  protected final function find(string $sql, bool $debug = false)
+  protected final function find(string $sql = null, bool $debug = false)
   {
     // Check for defined entity:
     if (is_null($this->workingTable)) {
@@ -134,23 +134,27 @@ class Dao
     //   return false;
     // }
 
-    // Sanitize Filter Data and replace values:
-    for ($i = 0; $i < count($this->filters); $i++) {
-      $f = &$this->filters[$i];
+    if (!empty($sql)) {
+      // Sanitize Filter Data and replace values:
+      for ($i = 0; $i < count($this->filters); $i++) {
+        $f = &$this->filters[$i];
 
-      if ($f->sanitize) {
-        $f->value = $this->dblink->escapevar($f->value);
+        if ($f->sanitize) {
+          $f->value = $this->dblink->escapevar($f->value);
 
-        if (!is_numeric($f->value) && is_string($f->value)) {
-          $f->value = "'" . $f->value . "'";
+          if (!is_numeric($f->value) && is_string($f->value)) {
+            $f->value = "'" . $f->value . "'";
+          }
         }
+
+        $sql = str_replace('?' . $f->key . '?', $f->value, $sql);
       }
 
-      $sql = str_replace('?' . $f->key . '?', $f->value, $sql);
+      // Create SQL input object:
+      $sqlObj = $this->sql->write($sql)->output(true);
+    } else {
+      $sqlObj = $this->sql->write("SELECT * FROM `" . $this->workingTable . "` ")->where($this->filters)->output(true);
     }
-
-    // Create SQL input object:
-    $sqlObj = $this->sql->write($sql)->output(true);
 
     if ($debug)
       return $sqlObj;

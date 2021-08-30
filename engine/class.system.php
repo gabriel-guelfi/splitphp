@@ -65,13 +65,6 @@ class System
 
   private function registerGlobalMethods()
   {
-    Utils::registerMethod('dump', function ($var, $index = "", $exit = true) {
-      $d = self::loadClass(INCLUDE_PATH . "/public/utils/Pesticide/class.pesticide.php", 'pesticide', ['/utils']);
-      $d->dump($var, $index);
-
-      if ($exit)
-        die;
-    });
   }
 
   private function loadExtensions()

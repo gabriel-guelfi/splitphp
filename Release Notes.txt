@@ -1,0 +1,46 @@
+**DynamoPHP Framework - Release Notes**
+
+=====
+
+- Version: 1.1.3
+- Date: 2021-08-30
+- License: MIT
+- Authors: 
+    * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
+
+=====
+
+This release 1.1.3 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
+See the list below for further details
+
+=====
+
+New Features: 
+
+- Standard .gitignore file, so logs, cache and tests won't mess with the official application's repository anymore.
+
+- Automatic transactional operations: now everything that happens inside a request/response cycle is wrapped 
+by a transaction, so if something goes wrong along the way, Dynamo will roll back all database operations that 
+were done until that time. This guarantees data consistence. You can also turn this off on config.ini file.
+
+- Services now has a method named "requestURL()", which provides an easy way to perform CURL calls.
+
+- The method find from DAO class, now accepts no parameters, creating a default SQL query that brings all fields 
+from the working table. So, if you just want to get all fields from a table, you don't have to write the query 
+anymore, just call: $this->getTable('TABLENAME')->find(). You can also apply filters to this query, using the filtering methods.
+
+=====
+
+Fixes:
+
+- Removed those annoying references to Pesticide, which was a legacy debugger that came from the previous versions. 
+Pesticide was already removed, but some references to it were still within the engine. It is all removed now.
+
+- There was a bug where POST and PUT endpoints weren't receiving the parameters passed through the query string. Now it's solved.
+
+- DAO operations wasn't working when called directly from Rest Services. The bug is fixed.
+
+=====
+
+So, this release was intended to create features that make the developer's life easier, also improved the consistence of 
+the resulting applications and, of course, fixed some bugs. Hope you enjoy!
