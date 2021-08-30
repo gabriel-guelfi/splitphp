@@ -103,8 +103,8 @@ In this file above, we do the following:
 
 That's it! If you're interested to learn further about setting up Nginx Server Blocks visit the Nginx Official Documentation (https://nginx.org/en/docs/)
 
-### The I/O cycle ###
-A web application functions mainly through request/response cycles("I/O" refers to "Input"/"output"): the *client* makes a request, sending data to the *cloud server*, the server process that data and responds to the *client* with more data, which can be, HTML, XML, JSON or even just status information.
+### The Request/Response cycle ###
+A web application functions mainly through request/response cycles: the *client* makes a request, sending data to the *cloud server*, the server process that data and responds to the *client* with more data, which can be, HTML, XML, JSON or even just status information.
 
 **DynamoPHP** works on *server-side*, processing the requests, basically in this order: 
 1. Server receives the request and calls System(the entry point class of Dynamo)
