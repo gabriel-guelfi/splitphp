@@ -36,6 +36,10 @@ Fixes:
 - Removed those annoying references to Pesticide, which was a legacy debugger that came from the previous versions. 
 Pesticide was already removed, but some references to it were still within the engine. It is all removed now.
 
+- There was a bug where POST and PUT endpoints weren't receiving the parameters passed through the query string. Now it's solved.
+
+- DAO operations wasn't working when called directly from Rest Services. The bug is fixed.
+
 =====
 
 So, this release was intended to create features that make the developer's life easier, also improved the consistence of 

@@ -8,6 +8,8 @@ abstract class Rest_service extends Service
 
   public function __construct()
   {
+    parent::__construct();
+    
     require_once __DIR__ . '/class.response.php';
 
     $this->routes = [
@@ -174,11 +176,11 @@ abstract class Rest_service extends Service
         $params = $this->actualizeEmptyValues(array_merge($params, $_GET));
         break;
       case 'POST':
-        $params = $this->actualizeEmptyValues(array_merge($params, $_POST));
+        $params = $this->actualizeEmptyValues(array_merge($params, array_merge($_POST, $_GET)));
         break;
       case 'PUT':
         global $_PUT;
-        $params = $this->actualizeEmptyValues(array_merge($params, $_PUT));
+        $params = $this->actualizeEmptyValues(array_merge($params, array_merge($_PUT, $_GET)));
         break;
       case 'DELETE':
         $params = $this->actualizeEmptyValues(array_merge($params, $_REQUEST));
