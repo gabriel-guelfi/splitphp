@@ -122,14 +122,15 @@ Your application will be basically built within three main folders under "/appli
 ![dynamophp-app-dirtree.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/Dynamo-application-dirtree.png)
 
 Under "/routes" you create your *Rest Services* which are pretty much your router and API layer:
-![dynamophp-rest-service.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
+![dynamophp-rest-service.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-restservice-example.png)
+In the example above, you could access that "/home" endpoint at "your-application-domain.com/site/home"
 
 Under "/services" you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes within the *Services*:
-![dynamophp-service.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
+![dynamophp-service.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-service-example.png)
 
-Under "/templates" goes your HTML. These templates can, then, be rendered in *Services* and *Rest services*
-![dynamophp-template.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
-![dynamophp-render-template.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
+Under "/templates" goes your HTML templates.
+![dynamophp-template.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-template-example.png)
+Then, you can render it in *Services* and *Rest services*. (See the Rest Service example above)
 
 ***PS: For more information visit the [Official Documentation](http://docs.dynamophp.org)**
 

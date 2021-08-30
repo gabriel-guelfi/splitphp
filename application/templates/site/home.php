@@ -12,7 +12,7 @@
 <body>
     <img src="http://docs.dynamophp.org/wp-content/uploads/2021/03/dynamo-logo-medium.png">
 
-    <h4>Welcome to Dynamo, the lean, low curve modern PHP micro-framework</h4>
+    <h4><?php echo $message;?></h4>
 
     <p>This is an example page, just to show how this works. Welcome message above comes from a service and is generated in run time</p>
 
