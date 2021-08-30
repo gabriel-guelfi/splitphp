@@ -114,6 +114,7 @@ A web application functions mainly through request/response cycles("I/O" refers 
 5. Rest Service builds a *response* object and send it back to the *client*
 
 **See a diagram of this cycle below:**
+
 ![dynamophp-cycle.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/DynamoPHP-I_O-cycle-526X850.png)
 
 ### Interface ###
