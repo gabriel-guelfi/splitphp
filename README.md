@@ -119,7 +119,7 @@ A web application functions mainly through request/response cycles: the *client*
 
 ### Interface ###
 Your application will be basically built within three main folders under "/application"
-![dynamophp-app-dirtree.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
+![dynamophp-app-dirtree.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/Dynamo-application-dirtree.png)
 
 Under "/routes" you create your *Rest Services* which are pretty much your router and API layer:
 ![dynamophp-rest-service.png](https://drive.google.com/file/d/1boSMXF5OwB48H3C0ikqyhfKHDbiRbHkB/view?usp=sharing)
