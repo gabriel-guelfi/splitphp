@@ -135,7 +135,7 @@ Then, you can render it in *Services* and *Rest services*. (See the Rest Service
 ***PS: For more information visit the [Official Documentation](http://docs.dynamophp.org)**
 
 ### Presets ###
-There are some presets, which consist of packages of *Services*, *Rest Services* and some *SQL* sometimes. They are already pre-built functionalities often used in systems,that you can import inside your application without having to develop'em every time. Here are some that I created myself:
+There are some presets, which consist of packages of *Services*, *Rest Services* and some *SQL*. They are already pre-built functionalities often used in systems, that you can import inside your application without having to develop'em every time. Here are some that I created myself:
 
 * [IAM](https://github.com/gabriel-guelfi/IAM)
 * [Utils Service Pack](https://github.com/gabriel-guelfi/Utils-Service-Pack)
