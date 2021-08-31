@@ -5,12 +5,16 @@
 
 **DynamoPHP** is a modern Service oriented, RESTful friendly framework. It is designed to be simple and lean, with a low learning curve. Its mission is to be a light tool with simplified interface. Knowledge required to understand and maintain an application written with this framework is basic PHP and OOP. No more installing and configuring thousands of softwares and learning how to turn comments into alien executable code just to begin to work. You don't have to be a "framework developer", being a PHP programmer should be enough. ;)
 
+---
+
 ### What's New ###
 * Version: 1.1.3
 * Date: 2021-08-28
 
 This release 1.1.3 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
 See the *Release Notes.txt* file for further details.
+
+---
 
 ### Requirements ###
 * PHP 7+
@@ -19,6 +23,8 @@ See the *Release Notes.txt* file for further details.
 
 ***PS: I strongly suggest that you use it on a Linux environment**
 
+---
+
 ### Get Started ###
 1. Clone or download the framework source on the path of your application
 2. Rename the file *_config.ini* to "config.ini"
@@ -26,6 +32,8 @@ See the *Release Notes.txt* file for further details.
 4. Give the right permissions and ownerships to the Nginx user (See the section about it below)
 5. Setup your Nginx Server Block (See the section about it below)
 6. Access in the browser the URL set on the Server Block and you shall see the **DynamoPHP** Welcome Page.
+
+---
 
 ### Permissions & Ownership ###
 **DynamoPHP** writes automatic content on the directories within your application, like specific log files and database metadata cache files, so you must provide the right permissions and ownership to the Nginx user, which is named "www-data":
@@ -52,6 +60,8 @@ sudo chmod -Rf u=rwx,g=rwx,o=rx [path/to/your/application/root]
 ```
 
 The differences between the two setups are slight: in the second, we provide ownership to www-data user and to all users in the group of your personal user, as well, and an additional *write* permission to users belonging to that group.
+
+---
 ### Nginx Server Block ###
 This framework was designed to work with Nginx Web Server, which is a much more performative and modern option. It doesn't mean that it won't work in older solutions as Apache, for example, but it was never tested. For more information about Nginx, visit the official website (https://www.nginx.com/resources/wiki/).
 
@@ -103,6 +113,8 @@ In this file above, we do the following:
 
 That's it! If you're interested to learn further about setting up Nginx Server Blocks visit the Nginx Official Documentation (https://nginx.org/en/docs/)
 
+---
+
 ### The Request/Response cycle ###
 A web application functions mainly through request/response cycles: the *client* makes a request, sending data to the *cloud server*, the server process that data and responds to the *client* with more data, which can be, HTML, XML, JSON or even just status information.
 
@@ -116,6 +128,8 @@ A web application functions mainly through request/response cycles: the *client*
 **See a diagram of this cycle below:**
 
 ![dynamophp-cycle.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/DynamoPHP-I_O-cycle-526X850.png)
+
+---
 
 ### Interface ###
 Your application will be basically built within three main folders under "/application"
@@ -134,6 +148,8 @@ Then, you can render it in *Services* and *Rest services*. (See the Rest Service
 
 ***PS: For more information visit the [Official Documentation](http://docs.dynamophp.org)**
 
+---
+
 ### Presets ###
 There are some presets, which consist of packages of *Services*, *Rest Services* and some *SQL*. They are already pre-built functionalities often used in systems, that you can import inside your application without having to develop'em every time. Here are some that I created myself:
 
@@ -144,6 +160,8 @@ There are some presets, which consist of packages of *Services*, *Rest Services*
 
 If you create some cool abstract functionality with **DynamoPHP**, share it with the community.
 
+---
+
 ### Conclusion ###
 **DynamoPHP** requires only basic software setup: a web server, a database server and the PHP itself, its syntax has nothing different from the PHP proper syntax, no "special comments" that are something more than comments, no other engines other than its own to make it work fully.
 
@@ -152,11 +170,15 @@ Visit the [Official Documentation](http://docs.dynamophp.org) to learn more abou
 This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to DynamoPHP's Slack Channel.
 
 Ah, if you liked the work, don't forget to star it and follow this repository to be up to date with our new features. Thx!
+
+---
 ### Authors ###
 * Gabriel Valentoni Guelfi(first author and founder)
   > Email: gabriel.valguelfi@gmail.com
 
   > Linkedin: [Gabriel Guelfi](https://br.linkedin.com/in/gabriel-valentoni-guelfi-30ba8b4b)
+
+---
 
 ### Acknowledgments ###
 * [João Paulo Varandas](https://www.linkedin.com/in/joaovarandas/), my former boss and the author of **[inPaaS](https://www.inpaas.com/)**, a Low-code platform written in Java. Much of the coding interface of **DynamoPHP** is similar to **inPaaS**. Thank you for the huge amount of knowledge.
@@ -165,3 +187,5 @@ Ah, if you liked the work, don't forget to star it and follow this repository to
 * [Ronny Amarante](https://www.linkedin.com/in/ronnyamarante/) tech leader of **inPaaS** team, also have taught me much of what I know today. Thank you!
 * [Fulvius Titanero Guelfi](https://www.linkedin.com/in/fulviusguelfi/) my uncle who opened my mind many times to new programming and technology paradigms. Thank you!
 * To the wide community of devs around the world who posted unaccountable amounts of knowledge for free throughout the entire network, many thanks.
+
+---
