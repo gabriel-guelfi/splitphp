@@ -8,10 +8,10 @@
 ---
 
 ### What's New ###
-* Version: 1.1.3
+* Version: 1.1.4
 * Date: 2021-08-28
 
-This release 1.1.3 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
+This release 1.1.4 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
 See the *Release Notes.txt* file for further details.
 
 ---
