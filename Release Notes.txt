@@ -2,7 +2,7 @@
 
 =====
 
-- Version: 1.1.3
+- Version: 1.1.4
 - Date: 2021-08-30
 - License: MIT
 - Authors: 
@@ -10,7 +10,7 @@
 
 =====
 
-This release 1.1.3 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
+This release 1.1.4 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
 See the list below for further details
 
 =====
@@ -39,6 +39,8 @@ Pesticide was already removed, but some references to it were still within the e
 - There was a bug where POST and PUT endpoints weren't receiving the parameters passed through the query string. Now it's solved.
 
 - DAO operations wasn't working when called directly from Rest Services. The bug is fixed.
+
+- Fixed the location of errors with user readable messages and added 2 more errors.
 
 =====
 
