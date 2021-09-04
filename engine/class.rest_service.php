@@ -12,6 +12,13 @@ abstract class Rest_service extends Service
     
     require_once __DIR__ . '/class.response.php';
 
+    define('VALIDATION_FAILED', 1);
+    define('BAD_REQUEST', 2);
+    define('NOT_AUTHORIZED', 3);
+    define('NOT_FOUND', 4);
+    define('PERMISSION_DENIED', 5);
+    define('CONFLICT', 6);
+
     $this->routes = [
       "GET" => [],
       "POST" => [],
@@ -261,17 +268,23 @@ abstract class Rest_service extends Service
   private function userFriendlyErrorStatus(Exception $exc)
   {
     switch ($exc->getCode()) {
-      case (int) VALIDATION_FAILED_ERROR:
+      case (int) VALIDATION_FAILED:
+        return 422;
+        break;
+      case (int) BAD_REQUEST:
         return 400;
         break;
-      case (int) BAD_REQUEST_ERROR:
-        return 400;
-        break;
-      case (int) NOT_AUTHORIZED_ERROR:
+      case (int) NOT_AUTHORIZED:
         return 401;
         break;
-      case (int) NOT_FOUND_ERROR:
+      case (int) NOT_FOUND:
         return 404;
+        break;
+      case (int) PERMISSION_DENIED:
+        return 403;
+        break;
+      case (int) CONFLICT:
+        return 409;
         break;
     }
 
