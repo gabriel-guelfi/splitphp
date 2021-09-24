@@ -3,10 +3,13 @@
 class Service extends Dao
 {
   protected $utils;
+  private $templateRoot;
 
   public function __construct()
   {
     parent::__construct();
+
+    $this->templateRoot = "";
 
     $this->utils = System::loadClass(INCLUDE_PATH . "/engine/class.utils.php", "utils");
   }
@@ -20,9 +23,10 @@ class Service extends Dao
   protected final function renderTemplate(string $path, array $varlist = [])
   {
     if (!empty($varlist)) extract($this->escapeOutput($varlist));
-
+    $path = ltrim($path, '/');
+    
     ob_start();
-    include INCLUDE_PATH . "/application/templates/" . $path . ".php";
+    include INCLUDE_PATH . "/application/templates/" . $this->templateRoot . $path . ".php";
 
     return ob_get_clean();
   }
@@ -72,6 +76,13 @@ class Service extends Dao
     curl_close($ch);
 
     return $output;
+  }
+
+  protected final function setTemplateRoot(string $path)
+  {
+    if (!empty($path) && substr($path, -1) != "/") $path .= "/";
+    $path = ltrim($path, '/');
+    $this->templateRoot = $path;
   }
 
   private function escapeOutput($payload)
