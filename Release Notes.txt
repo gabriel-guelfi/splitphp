@@ -2,15 +2,15 @@
 
 =====
 
-- Version: 1.1.4
-- Date: 2021-08-30
+- Version: 1.2.0
+- Date: 2021-10-05
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 =====
 
-This release 1.1.4 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
+This release 1.2.0 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
 See the list below for further details
 
 =====
