@@ -26,6 +26,7 @@ function _parsePut()
 
   if (strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
     $GLOBALS['_PUT'] = json_decode($raw_data, true);
+    $_REQUEST = array_merge($GLOBALS['_PUT'], $_REQUEST);
     return;
   }
 
@@ -35,6 +36,7 @@ function _parsePut()
   if (empty($boundary)) {
     parse_str($raw_data, $data);
     $GLOBALS['_PUT'] = $data;
+    $_REQUEST = array_merge($GLOBALS['_PUT'], $_REQUEST);
     return;
   }
 
@@ -102,6 +104,7 @@ function _parsePut()
     }
   }
   $GLOBALS['_PUT'] = $data;
+  $_REQUEST = array_merge($GLOBALS['_PUT'], $_REQUEST);
   return;
 }
 _parsePut();

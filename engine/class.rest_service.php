@@ -5,11 +5,13 @@ abstract class Rest_service extends Service
   protected $routeIndex;
   private $template404;
   private $dblink;
+  private $xsrfToken;
+  private $antiXsrfValidation;
 
   public function __construct()
   {
     parent::__construct();
-    
+
     require_once __DIR__ . '/class.response.php';
 
     define('VALIDATION_FAILED', 1);
@@ -37,6 +39,8 @@ abstract class Rest_service extends Service
       '/{{.*}}/mi',
       '/<[^>]*(ng-.|data-ng.)/mi'
     ];
+
+    $this->antiXsrfValidation = true;
   }
 
   public final function execute($route, $httpVerb)
@@ -55,6 +59,9 @@ abstract class Rest_service extends Service
       http_response_code(404);
       die;
     }
+
+    $this->antiXsrfValidation($routeData);
+    $this->xsrfToken = Utils::dataEncrypt((string) Utils::getUserIP(), PRIVATE_KEY);
 
     try {
       if (DB_TRANSACTIONAL == "on") {
@@ -90,7 +97,7 @@ abstract class Rest_service extends Service
     }
   }
 
-  protected final function addEndpoint($httpVerb, $route, $method, $validateInput = true)
+  protected final function addEndpoint(string $httpVerb, string $route, $method, bool $antiXsrf = null, bool $validateInput = true)
   {
     if ($httpVerb != 'GET' && $httpVerb != 'POST' && $httpVerb != 'PUT' && $httpVerb != 'DELETE')
       throw new Exception("Attempt to add endpoint with an unknown http method.");
@@ -112,7 +119,8 @@ abstract class Rest_service extends Service
       "verb" => $httpVerb,
       "method" => $method,
       "params" => $routeConfigs->params,
-      "validateInput" => $validateInput
+      "validateInput" => $validateInput,
+      "antiXsrf" => is_null($antiXsrf) ? $this->antiXsrfValidation : $antiXsrf
     ];
   }
 
@@ -134,6 +142,16 @@ abstract class Rest_service extends Service
       "path" => $path,
       "args" => $args
     ];
+  }
+
+  protected final function xsrfToken()
+  {
+    return $this->xsrfToken;
+  }
+
+  protected final function setAntiXsrfValidation(bool $validate)
+  {
+    $this->antiXsrfValidation = $validate;
   }
 
   private function routeConfig($route)
@@ -324,5 +342,37 @@ abstract class Rest_service extends Service
     ];
 
     return System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink', [$dbconfig]);
+  }
+
+  private function xsrfTknFromRequest()
+  {
+    if (!empty($_SERVER['HTTP_XSRF_TOKEN'])) {
+      return $_SERVER['HTTP_XSRF_TOKEN'];
+    }
+
+    $xsrfToken = !empty($_REQUEST['XSRF_TOKEN']) ? $_REQUEST['XSRF_TOKEN'] : $_REQUEST['xsrf_token'];
+    if (!empty($xsrfToken)) return $xsrfToken;
+
+    return null;
+  }
+
+  private function antiXsrfValidation($routeData)
+  {
+    // Whether the request must check XSRF token:
+    if ($routeData->antiXsrf) {
+      $tkn = $this->xsrfTknFromRequest();
+
+      // Check if there is a token
+      if (empty($tkn)) {
+        http_response_code(401);
+        die;
+      }
+
+      // Check the token's authenticity
+      if (Utils::dataDecrypt($tkn, PRIVATE_KEY) != Utils::getUserIP()) {
+        http_response_code(401);
+        die;
+      }
+    }
   }
 }
