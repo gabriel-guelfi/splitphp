@@ -5,6 +5,8 @@ class Site extends Rest_service
   {
     parent::__construct();
 
+    $this->setAntiXsrfValidation(false);
+
     // Home Page Endpoints:
     $this->addEndpoint('GET', '/home/example', 'showHomepage');
     $this->addEndpoint('GET', '/home', 'showHomepage');
