@@ -130,6 +130,7 @@ abstract class Rest_service extends Service
 
     if (!empty($res->getData())) {
       header('Content-Type: ' . $res->getContentType());
+      header('Xsrf-Token: ' . $this->xsrfToken());
       echo $res->getData();
     }
 
