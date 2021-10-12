@@ -399,4 +399,39 @@ class Utils
     }
     return $ip;
   }
+
+  public static function uploadFile($inputName)
+  {
+    if (!empty($_FILES[$inputName])) {
+      $filename = uniqid() . '_' . $_FILES[$inputName]['name'];
+      $filepath = INCLUDE_PATH . '/public/resources/upload/' . $filename;
+      if (file_put_contents($filepath, file_get_contents($_FILES[$inputName]['tmp_name']))) {
+        return '/resources/upload/' . $filename;
+      }
+    }
+
+    return null;
+  }
+
+  public static function stringToSlug(String $str)
+  {
+    $str = preg_replace('/^\s+|\s+$/', "", $str);
+    $str = strtolower($str);
+
+    // remove accents, swap ñ for n, etc
+    $from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+    $to = "aaaaaaeeeeiiiioooouuuunc------";
+
+    for ($i = 0, $l = strlen($from); $i < $l; $i++) {
+      $str = preg_replace('/' . $from[$i] . '/', $to[$i], $str);
+    }
+
+    $str = preg_replace('/[^a-z0-9 -]/', "", $str);
+    $str = preg_replace('/\s+/', "", $str);
+    $str = preg_replace('/-+/', "", $str);
+    $str = preg_replace('/^-+/', "", $str);
+    $str = preg_replace('/-+$/', "", $str);
+
+    return $str;
+  }
 }
