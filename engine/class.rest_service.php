@@ -61,7 +61,7 @@ abstract class Rest_service extends Service
     }
 
     $this->antiXsrfValidation($routeData);
-    $this->xsrfToken = Utils::dataEncrypt((string) Utils::getUserIP(), PRIVATE_KEY);
+    $this->xsrfToken = Utils::dataEncrypt((string) $this->getService('utils/misc')->getUserIP(), PRIVATE_KEY);
 
     try {
       if (DB_TRANSACTIONAL == "on") {
@@ -71,10 +71,13 @@ abstract class Rest_service extends Service
       } else {
         $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
+      $this->dblink->disconnect();
       return $return;
     } catch (Exception $exc) {
       if (DB_TRANSACTIONAL == "on")
         $this->dblink->rollbackTransaction();
+        
+      $this->dblink->disconnect();
 
       $status = $this->userFriendlyErrorStatus($exc);
       $err = (object) [
@@ -91,7 +94,7 @@ abstract class Rest_service extends Service
 
       return $this->respond(
         $response
-          ->withStatus(($status != false ? $status : ($exc->getCode() ? $exc->getCode() : 500)))
+          ->withStatus(($status != false ? $status : 500))
           ->withData($err)
       );
     }
@@ -131,6 +134,7 @@ abstract class Rest_service extends Service
     if (!empty($res->getData())) {
       header('Content-Type: ' . $res->getContentType());
       header('Xsrf-Token: ' . $this->xsrfToken());
+      foreach ($res->getHeaders() as $header) header($header);
       echo $res->getData();
     }
 
@@ -267,12 +271,12 @@ abstract class Rest_service extends Service
 
           try {
             $this->getService('mail_service')->sendEmail(new MailObject((object) [
-              "fromMail" => "system@criarium-ecommerce.com",
-              "fromName" => "System | Criarium E-commerce",
+              "fromMail" => SMTP_SENDER_EMAIL,
+              "fromName" => APPLICATION_NAME,
               "destMail" => ADMIN_EMAIL,
               "destName" => "System Administrator",
               "subject" => "ALERT - Malware Hazard",
-              "body" => $this->renderTemplate('system/email_malwarehazard_alert', (array) $info)
+              "body" => json_encode($info)
             ]));
           } catch (Exception $exc) {
             System::errorLog('sys_error', $exc);
@@ -370,7 +374,7 @@ abstract class Rest_service extends Service
       }
 
       // Check the token's authenticity
-      if (Utils::dataDecrypt($tkn, PRIVATE_KEY) != Utils::getUserIP()) {
+      if (Utils::dataDecrypt($tkn, PRIVATE_KEY) != $this->getService('utils/misc')->getUserIP()) {
         http_response_code(401);
         die;
       }

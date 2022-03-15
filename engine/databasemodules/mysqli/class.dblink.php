@@ -93,7 +93,7 @@ class Dblink
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $res = $this->runsql($sqlobj, $currentTry + 1);
       } else {
-        System::errorLog('db_error', $ex);
+        System::errorLog('db_error', $ex, ['sql' => $sqlobj->sqlstring]);
         throw $ex;
       }
     }

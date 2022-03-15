@@ -24,7 +24,7 @@ class Service extends Dao
   {
     if (!empty($varlist)) extract($this->escapeOutput($varlist));
     $path = ltrim($path, '/');
-    
+
     ob_start();
     include INCLUDE_PATH . "/application/templates/" . $this->templateRoot . $path . ".php";
 

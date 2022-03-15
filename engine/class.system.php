@@ -47,16 +47,16 @@ class System
   /*/ Create an instance of a custom controller and calls it's method, passing specified arguments. 
    * If no controller, action or args is supplied, it uses the ones setted in __construct method, above.
   /*/
-  private function execute(Request $action)
+  private function execute(Request $request)
   {
-    if (file_exists($action->getRestService()->path . $action->getRestService()->name . ".php") === false) {
+    if (file_exists($request->getRestService()->path . $request->getRestService()->name . ".php") === false) {
       http_response_code(404);
       die;
     }
 
     try {
-      $c_obj = self::loadClass($action->getRestService()->path . $action->getRestService()->name . ".php", $action->getRestService()->name);
-      $res = call_user_func_array(array($c_obj, 'execute'), $action->getArgs());
+      $c_obj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
+      $res = call_user_func_array(array($c_obj, 'execute'), $request->getArgs());
       return $res;
     } catch (Exception $ex) {
       self::log('sys_error', $ex);
@@ -99,9 +99,9 @@ class System
     fclose($log);
   }
 
-  public static function errorLog(string $logname, Exception $exc)
+  public static function errorLog(string $logname, Exception $exc, $info = [])
   {
-    self::log($logname, self::exceptionBuildLog($exc));
+    self::log($logname, self::exceptionBuildLog($exc, $info));
   }
 
   public static function navigateToUrl($url, $afterResponse = false)
@@ -112,11 +112,12 @@ class System
     die;
   }
 
-  private static function exceptionBuildLog(Exception $exc)
+  private static function exceptionBuildLog(Exception $exc, $info)
   {
     return (object) [
       "datetime" => date('Y-m-d H:i:s'),
       "message" => $exc->getMessage(),
+      "info" => $info,
       "stack_trace" => $exc->getTrace(),
       "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious()) : null),
       "file" => $exc->getFile(),

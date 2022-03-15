@@ -19,6 +19,9 @@ class Site extends Rest_service
 
     return $response
       ->withStatus(200)
-      ->withHTML($this->renderTemplate('site/home', ['message' => $message]));
+      ->withtext("Hello fucking world!");
+    // return $response
+    //   ->withStatus(200)
+    //   ->withHTML($this->renderTemplate('site/home', ['message' => $message]));
   }
 }

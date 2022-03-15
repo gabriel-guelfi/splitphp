@@ -4,12 +4,19 @@ class Response
   private $status;
   private $contentType;
   private $data;
+  private $headers;
 
-  public function __construct(int $statusCode = 200, string $contentType = 'text/plain', $data = null)
+  public function __construct(int $statusCode = 200, string $contentType = 'text/plain', $data = null, array $headers = [])
   {
     $this->status = $statusCode;
     $this->contentType = $contentType;
     $this->data = $data;
+    $this->headers = $headers;
+  }
+
+  public function setHeader(string $header){
+    $this->headers[] = $header;
+    return $this;
   }
 
   public function withStatus(int $code)
@@ -45,6 +52,10 @@ class Response
     return $this;
   }
 
+  public function getHeaders(){
+    return $this->headers;
+  }
+
   public function getStatus()
   {
     return $this->status;
@@ -63,7 +74,7 @@ class Response
   private function escapeOutput($payload)
   {
     foreach ($payload as &$value) {
-      if (gettype($value) == 'array' || (gettype($value) == 'object' && $value instanceof StdClass)) {
+      if (gettype($value) == 'array' || (gettype($value) == 'object')) {
         $value = $this->escapeOutput($value);
         continue;
       }

@@ -69,24 +69,6 @@ class Utils
     }
   }
 
-  public static function matrixUnique($matrix, $innerObj = false)
-  {
-    foreach ($matrix as $k => $na) {
-      $new[$k] = serialize($na);
-    }
-
-    $uniq = array_unique($new);
-
-    foreach ($uniq as $k => $ser) {
-      if ($innerObj)
-        $new1[$k] = (object) unserialize($ser);
-      else
-        $new1[$k] = unserialize($ser);
-    }
-
-    return ($new1);
-  }
-
   public static function lineBreak()
   {
     if (PATH_SEPARATOR == ":")
@@ -117,83 +99,6 @@ class Utils
     $data = $data[1];
 
     return openssl_decrypt($data, $m, $key, 0, $iv);
-  }
-
-  public static function validateCPF($cpf)
-  {
-    if (empty($cpf)) {
-      return false;
-    }
-
-    $cpf = preg_replace("/[^0-9]/", "", $cpf);
-    $cpf = str_pad($cpf, 11, '0', STR_PAD_LEFT);
-
-    if (strlen($cpf) != 11) {
-      return false;
-    } else if (
-      $cpf == '00000000000' ||
-      $cpf == '11111111111' ||
-      $cpf == '22222222222' ||
-      $cpf == '33333333333' ||
-      $cpf == '44444444444' ||
-      $cpf == '55555555555' ||
-      $cpf == '66666666666' ||
-      $cpf == '77777777777' ||
-      $cpf == '88888888888' ||
-      $cpf == '99999999999'
-    ) {
-      return false;
-    } else {
-
-      for ($t = 9; $t < 11; $t++) {
-
-        for ($d = 0, $c = 0; $c < $t; $c++) {
-          $d += $cpf{
-            $c} * (($t + 1) - $c);
-        }
-        $d = ((10 * $d) % 11) % 10;
-        if ($cpf{
-          $c} != $d) {
-          return false;
-        }
-      }
-
-      return true;
-    }
-  }
-
-  public static function validateCNPJ($cnpj)
-  {
-    $cnpj = preg_replace('/[^0-9]/', '', (string) $cnpj);
-
-    // Valida tamanho
-    if (strlen($cnpj) != 14)
-      return false;
-
-    // Verifica se todos os digitos são iguais
-    if (preg_match('/(\d)\1{13}/', $cnpj))
-      return false;
-
-    // Valida primeiro dígito verificador
-    for ($i = 0, $j = 5, $soma = 0; $i < 12; $i++) {
-      $soma += $cnpj[$i] * $j;
-      $j = ($j == 2) ? 9 : $j - 1;
-    }
-
-    $resto = $soma % 11;
-
-    if ($cnpj[12] != ($resto < 2 ? 0 : 11 - $resto))
-      return false;
-
-    // Valida segundo dígito verificador
-    for ($i = 0, $j = 6, $soma = 0; $i < 13; $i++) {
-      $soma += $cnpj[$i] * $j;
-      $j = ($j == 2) ? 9 : $j - 1;
-    }
-
-    $resto = $soma % 11;
-
-    return $cnpj[13] == ($resto < 2 ? 0 : 11 - $resto);
   }
 
   public static function XML_encode($data, $node_block = 'nodes', $node_name = 'node')
@@ -229,15 +134,6 @@ class Utils
   public static function preg_grep_keys($pattern, $input, $flags = 0)
   {
     return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
-  }
-
-  public static function dataBlackList(array $data, array $blacklist)
-  {
-    foreach ($data as $key => $value) {
-      if (in_array($key, $blacklist)) unset($data[$key]);
-    }
-
-    return $data;
   }
 
   public static function filterInputs($filterRules, $data)
@@ -383,23 +279,6 @@ class Utils
     return true;
   }
 
-  public static function getUserIP()
-  {
-    //whether ip is from the share internet  
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-      $ip = $_SERVER['HTTP_CLIENT_IP'];
-    }
-    //whether ip is from the proxy  
-    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-      $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    }
-    //whether ip is from the remote address  
-    else {
-      $ip = $_SERVER['REMOTE_ADDR'];
-    }
-    return $ip;
-  }
-
   public static function uploadFile($inputName)
   {
     if (!empty($_FILES[$inputName])) {
@@ -411,27 +290,5 @@ class Utils
     }
 
     return null;
-  }
-
-  public static function stringToSlug(String $str)
-  {
-    $str = preg_replace('/^\s+|\s+$/', "", $str);
-    $str = strtolower($str);
-
-    // remove accents, swap ñ for n, etc
-    $from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
-    $to = "aaaaaaeeeeiiiioooouuuunc------";
-
-    for ($i = 0, $l = strlen($from); $i < $l; $i++) {
-      $str = preg_replace('/' . $from[$i] . '/', $to[$i], $str);
-    }
-
-    $str = preg_replace('/[^a-z0-9 -]/', "", $str);
-    $str = preg_replace('/\s+/', "", $str);
-    $str = preg_replace('/-+/', "", $str);
-    $str = preg_replace('/^-+/', "", $str);
-    $str = preg_replace('/-+$/', "", $str);
-
-    return $str;
   }
 }
