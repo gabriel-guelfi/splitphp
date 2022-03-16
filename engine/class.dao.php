@@ -9,9 +9,9 @@ class Dao
   // Holds table information
   private $workingTable;
 
-  private $executionControl;
-
   private $filters;
+
+  private $executionControl;
 
   // It sets the main table name, instantiate class Mysql and defines the table's primary key.
   public function __construct()
@@ -181,25 +181,28 @@ class Dao
     return $res;
   }
 
-  protected final function first(string $sql = null, bool $debug = false){
+  protected final function first(string $sql = null, bool $debug = false)
+  {
     $dbData = $this->find($sql, $debug);
 
-    if($debug) return $dbData;
+    if ($debug) return $dbData;
 
-    if(!empty($dbData)) return $dbData[0];
+    if (!empty($dbData)) return $dbData[0];
     else return null;
   }
 
-  // protected final function fetch(string $sql, callable $callback)
-  // {
-  //   // Gets query result:
-  //   $res = $this->find($sql);
+  protected final function fetch(callable $callback, string $sql = null, $debug = false)
+  {
+    // Gets query result:
+    $res = $this->find($sql);
 
-  //   // Iterates over result, calling callback function for each iteration:
-  //   foreach ($res as &$row) {
-  //     call_user_func_array($callback, [&$row]);
-  //   }
-  // }
+    // Iterates over result, calling callback function for each iteration:
+    foreach ($res as &$row) {
+      $callback($row);
+    }
+
+    return $res;
+  }
 
   protected final function filter($key, $sanitize = true)
   {
