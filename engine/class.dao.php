@@ -181,6 +181,15 @@ class Dao
     return $res;
   }
 
+  protected final function first(string $sql = null, bool $debug = false){
+    $dbData = $this->find($sql, $debug);
+
+    if($debug) return $dbData;
+
+    if(!empty($dbData)) return $dbData[0];
+    else return null;
+  }
+
   // protected final function fetch(string $sql, callable $callback)
   // {
   //   // Gets query result:
