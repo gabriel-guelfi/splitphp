@@ -9,6 +9,8 @@ class Dao
   // Holds table information
   private $workingTable;
 
+  private $executionControl;
+
   private $filters;
 
   // It sets the main table name, instantiate class Mysql and defines the table's primary key.
@@ -26,14 +28,30 @@ class Dao
 
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink', [$dbconfig]);
     $this->sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.sql.php", 'sql', []);
+    $this->workingTable = null;
     $this->filters = [];
+
+    $this->executionControl = (object) [
+      'executionPileHashes' => ['initial_state'],
+      'executionStatesSnapshots' => [
+        'initial_state' => (object) [
+          'workingTable' => $this->workingTable,
+          'filters' => $this->filters,
+        ]
+      ]
+    ];
 
     Dbmetadata::clearCache();
   }
 
   protected final function getTable(string $tableName)
   {
+    $this->updateCurrentExecution();
+
     $this->workingTable = $tableName;
+    $this->filters = [];
+
+    $this->registerNewExecution();
 
     return $this;
   }
@@ -41,7 +59,7 @@ class Dao
   protected final function insert($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('You cannot run this operation without defining a working table. Use $this->getTable() before calling this method.');
+      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
       return false;
     }
 
@@ -56,8 +74,7 @@ class Dao
     $key = Dbmetadata::tbInfo($this->workingTable)->key->keyname;
     $obj->$key = $res;
 
-    $this->workingTable = null;
-    $this->filter = [];
+    $this->returnToPreviousExecution();
 
     return $obj;
   }
@@ -65,7 +82,7 @@ class Dao
   protected final function update($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('You cannot run this operation without defining a working table. Use $this->getTable() before calling this method.');
+      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
       return false;
     }
 
@@ -80,8 +97,7 @@ class Dao
 
     $res = $this->dblink->runsql($sql->output(true));
 
-    $this->workingTable = null;
-    $this->filters = [];
+    $this->returnToPreviousExecution();
 
     return $res;
   }
@@ -89,7 +105,7 @@ class Dao
   protected final function delete(bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('You cannot run this operation without defining a working table. Use $this->getTable() before calling this method.');
+      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
       return false;
     }
 
@@ -102,8 +118,7 @@ class Dao
 
     $res = $this->dblink->runsql($sql->output(true));
 
-    $this->workingTable = null;
-    $this->filters = [];
+    $this->returnToPreviousExecution();
 
     return $res;
   }
@@ -112,7 +127,7 @@ class Dao
   {
     // Check for defined entity:
     if (is_null($this->workingTable)) {
-      throw new Exception('You cannot run this operation without defining a working table. Use $this->getTable() before calling this method.');
+      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
       return false;
     }
 
@@ -161,8 +176,7 @@ class Dao
     // Run SQL and store its result:
     $res = $this->dblink->runsql($sqlObj);
 
-    $this->workingTable = null;
-    $this->filters = [];
+    $this->returnToPreviousExecution();
 
     return $res;
   }
@@ -195,7 +209,7 @@ class Dao
   protected final function and($key, $sanitize = true)
   {
     if (count($this->filters) == 0) {
-      throw new Exception('You can only call this method after calling "filter()" first.');
+      throw new Exception('You can only call this method after calling filter() first.');
       return false;
     }
     $filter = (object) [
@@ -214,7 +228,7 @@ class Dao
   protected final function or($key, $sanitize = true)
   {
     if (count($this->filters) == 0) {
-      throw new Exception('You can only call this method after calling "filter()" first.');
+      throw new Exception('You can only call this method after calling filter() first.');
       return false;
     }
     $filter = (object) [
@@ -234,7 +248,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -250,7 +264,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -266,7 +280,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -282,7 +296,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -298,7 +312,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -314,7 +328,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -330,7 +344,7 @@ class Dao
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-      throw new Exception('This method can only be called after "filter()", "and()" or "or()" methods.');
+      throw new Exception('This method can only be called right after one of the filtering methods.');
       return false;
     }
 
@@ -345,5 +359,40 @@ class Dao
   protected final function getFilters()
   {
     return $this->filters;
+  }
+
+  private function updateCurrentExecution()
+  {
+    $currentExecutionHash = $this->executionControl->executionPileHashes[0];
+
+    $this->executionControl->executionStatesSnapshots[$currentExecutionHash] = (object) [
+      'workingTable' => $this->workingTable,
+      'filters' => $this->filters,
+    ];
+  }
+
+  private function registerNewExecution()
+  {
+    $newExecutionHash = 'daoexc-' . uniqid();
+
+    array_unshift($this->executionControl->executionPileHashes, $newExecutionHash);
+
+    $this->executionControl->executionStatesSnapshots[$newExecutionHash] = (object) [
+      'workingTable' => $this->workingTable,
+      'filters' => $this->filters,
+    ];
+  }
+
+  private function returnToPreviousExecution()
+  {
+    // 1. Unset the first hash in executionPileHashes array and its respective execution state snapshot:
+    unset($this->executionControl->executionStatesSnapshots[$this->executionControl->executionPileHashes[0]]);
+    array_shift($this->executionControl->executionPileHashes);
+
+    // 2. Restore the Dao's working table and filters with the data in the snapshot,
+    // identified by the remaining first element of the executionPileHashes array:
+    $remainingHash = $this->executionControl->executionPileHashes[0];
+    $this->workingTable = $this->executionControl->executionStatesSnapshots[$remainingHash]->workingTable;
+    $this->filters = $this->executionControl->executionStatesSnapshots[$remainingHash]->filters;
   }
 }
