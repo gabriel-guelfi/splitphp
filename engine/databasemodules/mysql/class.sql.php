@@ -51,7 +51,7 @@ class Sql
       if (is_array($val)) {
         $fields = "";
         foreach ($val as $f => $v) {
-          if ($f != Dbmetadata::tbInfo($table)->key->keyname) {
+          if ($f != Dbmetadata::tbPrimaryKey($table)) {
             if (!empty($v)) {
               $fields .= $this->escape($f) . ",";
               $values .= (is_numeric($v) ? $v : "'" . $v . "'") . ",";
@@ -60,7 +60,7 @@ class Sql
         }
         $values = rtrim($values, ",") . "),(";
       } else {
-        if ($key != Dbmetadata::tbInfo($table)->key->keyname) {
+        if ($key != Dbmetadata::tbPrimaryKey($table)) {
           $fields .= $this->escape($key) . ",";
           if(is_null($val)) $values .= "NULL,";
           else $values .= (is_numeric($val) ? $val : "'" . $val . "'") . ",";

@@ -32,8 +32,6 @@ class Dao
         ]
       ]
     ];
-
-    Dbmetadata::clearCache();
   }
 
   protected final function getTable(string $tableName)
@@ -51,7 +49,7 @@ class Dao
   protected final function insert($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -63,7 +61,7 @@ class Dao
       return $sql->output(true);
 
     $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
-    $key = Dbmetadata::tbInfo($this->workingTable)->key->keyname;
+    $key = Dbmetadata::tbPrimaryKey($this->workingTable);
     $obj->$key = $res;
 
     $this->returnToPreviousExecution();
@@ -74,7 +72,7 @@ class Dao
   protected final function update($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -97,7 +95,7 @@ class Dao
   protected final function delete(bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -119,7 +117,7 @@ class Dao
   {
     // Check for defined entity:
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
