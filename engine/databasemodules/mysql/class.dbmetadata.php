@@ -36,9 +36,9 @@ class Dbmetadata
     }
 
     if (!isset(self::$collection[$tablename]) || $updCache) {
-      $cnn = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink');
-      $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.sql.php", 'sql');
-      $res_f = $cnn->runsql($sql->write("DESCRIBE `" . $tablename . "`", array(), $tablename)->output());
+      $cnn = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+      $res_f = $cnn->getConnection('reader')->runsql($sql->write("DESCRIBE `" . $tablename . "`", array(), $tablename)->output());
 
       $fields = array();
       $key = false;
@@ -53,7 +53,7 @@ class Dbmetadata
         }
       }
 
-      $res_r = $cnn->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND REFERENCED_TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
+      $res_r = $cnn->getConnection('reader')->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND REFERENCED_TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
 
       foreach ($res_r as $k => $v) {
         $res_r[$v->TABLE_NAME] = $v;
@@ -67,7 +67,7 @@ class Dbmetadata
         'key' => $key
       );
 
-      $res_r = $cnn->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
+      $res_r = $cnn->getConnection('reader')->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
 
       foreach ($res_r as $k => $v) {
         $res_r[$v->REFERENCED_TABLE_NAME] = $v;
@@ -84,17 +84,17 @@ class Dbmetadata
 
   public static function alterTable($tablename, $cmd)
   {
-    $cnn = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink');
-    $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.sql.php", 'sql');
+    $cnn = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
 
-    return $cnn->runsql($sql->write("ALTER TABLE `" . $tablename . "` " . $cmd, array(), $tablename)->output());
+    return $cnn->getConnection('writer')->runsql($sql->write("ALTER TABLE `" . $tablename . "` " . $cmd, array(), $tablename)->output());
   }
 
   public static function listTables()
   {
-    $cnn = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink');
-    $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.sql.php", 'sql');
-    $res = $cnn->runsql($sql->write("SHOW TABLES")->output());
+    $cnn = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $res = $cnn->getConnection('reader')->runsql($sql->write("SHOW TABLES")->output());
 
     $ret = array();
     $keyname = "Tables_in_" . DBNAME;
