@@ -239,12 +239,12 @@ class Dblink
     try {
       $connection = new mysqli(DBHOST, $dbUsername, $dbUserpass, DBNAME);
     } catch (mysqli_sql_exception $ex) {
-      $this->disconnect();
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $connection = $this->connect($currentTry + 1);
       } else {
         System::errorLog('db_error', $ex);
       }
+      $this->disconnect($this->currentConnectionName);
     }
     return $connection;
   }
