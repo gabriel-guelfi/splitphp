@@ -35,14 +35,14 @@ class Sql
 
   public function __construct()
   {
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/mysqli/class.dblink.php", 'dblink');
+    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
     $this->sqlstring = "";
   }
 
   // Build a insert type query string with argument passed in dataset and return it.
   public function insert($dataset, $table)
   {
-    $dataset = $this->dblink->escapevar($dataset);
+    $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
     $fields = "";
     $values = " VALUES (";
@@ -51,7 +51,7 @@ class Sql
       if (is_array($val)) {
         $fields = "";
         foreach ($val as $f => $v) {
-          if ($f != Dbmetadata::tbInfo($table)->key->keyname) {
+          if ($f != Dbmetadata::tbPrimaryKey($table)) {
             if (!empty($v)) {
               $fields .= $this->escape($f) . ",";
               $values .= (is_numeric($v) ? $v : "'" . $v . "'") . ",";
@@ -60,7 +60,7 @@ class Sql
         }
         $values = rtrim($values, ",") . "),(";
       } else {
-        if ($key != Dbmetadata::tbInfo($table)->key->keyname) {
+        if ($key != Dbmetadata::tbPrimaryKey($table)) {
           $fields .= $this->escape($key) . ",";
           if(is_null($val)) $values .= "NULL,";
           else $values .= (is_numeric($val) ? $val : "'" . $val . "'") . ",";
@@ -78,7 +78,7 @@ class Sql
   // Build a update type query string with argument passed in dataset and return it.
   public function update($dataset, $table)
   {
-    $dataset = $this->dblink->escapevar($dataset);
+    $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
     $sql = "UPDATE " . $this->escape($table) . " SET ";
     foreach ($dataset as $key => $val) {
@@ -119,18 +119,18 @@ class Sql
           $where .= ' ' . $join . ' ';
 
         if (strtoupper($operator) == "LIKE") {
-          $where .= $key . ' LIKE "%' . $this->dblink->escapevar($val) . '%"';
+          $where .= $key . ' LIKE "%' . $this->dblink->getConnection('writer')->escapevar($val) . '%"';
         } else if (is_array($val) && !empty($val)) {
           $joined_values = array();
 
           foreach ($val as $in_val) {
             $joined_values[] = is_numeric($in_val) ? $in_val : '"' . $in_val . '"';
           }
-          $joined_values = $this->dblink->escapevar($joined_values);
+          $joined_values = $this->dblink->getConnection('writer')->escapevar($joined_values);
 
           $where .= $key . ' IN (' . join(',', $joined_values) . ')';
         } else {
-          $where .= $key . $operator . (is_numeric($val) ? $val : "'" . $this->dblink->escapevar($val) . "'");
+          $where .= $key . $operator . (is_numeric($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
         }
       }
       $this->write($where, null, null, false);

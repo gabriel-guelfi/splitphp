@@ -30,7 +30,7 @@ abstract class Rest_service extends Service
 
     $this->routeIndex = [];
 
-    $this->dblink = $this->dbCnn();
+    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -63,21 +63,18 @@ abstract class Rest_service extends Service
     $this->antiXsrfValidation($routeData);
     $this->xsrfToken = Utils::dataEncrypt((string) $this->getService('utils/misc')->getUserIP(), PRIVATE_KEY);
 
+    $return = null;
     try {
       if (DB_TRANSACTIONAL == "on") {
-        $this->dblink->startTransaction();
+        $this->dblink->getConnection('writer')->startTransaction();
         $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
-        $this->dblink->commitTransaction();
+        $this->dblink->getConnection('writer')->commitTransaction();
       } else {
         $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
-      $this->dblink->disconnect();
-      return $return;
     } catch (Exception $exc) {
       if (DB_TRANSACTIONAL == "on")
-        $this->dblink->rollbackTransaction();
-        
-      $this->dblink->disconnect();
+        $this->dblink->getConnection('writer')->rollbackTransaction();
 
       $status = $this->userFriendlyErrorStatus($exc);
       $err = (object) [
@@ -92,11 +89,14 @@ abstract class Rest_service extends Service
       if (APPLICATION_LOG)
         System::errorLog('application_error', $exc);
 
-      return $this->respond(
+      $return = $this->respond(
         $response
           ->withStatus(($status != false ? $status : 500))
           ->withData($err)
       );
+    } finally {
+      $this->dblink->disconnect('writer');
+      return $return;
     }
   }
 
@@ -334,19 +334,6 @@ abstract class Rest_service extends Service
 
     $this->respond($response->withStatus(404)->withHTML($this->renderTemplate($this->template404->path, $this->template404->args)));
     die;
-  }
-
-  private function dbCnn()
-  {
-    $dbconfig = [
-      'dbhost' => DBHOST,
-      'dbname' => DBNAME,
-      'dbuser' => DBUSER,
-      'dbpass' => DBPASS,
-      'dbtype' => DBTYPE
-    ];
-
-    return System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink', [$dbconfig]);
   }
 
   private function xsrfTknFromRequest()

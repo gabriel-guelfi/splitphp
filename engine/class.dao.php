@@ -16,18 +16,10 @@ class Dao
   // It sets the main table name, instantiate class Mysql and defines the table's primary key.
   public function __construct()
   {
-    require_once INCLUDE_PATH . "/engine/databasemodules/class.dbmetadata.php";
+    require_once INCLUDE_PATH . "/engine/databasemodules/".DBTYPE."/class.dbmetadata.php";
 
-    $dbconfig = [
-      'dbhost' => DBHOST,
-      'dbname' => DBNAME,
-      'dbuser' => DBUSER,
-      'dbpass' => DBPASS,
-      'dbtype' => DBTYPE
-    ];
-
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.dblink.php", 'dblink', [$dbconfig]);
-    $this->sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBCLASS . "/class.sql.php", 'sql', []);
+    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $this->sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
     $this->workingTable = null;
     $this->filters = [];
 
@@ -40,8 +32,6 @@ class Dao
         ]
       ]
     ];
-
-    Dbmetadata::clearCache();
   }
 
   protected final function getTable(string $tableName)
@@ -59,7 +49,7 @@ class Dao
   protected final function insert($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -70,8 +60,8 @@ class Dao
     if ($debug)
       return $sql->output(true);
 
-    $res = $this->dblink->runsql($sql->output(true));
-    $key = Dbmetadata::tbInfo($this->workingTable)->key->keyname;
+    $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
+    $key = Dbmetadata::tbPrimaryKey($this->workingTable);
     $obj->$key = $res;
 
     $this->returnToPreviousExecution();
@@ -82,7 +72,7 @@ class Dao
   protected final function update($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -95,7 +85,7 @@ class Dao
     if ($debug)
       return $sql->output(true);
 
-    $res = $this->dblink->runsql($sql->output(true));
+    $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
 
     $this->returnToPreviousExecution();
 
@@ -105,7 +95,7 @@ class Dao
   protected final function delete(bool $debug = false)
   {
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -116,7 +106,7 @@ class Dao
     if ($debug)
       return $sql->output(true);
 
-    $res = $this->dblink->runsql($sql->output(true));
+    $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
 
     $this->returnToPreviousExecution();
 
@@ -127,7 +117,7 @@ class Dao
   {
     // Check for defined entity:
     if (is_null($this->workingTable)) {
-      throw new Exception('Invalid Working Table Name. Dao is not properly setup');
+      throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
     }
 
@@ -137,25 +127,13 @@ class Dao
       $sql = file_get_contents($path);
     }
 
-    // Check for forbidden write operations in this function:
-    // if (
-    //   preg_match('/\bupdate\b/i', $sql) !== 0 ||
-    //   preg_match('/\bdelete\b/i', $sql) !== 0 ||
-    //   preg_match('/\binsert\b/i', $sql) !== 0 ||
-    //   preg_match('/\bdrop\b/i', $sql) !== 0 ||
-    //   preg_match('/\bcreate\b/i', $sql) !== 0
-    // ) {
-    //   throw new Exception('You cannot perform write database operations with this method.');
-    //   return false;
-    // }
-
     if (!empty($sql)) {
       // Sanitize Filter Data and replace values:
       for ($i = 0; $i < count($this->filters); $i++) {
         $f = &$this->filters[$i];
 
         if ($f->sanitize) {
-          $f->value = $this->dblink->escapevar($f->value);
+          $f->value = $this->dblink->getConnection('reader')->escapevar($f->value);
 
           if (!is_numeric($f->value) && is_string($f->value)) {
             $f->value = "'" . $f->value . "'";
@@ -174,9 +152,10 @@ class Dao
     if ($debug)
       return $sqlObj;
     // Run SQL and store its result:
-    $res = $this->dblink->runsql($sqlObj);
+    $res = $this->dblink->getConnection('reader')->runsql($sqlObj);
 
     $this->returnToPreviousExecution();
+    $this->dblink->disconnect('reader');
 
     return $res;
   }
