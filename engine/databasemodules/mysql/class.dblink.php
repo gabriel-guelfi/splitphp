@@ -227,11 +227,11 @@ class Dblink
   private function connect(int $currentTry = 1)
   {
     if ($this->currentConnectionName == 'writer') {
-      $dbUsername = DBUSER_WRITER;
-      $dbUserpass = DBPASS_WRITER;
+      $dbUsername = DBUSER_MAIN;
+      $dbUserpass = DBPASS_MAIN;
     } elseif ($this->currentConnectionName == 'reader') {
-      $dbUsername = DBUSER_READER;
-      $dbUserpass = DBPASS_READER;
+      $dbUsername = DBUSER_READONLY;
+      $dbUserpass = DBPASS_READONLY;
     } else {
       throw new Exception("Invalid Database connection mode.");
     }
