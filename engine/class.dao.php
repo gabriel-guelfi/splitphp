@@ -5,23 +5,29 @@ class Dao
   // An instance of the class Dblink.
   private $dblink;
   // An instance of the class Sql.
-  private $sql;
+  private $sqlBuilder;
+  private $sqlParameters;
   // Holds table information
   private $workingTable;
 
   private $filters;
+
+  private $params;
 
   private $executionControl;
 
   // It sets the main table name, instantiate class Mysql and defines the table's primary key.
   public function __construct()
   {
-    require_once INCLUDE_PATH . "/engine/databasemodules/".DBTYPE."/class.dbmetadata.php";
+    require_once INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
 
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    $this->sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $this->sqlBuilder = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $this->sqlParameters = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparameters.php", 'sqlParameters');
     $this->workingTable = null;
     $this->filters = [];
+    $this->params = [];
+    $this->tablePrefix = null;
 
     $this->executionControl = (object) [
       'executionPileHashes' => ['initial_state'],
@@ -29,6 +35,8 @@ class Dao
         'initial_state' => (object) [
           'workingTable' => $this->workingTable,
           'filters' => $this->filters,
+          'params' => $this->params,
+          'tablePrefix' => $this->tablePrefix
         ]
       ]
     ];
@@ -40,6 +48,8 @@ class Dao
 
     $this->workingTable = $tableName;
     $this->filters = [];
+    $this->params = [];
+    $this->tablePrefix = null;
 
     $this->registerNewExecution();
 
@@ -55,7 +65,7 @@ class Dao
 
     $obj = (object) $obj;
 
-    $sql = $this->sql->insert($obj, $this->workingTable);
+    $sql = $this->sqlBuilder->insert($obj, $this->workingTable);
 
     if ($debug)
       return $sql->output(true);
@@ -78,7 +88,7 @@ class Dao
 
     $obj = (object) $obj;
 
-    $sql = $this->sql->update($obj, $this->workingTable);
+    $sql = $this->sqlBuilder->update($obj, $this->workingTable);
     if (!empty($this->filters))
       $sql->where($this->filters);
 
@@ -99,7 +109,7 @@ class Dao
       return false;
     }
 
-    $sql = $this->sql->delete($this->workingTable);
+    $sql = $this->sqlBuilder->delete($this->workingTable);
     if (!empty($this->filters))
       $sql->where($this->filters);
 
@@ -126,6 +136,12 @@ class Dao
     if (is_file($path)) {
       $sql = file_get_contents($path);
     }
+    
+    if (!empty($this->params)) {
+      $parameterized = $this->sqlParameters->parameterize($this->params, $sql, $this->tablePrefix);
+      $this->filters = $parameterized->filters;
+      $sql = $parameterized->sql;
+    }
 
     if (!empty($sql)) {
       // Sanitize Filter Data and replace values:
@@ -144,9 +160,9 @@ class Dao
       }
 
       // Create SQL input object:
-      $sqlObj = $this->sql->write($sql)->output(true);
+      $sqlObj = $this->sqlBuilder->write($sql)->output(true);
     } else {
-      $sqlObj = $this->sql->write("SELECT * FROM `" . $this->workingTable . "` ")->where($this->filters)->output(true);
+      $sqlObj = $this->sqlBuilder->write("SELECT * FROM `" . $this->workingTable . "` ")->where($this->filters)->output(true);
     }
 
     if ($debug)
@@ -181,6 +197,14 @@ class Dao
     }
 
     return $res;
+  }
+
+  protected final function withParams($params, $tbPrefix = null)
+  {
+    $this->params = $params;
+    $this->tablePrefix = $tbPrefix;
+
+    return $this;
   }
 
   protected final function filter($key, $sanitize = true)
@@ -359,6 +383,8 @@ class Dao
     $this->executionControl->executionStatesSnapshots[$currentExecutionHash] = (object) [
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
+      'params' => $this->params,
+      'tablePrefix' => $this->tablePrefix
     ];
   }
 
@@ -371,6 +397,8 @@ class Dao
     $this->executionControl->executionStatesSnapshots[$newExecutionHash] = (object) [
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
+      'params' => $this->params,
+      'tablePrefix' => $this->tablePrefix
     ];
   }
 
@@ -385,5 +413,7 @@ class Dao
     $remainingHash = $this->executionControl->executionPileHashes[0];
     $this->workingTable = $this->executionControl->executionStatesSnapshots[$remainingHash]->workingTable;
     $this->filters = $this->executionControl->executionStatesSnapshots[$remainingHash]->filters;
+    $this->params = $this->executionControl->executionStatesSnapshots[$remainingHash]->params;
+    $this->tablePrefix = $this->executionControl->executionStatesSnapshots[$remainingHash]->tablePrefix;
   }
 }

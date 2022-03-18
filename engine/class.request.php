@@ -53,6 +53,22 @@ class Request
     return $this->args;
   }
 
+  public static function getUserIP(){
+    //whether ip is from the share internet  
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+      $ip = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    //whether ip is from the proxy  
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+      $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+    //whether ip is from the remote address  
+    else {
+      $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+  }
+
   private function setRestServicePath(string $path)
   {
     if (strpos($path, INCLUDE_PATH)) {
@@ -61,4 +77,5 @@ class Request
       $this->restServicePath = INCLUDE_PATH . $path;
     }
   }
+  
 }
