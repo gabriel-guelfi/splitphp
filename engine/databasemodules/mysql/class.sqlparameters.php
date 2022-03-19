@@ -68,14 +68,18 @@ class SqlParameters
     $firstIteration = true;
     foreach ($params as $key => $strInstruction) {
       $instruction = explode('|', $strInstruction);
+
+      
       $paramName = empty($paramPrefix) ? $key : $paramPrefix . '.' . $key;
 
       $logicalOperator = '';
       if (strpos($instruction[0], '$and') !== false) {
         $logicalOperator = 'AND';
+        $logicalOperatorMethod = 'and';
         $instruction[0] = str_replace('$and', '', $instruction[0]);
       } elseif (strpos($instruction[0], '$or') !== false) {
         $logicalOperator = 'OR';
+        $logicalOperatorMethod = 'or';
         $instruction[0] = str_replace('$or', '', $instruction[0]);
       } else $logicalOperator = $this->settings->logicalOperator;
 
@@ -86,7 +90,7 @@ class SqlParameters
             $this->filter($key)->equalsTo($instruction[1]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " = ?" . $key . "? ";
-            $this->and($key)->equalsTo($instruction[1]);
+            $this->$logicalOperatorMethod($key)->equalsTo($instruction[1]);
           }
           break;
         case '$difr':
@@ -95,7 +99,7 @@ class SqlParameters
             $this->filter($key)->differentFrom($instruction[1]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " != ?" . $key . "? ";
-            $this->and($key)->differentFrom($instruction[1]);
+            $this->$logicalOperatorMethod($key)->differentFrom($instruction[1]);
           }
           break;
         case '$bgth':
@@ -104,7 +108,7 @@ class SqlParameters
             $this->filter($key)->biggerThan($instruction[1]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " > ?" . $key . "? ";
-            $this->and($key)->biggerThan($instruction[1]);
+            $this->$logicalOperatorMethod($key)->biggerThan($instruction[1]);
           }
           break;
         case '$bgeq':
@@ -113,7 +117,7 @@ class SqlParameters
             $this->filter($key)->biggerOrEqualsTo($instruction[1]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " >= ?" . $key . "? ";
-            $this->and($key)->biggerOrEqualsTo($instruction[1]);
+            $this->$logicalOperatorMethod($key)->biggerOrEqualsTo($instruction[1]);
           }
           break;
         case '$lsth':
@@ -122,7 +126,7 @@ class SqlParameters
             $this->filter($key)->lesserThan($instruction[1]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " < ?" . $key . "? ";
-            $this->and($key)->lesserThan($instruction[1]);
+            $this->$logicalOperatorMethod($key)->lesserThan($instruction[1]);
           }
           break;
         case '$lseq':
@@ -131,7 +135,7 @@ class SqlParameters
             $this->filter($key)->lesserOrEqualsTo($instruction[1]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " <= ?" . $key . "? ";
-            $this->and($key)->lesserOrEqualsTo($instruction[1]);
+            $this->$logicalOperatorMethod($key)->lesserOrEqualsTo($instruction[1]);
           }
           break;
         case '$lkof':
@@ -140,7 +144,7 @@ class SqlParameters
             $this->filter($key)->likeOf('%' . $instruction[1] . '%');
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " LIKE ?" . $key . "? ";
-            $this->and($key)->likeOf('%' . $instruction[1] . '%');
+            $this->$logicalOperatorMethod($key)->likeOf('%' . $instruction[1] . '%');
           }
           break;
         case '$btwn':
@@ -151,15 +155,15 @@ class SqlParameters
             }
 
             $this->filter($key . '_start')->lesserOrEqualsTo($instruction[1]);
-            $this->and($key . '_end')->biggerOrEqualsTo($instruction[2]);
+            $this->$logicalOperatorMethod($key . '_end')->biggerOrEqualsTo($instruction[2]);
           } else {
             if (!empty($sql)) {
               $sql .= $logicalOperator . " (" . $paramName . " >= ?" . $key . "_start? ";
               $sql .= "AND " . $paramName . " <= ?" . $key . "_end?) ";
             }
 
-            $this->and($key . '_start')->lesserOrEqualsTo($instruction[1]);
-            $this->and($key . '_end')->biggerOrEqualsTo($instruction[2]);
+            $this->$logicalOperatorMethod($key . '_start')->lesserOrEqualsTo($instruction[1]);
+            $this->$logicalOperatorMethod($key . '_end')->biggerOrEqualsTo($instruction[2]);
           }
           break;
         default:
@@ -168,7 +172,7 @@ class SqlParameters
             $this->filter($key)->equalsTo($instruction[0]);
           } else {
             if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " = ?" . $key . "? ";
-            $this->and($key)->equalsTo($instruction[0]);
+            $this->$logicalOperatorMethod($key)->equalsTo($instruction[0]);
           }
           break;
       }
