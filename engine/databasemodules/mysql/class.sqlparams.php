@@ -1,30 +1,30 @@
 <?php
-class SqlParameters
+class SqlParams
 {
   private $settings;
   private $filters;
-  
+
   public function parameterize(array $params = [], string $sql = null, string $paramPrefix = null)
   {
     $this->filters = [];
     if (!empty($params)) {
       $sortParams = [
-        "sortBy" => isset($params['sort_by']) ? $params['sort_by'] : 1,
-        "sortDirection" => isset($params['sort_direction']) ? $params['sort_direction'] : 'ASC'
+        "sortBy" => isset($params['$sort_by']) ? $params['$sort_by'] : 1,
+        "sortDirection" => isset($params['$sort_direction']) ? $params['$sort_direction'] : 'ASC'
       ];
 
       $pageParams = [
-        "page" => isset($params['page']) ? $params['page'] : null,
-        "limit" => isset($params['limit']) ? $params['limit'] : null
+        "page" => isset($params['$page']) ? $params['$page'] : null,
+        "limit" => isset($params['$limit']) ? $params['$limit'] : null
       ];
 
       $this->setup($params);
 
-      if (isset($params['logical_operator'])) unset($params['logical_operator']);
-      if (isset($params['sort_by'])) unset($params['sort_by']);
-      if (isset($params['sort_direction'])) unset($params['sort_direction']);
-      if (isset($params['page'])) unset($params['page']);
-      if (isset($params['limit'])) unset($params['limit']);
+      if (isset($params['$logical_operator'])) unset($params['$logical_operator']);
+      if (isset($params['$sort_by'])) unset($params['$sort_by']);
+      if (isset($params['$sort_direction'])) unset($params['$sort_direction']);
+      if (isset($params['$page'])) unset($params['$page']);
+      if (isset($params['$limit'])) unset($params['$limit']);
 
       if (!empty($sql) && file_exists(INCLUDE_PATH . '/application/sql/' . $sql . '.sql')) {
         $sql = file_get_contents(INCLUDE_PATH . '/application/sql/' . $sql . '.sql');
@@ -56,8 +56,8 @@ class SqlParameters
     $this->settings = (object) [];
 
     // Set filtering logical operator:
-    if (isset($params['logical_operator']) && ($params['logical_operator'] == 'AND' || $params['logical_operator']  == 'OR')) {
-      $this->settings->logicalOperator = $params['logical_operator'];
+    if (isset($params['$logical_operator']) && ($params['$logical_operator'] == 'AND' || $params['$logical_operator']  == 'OR')) {
+      $this->settings->logicalOperator = $params['$logical_operator'];
     } else $this->settings->logicalOperator = 'AND';
   }
 
@@ -69,8 +69,14 @@ class SqlParameters
     foreach ($params as $key => $strInstruction) {
       $instruction = explode('|', $strInstruction);
 
-      
       $paramName = empty($paramPrefix) ? $key : $paramPrefix . '.' . $key;
+
+      $regexMatches = [];
+      preg_match('/\$tbprefix=(.+)/', $instruction[0], $regexMatches);
+      if (!empty($regexMatches[1])) {
+        $paramName = $regexMatches[1] . '.' . $key;
+        $instruction[0] = preg_replace('/\$tbprefix=.+/', '', $instruction[0]);
+      }
 
       $logicalOperator = '';
       if (strpos($instruction[0], '$and') !== false) {

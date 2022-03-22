@@ -23,7 +23,7 @@ class Dao
 
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
     $this->sqlBuilder = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-    $this->sqlParameters = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparameters.php", 'sqlParameters');
+    $this->sqlParameters = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
     $this->workingTable = null;
     $this->filters = [];
     $this->params = [];
@@ -88,6 +88,11 @@ class Dao
 
     $obj = (object) $obj;
 
+    if (!empty($this->params)) {
+      $parameterized = $this->sqlParameters->parameterize($this->params);
+      $this->filters = $parameterized->filters;
+    }
+
     $sql = $this->sqlBuilder->update($obj, $this->workingTable);
     if (!empty($this->filters))
       $sql->where($this->filters);
@@ -107,6 +112,11 @@ class Dao
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
       return false;
+    }
+
+    if (!empty($this->params)) {
+      $parameterized = $this->sqlParameters->parameterize($this->params);
+      $this->filters = $parameterized->filters;
     }
 
     $sql = $this->sqlBuilder->delete($this->workingTable);
@@ -136,14 +146,23 @@ class Dao
     if (is_file($path)) {
       $sql = file_get_contents($path);
     }
-    
+
+    $buildWhereClause = false;
+    if (empty($sql)) {
+      $sql = "SELECT * FROM `" . $this->workingTable . "`";
+      $buildWhereClause = true;
+    }
+
     if (!empty($this->params)) {
       $parameterized = $this->sqlParameters->parameterize($this->params, $sql, $this->tablePrefix);
       $this->filters = $parameterized->filters;
       $sql = $parameterized->sql;
+      $buildWhereClause = false;
     }
 
-    if (!empty($sql)) {
+    if ($buildWhereClause) {
+      $sqlObj = $this->sqlBuilder->write($sql, $this->workingTable)->where($this->filters)->output(true);
+    } else {
       // Sanitize Filter Data and replace values:
       for ($i = 0; $i < count($this->filters); $i++) {
         $f = &$this->filters[$i];
@@ -160,9 +179,7 @@ class Dao
       }
 
       // Create SQL input object:
-      $sqlObj = $this->sqlBuilder->write($sql)->output(true);
-    } else {
-      $sqlObj = $this->sqlBuilder->write("SELECT * FROM `" . $this->workingTable . "` ")->where($this->filters)->output(true);
+      $sqlObj = $this->sqlBuilder->write($sql, $this->workingTable)->output(true);
     }
 
     if ($debug)
@@ -189,7 +206,7 @@ class Dao
   protected final function fetch(callable $callback, string $sql = null, $debug = false)
   {
     // Gets query result:
-    $res = $this->find($sql);
+    $res = $this->find($sql, $debug);
 
     // Iterates over result, calling callback function for each iteration:
     foreach ($res as &$row) {
@@ -199,8 +216,10 @@ class Dao
     return $res;
   }
 
-  protected final function withParams($params, $tbPrefix = null)
+  protected final function bindParams($params, $tbPrefix = null)
   {
+    if(!empty($this->filters)) throw new Exception("You cannot use bindParams() alongside filtering methods.");
+
     $this->params = $params;
     $this->tablePrefix = $tbPrefix;
 
@@ -209,6 +228,8 @@ class Dao
 
   protected final function filter($key, $sanitize = true)
   {
+    if(!empty($this->filters)) throw new Exception("You cannot use filter() method alongside bindParams().");
+
     $filter = (object) [
       'key' => $key,
       'value' => null,
