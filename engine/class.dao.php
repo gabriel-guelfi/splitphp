@@ -5,23 +5,29 @@ class Dao
   // An instance of the class Dblink.
   private $dblink;
   // An instance of the class Sql.
-  private $sql;
+  private $sqlBuilder;
+  private $sqlParameters;
   // Holds table information
   private $workingTable;
 
   private $filters;
+
+  private $params;
 
   private $executionControl;
 
   // It sets the main table name, instantiate class Mysql and defines the table's primary key.
   public function __construct()
   {
-    require_once INCLUDE_PATH . "/engine/databasemodules/".DBTYPE."/class.dbmetadata.php";
+    require_once INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
 
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    $this->sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $this->sqlBuilder = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $this->sqlParameters = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
     $this->workingTable = null;
     $this->filters = [];
+    $this->params = [];
+    $this->tablePrefix = null;
 
     $this->executionControl = (object) [
       'executionPileHashes' => ['initial_state'],
@@ -29,6 +35,8 @@ class Dao
         'initial_state' => (object) [
           'workingTable' => $this->workingTable,
           'filters' => $this->filters,
+          'params' => $this->params,
+          'tablePrefix' => $this->tablePrefix
         ]
       ]
     ];
@@ -40,6 +48,8 @@ class Dao
 
     $this->workingTable = $tableName;
     $this->filters = [];
+    $this->params = [];
+    $this->tablePrefix = null;
 
     $this->registerNewExecution();
 
@@ -55,7 +65,7 @@ class Dao
 
     $obj = (object) $obj;
 
-    $sql = $this->sql->insert($obj, $this->workingTable);
+    $sql = $this->sqlBuilder->insert($obj, $this->workingTable);
 
     if ($debug)
       return $sql->output(true);
@@ -78,7 +88,12 @@ class Dao
 
     $obj = (object) $obj;
 
-    $sql = $this->sql->update($obj, $this->workingTable);
+    if (!empty($this->params)) {
+      $parameterized = $this->sqlParameters->parameterize($this->params);
+      $this->filters = $parameterized->filters;
+    }
+
+    $sql = $this->sqlBuilder->update($obj, $this->workingTable);
     if (!empty($this->filters))
       $sql->where($this->filters);
 
@@ -99,7 +114,12 @@ class Dao
       return false;
     }
 
-    $sql = $this->sql->delete($this->workingTable);
+    if (!empty($this->params)) {
+      $parameterized = $this->sqlParameters->parameterize($this->params);
+      $this->filters = $parameterized->filters;
+    }
+
+    $sql = $this->sqlBuilder->delete($this->workingTable);
     if (!empty($this->filters))
       $sql->where($this->filters);
 
@@ -127,7 +147,22 @@ class Dao
       $sql = file_get_contents($path);
     }
 
-    if (!empty($sql)) {
+    $buildWhereClause = false;
+    if (empty($sql)) {
+      $sql = "SELECT * FROM `" . $this->workingTable . "`";
+      $buildWhereClause = true;
+    }
+
+    if (!empty($this->params)) {
+      $parameterized = $this->sqlParameters->parameterize($this->params, $sql, $this->tablePrefix);
+      $this->filters = $parameterized->filters;
+      $sql = $parameterized->sql;
+      $buildWhereClause = false;
+    }
+
+    if ($buildWhereClause) {
+      $sqlObj = $this->sqlBuilder->write($sql, $this->workingTable)->where($this->filters)->output(true);
+    } else {
       // Sanitize Filter Data and replace values:
       for ($i = 0; $i < count($this->filters); $i++) {
         $f = &$this->filters[$i];
@@ -144,9 +179,7 @@ class Dao
       }
 
       // Create SQL input object:
-      $sqlObj = $this->sql->write($sql)->output(true);
-    } else {
-      $sqlObj = $this->sql->write("SELECT * FROM `" . $this->workingTable . "` ")->where($this->filters)->output(true);
+      $sqlObj = $this->sqlBuilder->write($sql, $this->workingTable)->output(true);
     }
 
     if ($debug)
@@ -173,7 +206,7 @@ class Dao
   protected final function fetch(callable $callback, string $sql = null, $debug = false)
   {
     // Gets query result:
-    $res = $this->find($sql);
+    $res = $this->find($sql, $debug);
 
     // Iterates over result, calling callback function for each iteration:
     foreach ($res as &$row) {
@@ -183,8 +216,20 @@ class Dao
     return $res;
   }
 
+  protected final function bindParams($params, $tbPrefix = null)
+  {
+    if(!empty($this->filters)) throw new Exception("You cannot use bindParams() alongside filtering methods.");
+
+    $this->params = $params;
+    $this->tablePrefix = $tbPrefix;
+
+    return $this;
+  }
+
   protected final function filter($key, $sanitize = true)
   {
+    if(!empty($this->filters)) throw new Exception("You cannot use filter() method alongside bindParams().");
+
     $filter = (object) [
       'key' => $key,
       'value' => null,
@@ -359,6 +404,8 @@ class Dao
     $this->executionControl->executionStatesSnapshots[$currentExecutionHash] = (object) [
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
+      'params' => $this->params,
+      'tablePrefix' => $this->tablePrefix
     ];
   }
 
@@ -371,6 +418,8 @@ class Dao
     $this->executionControl->executionStatesSnapshots[$newExecutionHash] = (object) [
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
+      'params' => $this->params,
+      'tablePrefix' => $this->tablePrefix
     ];
   }
 
@@ -385,5 +434,7 @@ class Dao
     $remainingHash = $this->executionControl->executionPileHashes[0];
     $this->workingTable = $this->executionControl->executionStatesSnapshots[$remainingHash]->workingTable;
     $this->filters = $this->executionControl->executionStatesSnapshots[$remainingHash]->filters;
+    $this->params = $this->executionControl->executionStatesSnapshots[$remainingHash]->params;
+    $this->tablePrefix = $this->executionControl->executionStatesSnapshots[$remainingHash]->tablePrefix;
   }
 }

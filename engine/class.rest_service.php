@@ -61,7 +61,7 @@ abstract class Rest_service extends Service
     }
 
     $this->antiXsrfValidation($routeData);
-    $this->xsrfToken = Utils::dataEncrypt((string) $this->getService('utils/misc')->getUserIP(), PRIVATE_KEY);
+    $this->xsrfToken = Utils::dataEncrypt((string) Request::getUserIP(), PRIVATE_KEY);
 
     $return = null;
     try {
@@ -361,7 +361,7 @@ abstract class Rest_service extends Service
       }
 
       // Check the token's authenticity
-      if (Utils::dataDecrypt($tkn, PRIVATE_KEY) != $this->getService('utils/misc')->getUserIP()) {
+      if (Utils::dataDecrypt($tkn, PRIVATE_KEY) != Request::getUserIP()) {
         http_response_code(401);
         die;
       }

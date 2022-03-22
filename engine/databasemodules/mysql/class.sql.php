@@ -62,7 +62,7 @@ class Sql
       } else {
         if ($key != Dbmetadata::tbPrimaryKey($table)) {
           $fields .= $this->escape($key) . ",";
-          if(is_null($val)) $values .= "NULL,";
+          if (is_null($val)) $values .= "NULL,";
           else $values .= (is_numeric($val) ? $val : "'" . $val . "'") . ",";
         }
       }
@@ -71,7 +71,7 @@ class Sql
     $values = rtrim($values, ",") . ")";
     $values = rtrim($values, "),(") . ")";
 
-    $this->write("INSERT INTO " . $this->escape($table) . " (" . $fields . $values, null, $table);
+    $this->write("INSERT INTO " . $this->escape($table) . " (" . $fields . $values, $table);
     return $this;
   }
 
@@ -90,14 +90,14 @@ class Sql
     }
     $sql = rtrim($sql, ",");
 
-    $this->write($sql, null, $table);
+    $this->write($sql, $table);
     return $this;
   }
 
   // Build a delete type query string with argument passed in dataset and return it.
   public function delete($table)
   {
-    $this->write("DELETE " . $this->escape($table) . " FROM " . $this->escape($table), null, $table);
+    $this->write("DELETE " . $this->escape($table) . " FROM " . $this->escape($table), $table);
     return $this;
   }
 
@@ -130,19 +130,18 @@ class Sql
 
           $where .= $key . ' IN (' . join(',', $joined_values) . ')';
         } else {
-          $where .= $key . $operator . (is_numeric($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
+          $where .= $key . ' ' . $operator . ' ' . (is_numeric($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
         }
       }
-      $this->write($where, null, null, false);
+      $this->write($where, null, false);
     }
 
     return $this;
   }
 
   // Register SQL query data, then return the object.
-  public function write($sqlstr, $values = null, $table = null, $overwrite = true)
+  public function write($sqlstr, $table = null, $overwrite = true)
   {
-    unset($values);
     if ($overwrite) {
       $this->sqlstring = $sqlstr;
       $this->table = $table;
