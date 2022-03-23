@@ -19,18 +19,18 @@ abstract class RestService extends Service
     define('NOT_FOUND', 4);
     define('PERMISSION_DENIED', 5);
     define('CONFLICT', 6);
-    
+
     $this->routes = [
       "GET" => [],
       "POST" => [],
       "PUT" => [],
       "DELETE" => []
     ];
-    
+
     $this->routeIndex = [];
-    
+
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    
+
     $this->inputRestriction = [
       '/<[^>]*script/mi',
       '/<[^>]*iframe/mi',
@@ -38,7 +38,7 @@ abstract class RestService extends Service
       '/{{.*}}/mi',
       '/<[^>]*(ng-.|data-ng.)/mi'
     ];
-    
+
     $this->antiXsrfValidation = true;
     $this->response = System::loadClass(INCLUDE_PATH . "/engine/class.response.php", 'response');
     parent::__construct();
@@ -67,8 +67,8 @@ abstract class RestService extends Service
     $return = null;
     try {
       $endpointHandler = is_callable($routeData->method) ? $routeData->method : [$this, $routeData->method];
-      
-      if (DB_TRANSACTIONAL == "on") {
+
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
         $this->dblink->getConnection('writer')->startTransaction();
         $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
         $this->dblink->getConnection('writer')->commitTransaction();
@@ -76,7 +76,7 @@ abstract class RestService extends Service
         $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
-      if (DB_TRANSACTIONAL == "on")
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on")
         $this->dblink->getConnection('writer')->rollbackTransaction();
 
       $status = $this->userFriendlyErrorStatus($exc);
@@ -98,7 +98,8 @@ abstract class RestService extends Service
           ->withData($err)
       );
     } finally {
-      $this->dblink->disconnect('writer');
+      if (DB_CONNECT == "on")
+        $this->dblink->disconnect('writer');
       return $return;
     }
   }

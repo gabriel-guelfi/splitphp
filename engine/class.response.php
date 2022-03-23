@@ -14,7 +14,8 @@ class Response
     $this->headers = [];
   }
 
-  public function setHeader(string $header){
+  public function setHeader(string $header)
+  {
     $this->headers[] = $header;
     return $this;
   }
@@ -52,7 +53,8 @@ class Response
     return $this;
   }
 
-  public function getHeaders(){
+  public function getHeaders()
+  {
     return $this->headers;
   }
 
@@ -73,15 +75,16 @@ class Response
 
   private function escapeOutput($payload)
   {
-    foreach ($payload as &$value) {
-      if (gettype($value) == 'array' || (gettype($value) == 'object')) {
-        $value = $this->escapeOutput($value);
-        continue;
-      }
+    if (!empty($payload))
+      foreach ($payload as &$value) {
+        if (gettype($value) == 'array' || (gettype($value) == 'object')) {
+          $value = $this->escapeOutput($value);
+          continue;
+        }
 
-      if (!is_numeric($value))
-        $value = htmlspecialchars($value);
-    }
+        if (!is_numeric($value))
+          $value = htmlspecialchars($value);
+      }
 
     return $payload;
   }
