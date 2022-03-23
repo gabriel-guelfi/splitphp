@@ -39,7 +39,7 @@ class System
     require_once __DIR__ . "/class.request.php";
     require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";
-    require_once __DIR__ . "/class.rest_service.php";
+    require_once __DIR__ . "/class.restservice.php";
 
     $this->execute(new Request($_SERVER["REQUEST_URI"], self::$configs["ROUTE_ALIAS"]));
   }

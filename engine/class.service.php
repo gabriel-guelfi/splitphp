@@ -12,7 +12,14 @@ class Service extends Dao
     $this->templateRoot = "";
 
     $this->utils = System::loadClass(INCLUDE_PATH . "/engine/class.utils.php", "utils");
+
+    $this->init();
   }
+
+  protected function init()
+  {
+  }
+
   protected final function getService(string $path, array $args = [])
   {
     @$className = strpos($path, '/') ? end(explode('/', $path)) : $path;

@@ -1,5 +1,5 @@
 <?php
-class Site extends Rest_service
+class Site extends RestService
 {
   public function __construct()
   {

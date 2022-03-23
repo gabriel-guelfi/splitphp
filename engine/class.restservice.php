@@ -1,5 +1,5 @@
 <?php
-abstract class Rest_service extends Service
+abstract class RestService extends Service
 {
   protected $routes;
   protected $routeIndex;
@@ -10,8 +10,6 @@ abstract class Rest_service extends Service
 
   public function __construct()
   {
-    parent::__construct();
-
     require_once __DIR__ . '/class.response.php';
 
     define('VALIDATION_FAILED', 1);
@@ -20,18 +18,18 @@ abstract class Rest_service extends Service
     define('NOT_FOUND', 4);
     define('PERMISSION_DENIED', 5);
     define('CONFLICT', 6);
-
+    
     $this->routes = [
       "GET" => [],
       "POST" => [],
       "PUT" => [],
       "DELETE" => []
     ];
-
+    
     $this->routeIndex = [];
-
+    
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-
+    
     $this->inputRestriction = [
       '/<[^>]*script/mi',
       '/<[^>]*iframe/mi',
@@ -39,8 +37,9 @@ abstract class Rest_service extends Service
       '/{{.*}}/mi',
       '/<[^>]*(ng-.|data-ng.)/mi'
     ];
-
+    
     $this->antiXsrfValidation = true;
+    parent::__construct();
   }
 
   public final function execute($route, $httpVerb)
@@ -102,7 +101,7 @@ abstract class Rest_service extends Service
 
   protected final function addEndpoint(string $httpVerb, string $route, $method, bool $antiXsrf = null, bool $validateInput = true)
   {
-    if ($httpVerb != 'GET' && $httpVerb != 'POST' && $httpVerb != 'PUT' && $httpVerb != 'DELETE')
+    if (!array_key_exists($httpVerb, $this->routes))
       throw new Exception("Attempt to add endpoint with an unknown http method.");
 
     if ($this->findRoute($route, $httpVerb) !== false)
