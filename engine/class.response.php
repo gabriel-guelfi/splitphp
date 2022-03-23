@@ -75,7 +75,7 @@ class Response
 
   private function escapeOutput($payload)
   {
-    if (!empty($payload))
+    if (is_array($payload) || (gettype($payload) == 'object'))
       foreach ($payload as &$value) {
         if (gettype($value) == 'array' || (gettype($value) == 'object')) {
           $value = $this->escapeOutput($value);
@@ -85,6 +85,10 @@ class Response
         if (!is_numeric($value))
           $value = htmlspecialchars($value);
       }
+    else{
+        if (!is_numeric($payload))
+          $payload = htmlspecialchars($payload);
+    }
 
     return $payload;
   }
