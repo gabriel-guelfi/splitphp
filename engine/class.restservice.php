@@ -3,6 +3,7 @@ abstract class RestService extends Service
 {
   protected $routes;
   protected $routeIndex;
+  protected $response;
   private $template404;
   private $dblink;
   private $xsrfToken;
@@ -39,6 +40,7 @@ abstract class RestService extends Service
     ];
     
     $this->antiXsrfValidation = true;
+    $this->response = System::loadClass(INCLUDE_PATH . "/engine/class.response.php", 'response');
     parent::__construct();
   }
 

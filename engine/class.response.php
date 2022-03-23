@@ -6,12 +6,12 @@ class Response
   private $data;
   private $headers;
 
-  public function __construct(int $statusCode = 200, string $contentType = 'text/plain', $data = null, array $headers = [])
+  public function __construct()
   {
-    $this->status = $statusCode;
-    $this->contentType = $contentType;
-    $this->data = $data;
-    $this->headers = $headers;
+    $this->status = 200;
+    $this->contentType = 'text/plain';
+    $this->data = null;
+    $this->headers = [];
   }
 
   public function setHeader(string $header){
