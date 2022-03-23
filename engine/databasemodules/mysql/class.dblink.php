@@ -39,6 +39,8 @@ class Dblink
 
   public function getConnection(string $connectionName)
   {
+    if(DB_CONNECT != 'on') throw new Exception("Database connections are turned off. Turn it on in config.ini file.");
+
     if ($connectionName != 'reader' && $connectionName != 'writer')
       throw new Exception("Invalid Database connection mode.");
 
