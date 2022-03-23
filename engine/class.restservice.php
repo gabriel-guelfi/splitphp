@@ -66,12 +66,14 @@ abstract class RestService extends Service
 
     $return = null;
     try {
+      $endpointHandler = is_callable($routeData->method) ? $routeData->method : [$this, $routeData->method];
+      
       if (DB_TRANSACTIONAL == "on") {
         $this->dblink->getConnection('writer')->startTransaction();
-        $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
         $this->dblink->getConnection('writer')->commitTransaction();
       } else {
-        $return = $this->respond(call_user_func_array([$this, $routeData->method], [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
       if (DB_TRANSACTIONAL == "on")
