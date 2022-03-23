@@ -6,28 +6,12 @@ class Request
   private $restServiceName;
   private $args;
 
-  public function __construct(string $uri, array $routeAlias = [])
+  public function __construct(string $uri)
   {
     $urlElements = explode("/", str_replace(strrchr($uri, "?"), "", urldecode($uri)));
     array_shift($urlElements);
 
-    if (!empty($routeAlias)) {
-      if (array_key_exists($urlElements[0], $routeAlias)) {
-        $urlElements = explode('/', $routeAlias[$urlElements[0]]);
-        if (empty($urlElements[0])) array_shift($urlElements);
-      }
-    }
-
-    $this->setRestServicePath('/application/routes/');
-
-    if (empty($urlElements[0])) {
-      $this->restServiceName = DEFAULT_REST_SERVICE;
-      $this->route = DEFAULT_ROUTE;
-    } else {
-      $this->restServiceName = $urlElements[0];
-      array_shift($urlElements);
-      $this->route = '/' . implode('/', $urlElements);
-    }
+    $this->setRestService('/application/routes/', $urlElements);
 
     $this->args = [
       $this->route,
@@ -53,7 +37,8 @@ class Request
     return $this->args;
   }
 
-  public static function getUserIP(){
+  public static function getUserIP()
+  {
     //whether ip is from the share internet  
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
       $ip = $_SERVER['HTTP_CLIENT_IP'];
@@ -69,13 +54,32 @@ class Request
     return $ip;
   }
 
-  private function setRestServicePath(string $path)
+  private function setRestService(string $path, $urlElements)
   {
+    $basePath = "";
     if (strpos($path, INCLUDE_PATH)) {
-      $this->restServicePath = $path;
+      $basePath = $path;
     } else {
-      $this->restServicePath = INCLUDE_PATH . $path;
+      $basePath = INCLUDE_PATH . $path;
+    }
+
+    if (empty($urlElements[0])) {
+      $this->restServicePath = $basePath;
+      $this->restServiceName = DEFAULT_REST_SERVICE;
+      $this->route = DEFAULT_ROUTE;
+
+      return;
+    }
+
+    foreach ($urlElements as $i => $urlPart) {
+      if (is_dir($basePath . $urlPart))
+        $basePath .= $urlPart.'/';
+      elseif (is_file($basePath . $urlPart . '.php')) {
+        $this->restServicePath = $basePath;
+        $this->restServiceName = $urlPart;
+        $this->route = '/'.implode('/', array_slice($urlElements, $i +1));
+        break;
+      }
     }
   }
-  
 }

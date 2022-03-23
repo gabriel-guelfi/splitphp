@@ -27,7 +27,7 @@ class System
     self::$configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
 
     foreach (self::$configs as $key => $val) {
-      if ($key != "UTILS" && $key != "ROUTE_ALIAS") {
+      if ($key != "UTILS") {
         foreach ($val as $k => $v) {
           define(strtoupper($k), $v);
         }
@@ -41,7 +41,7 @@ class System
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.restservice.php";
 
-    $this->execute(new Request($_SERVER["REQUEST_URI"], self::$configs["ROUTE_ALIAS"]));
+    $this->execute(new Request($_SERVER["REQUEST_URI"]));
   }
 
   /*/ Create an instance of a custom controller and calls it's method, passing specified arguments. 
