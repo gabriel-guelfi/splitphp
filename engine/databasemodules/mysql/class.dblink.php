@@ -26,23 +26,51 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class Dblink
+ * 
+ * This class is responsible to establish and manage connections to the database.
+ *
+ * @package engine/databasemodules/mysql
+ */
 class Dblink
 {
 
-  // Information of current connection.
+  /**
+   * @var array $cnnInfo
+   * Stores database connection's information.
+   */
   private $cnnInfo;
-  // Connection's link identifier.
-  private $connections;
-  // If true, deactivate automatic commit.
-  private $transaction_mode;
-  private $currentConnectionName;
-  private $isGetConnectionInvoked;
 
   /**
-   *  Verifies if database connection data is valid, then sets the properties with those values.
-   * Connect to mysql server and save the connection in a property.
+   * @var array $connections
+   * Stores the database connections.
    */
+  private $connections;
 
+  /**
+   * @var boolean $transactionMode
+   * Holds a boolean value used as a control to whether the current database operation is transactional or not (autocommit false or true).
+   */
+  private $transactionMode;
+
+  /**
+   * @var string $currentConnectionName
+   * Stores the current connection identifier. Dblink uses it to know which connection it shall use to perform the current operation.
+   */
+  private $currentConnectionName;
+
+  /**
+   * @var boolean $isGetConnectionInvoked
+   * Holds a boolean value used as a control to oblige the user to call Dblink::getConnection() method before perform any database operation.
+   */
+  private $isGetConnectionInvoked;
+
+  /** 
+   * Changes MySQL report configs, starts the properties with their initial values, then returns an object of type Dblink(instantiate the class).
+   * 
+   * @return Dblink 
+   */
   public function __construct()
   {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -50,19 +78,33 @@ class Dblink
     $this->currentConnectionName = null;
     $this->connections = [];
     $this->cnnInfo = [];
-    $this->transaction_mode = false;
+    $this->transactionMode = false;
     $this->isGetConnectionInvoked = false;
   }
 
-  // When this class's object is destructed, close the connection to mysql server.
+  /** 
+   * Disconnects all currently open database connections.
+   * When the instance of the class is destroyed, PHP runs this method automatically.
+   * 
+   * @return void 
+   */
   public function __destruct()
   {
-    $this->disconnect($this->currentConnectionName);
+    foreach ($this->connections as $cnnName => $cnn) {
+      $this->disconnect($cnnName);
+    }
   }
 
+  /** 
+   * Set a connection, based on the value passed in $connectionName parameter, as the current connection. 
+   * If there is no such connection established, create a new one.
+   * 
+   * @param string $connectionName
+   * @return Dblink 
+   */
   public function getConnection(string $connectionName)
   {
-    if(DB_CONNECT != 'on') throw new Exception("Database connections are turned off. Turn it on in config.ini file.");
+    if (DB_CONNECT != 'on') throw new Exception("Database connections are turned off. Turn it on in config.ini file.");
 
     if ($connectionName != 'reader' && $connectionName != 'writer')
       throw new Exception("Invalid Database connection mode.");
@@ -78,7 +120,13 @@ class Dblink
     return $this;
   }
 
-  // Force the current connection to close.
+  /** 
+   * Tries to disconnect the connection defined by the value passed on parameter $connectionName. 
+   * Then reset Dblink instance's state to its default.
+   * 
+   * @param string $connectionName
+   * @return void 
+   */
   public function disconnect($connectionName)
   {
     if (array_key_exists($connectionName, $this->connections)) {
@@ -93,23 +141,34 @@ class Dblink
     $this->isGetConnectionInvoked = false;
   }
 
-  // Returns all current connection information.
+  /** 
+   * Returns an object, which contains the current connection's information. (Stored at Dblink::cnnInfo property).
+   * 
+   * @return object 
+   */
   public function info()
   {
-    if(!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
+    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
     if (empty($this->cnnInfo[$this->currentConnectionName])) return "No connection info.";
     $this->isGetConnectionInvoked = false;
     return $this->cnnInfo[$this->currentConnectionName];
   }
 
-  /* Triggers the sql query, save current connection information, then returns result data.
-   * If it's a mysql resource, process it into an array of objects before returning.
-  */
-
+  /** 
+   * Run a SQL query, updates connection information, then returns the query's results.
+   * In case of SELECT type queries returns an array containing the results of the query.
+   * In case of INSERT type queries returns the primary key (id) of the newly created register.
+   * In case of DELETE or UPDATE type queries returns the number of the affected rows.
+   * 
+   * @param SqlObj $sqlObj
+   * @param integer $currentTry = 1
+   * 
+   * @return mixed 
+   */
   public function runsql(Sqlobj $sqlobj, int $currentTry = 1)
   {
-    if(!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
+    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
     try {
       $res = $this->connections[$this->currentConnectionName]->query($sqlobj->sqlstring);
@@ -145,28 +204,37 @@ class Dblink
     return $ret;
   }
 
+  /** 
+   * Changes Dblink::transactionMode to true, set current connection's autocommit to false and updates connection's information.
+   * 
+   * @return void 
+   */
   public function startTransaction()
   {
-    if(!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
+    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
-    if ($this->transaction_mode) {
+    if ($this->transactionMode) {
       throw new Exception("There is already an active transaction. It must be finished before starting a new one.");
-      return false;
     }
 
     $this->connections[$this->currentConnectionName]->autocommit(false);
-    $this->transaction_mode = true;
+    $this->transactionMode = true;
     $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
     $this->isGetConnectionInvoked = false;
-    return true;
   }
 
+  /** 
+   * Changes Dblink::transactionMode to false, commits the previously opened transaction, 
+   * containing the database operations, and updates connection's information.
+   * 
+   * @return void 
+   */
   public function commitTransaction()
   {
-    if(!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
+    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
-    if ($this->transaction_mode) {
-      $this->transaction_mode = false;
+    if ($this->transactionMode) {
+      $this->transactionMode = false;
 
       $this->connections[$this->currentConnectionName]->commit();
     }
@@ -175,12 +243,18 @@ class Dblink
     $this->isGetConnectionInvoked = false;
   }
 
+  /** 
+   * Changes Dblink::transactionMode to false, rolls back the previously opened transaction, 
+   * cancelling all the database operations contained, and updates connection's information.
+   * 
+   * @return void 
+   */
   public function rollbackTransaction()
   {
-    if(!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
+    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
-    if ($this->transaction_mode) {
-      $this->transaction_mode = false;
+    if ($this->transactionMode) {
+      $this->transactionMode = false;
 
       $this->connections[$this->currentConnectionName]->rollBack();
     }
@@ -189,10 +263,15 @@ class Dblink
     $this->isGetConnectionInvoked = false;
   }
 
-  // Escape data properly for mysql statements.
-  public function escapevar($dataset)
+  /** 
+   * Escapes and sanitizes, properly for mysql statements, the passed data.
+   * 
+   * @param mixed $dataset
+   * @return mixed 
+   */
+  public function escapevar(mixed $dataset)
   {
-    if(!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
+    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
     if (is_null($dataset))
       return $dataset;
@@ -245,10 +324,13 @@ class Dblink
     return $dataset;
   }
 
-  /* Tries to connect to mysql database much times as configured. If all attempts fails, 
-  * Register an error, then returns false. Returns true on first success.
-  */
-
+  /**
+   * Tries to connect to mysql database much times as configured. If all attempts fail, 
+   * throws an exception. On first success returns the connection object.
+   * 
+   * @param integer $currentTry = 1
+   * @return Mysqli
+   */
   private function connect(int $currentTry = 1)
   {
     if ($this->currentConnectionName == 'writer') {
