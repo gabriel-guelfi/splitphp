@@ -26,14 +26,33 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class SqlObj
+ * 
+ * This class is meant to be an input object to perform SQL queries.
+ *
+ * @package engine/databasemodules/mysql
+ */
 class Sqlobj
 {
 
-  // SQL string, itself.
+  /**
+   * @var string $sqlstring
+   * A string containing the SQL query, itself.
+   */
   public $sqlstring;
-  // Current table name.
+
+  /**
+   * @var string $table
+   * The name of the main table where the query will be executed.
+   */
   public $table;
 
+  /** 
+   * set the properties sqlstring and table, then returns an object of type Sqlobj(instantiate the class).
+   * 
+   * @return Sqlobj 
+   */
   public function __construct($str, $table)
   {
     $this->sqlstring = $str;
@@ -41,24 +60,55 @@ class Sqlobj
   }
 }
 
+/**
+ * Class Sql
+ * 
+ * This is a SQL builder class, responsible for building and managing the SQL query commands. 
+ *
+ * @package engine/databasemodules/mysql
+ */
 class Sql
 {
 
-  // SQL string, itself.
+  /**
+   * @var string $sqlstring
+   * A string containing the SQL query, itself.
+   */
   private $sqlstring;
-  // Current table name.
+
+  /**
+   * @var string $table
+   * The name of the main table where the query will be executed.
+   */
   private $table;
-  // An instance of the class Mysql.
+
+  /**
+   * @var Dblink $dblink
+   * Holds the instance of the Dblink connection class.
+   */
   private $dblink;
 
+  /** 
+   * Instantiate Dblink class, storing it on Sql::dblink property, set Sql::sqlstring property to an empty string, then returns an object
+   * of type Sql(instantiate the class).
+   * 
+   * @return Sql 
+   */
   public function __construct()
   {
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
     $this->sqlstring = "";
   }
 
-  // Build a insert type query string with argument passed in dataset and return it.
-  public function insert($dataset, $table)
+  /** 
+   * Build a insert type query command with the values passed in $dataset, set the working table with the name passed on $table, 
+   * then returns the instance of the class.
+   * 
+   * @param object|array $dataset
+   * @param string $table
+   * @return Sql 
+   */
+  public function insert(mixed $dataset, string $table)
   {
     $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
@@ -93,8 +143,15 @@ class Sql
     return $this;
   }
 
-  // Build a update type query string with argument passed in dataset and return it.
-  public function update($dataset, $table)
+  /** 
+   * Build a update type query command with the values passed in $dataset, set the working table with the name passed on $table, 
+   * then returns the instance of the class.
+   * 
+   * @param object|array $dataset
+   * @param string $table
+   * @return Sql 
+   */
+  public function update(mixed $dataset, string $table)
   {
     $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
@@ -112,17 +169,24 @@ class Sql
     return $this;
   }
 
-  // Build a delete type query string with argument passed in dataset and return it.
-  public function delete($table)
+  /** 
+   * Build a delete type query command, setting the table passed on $table, then returns the instance of the class.
+   * 
+   * @param string $table
+   * @return Sql 
+   */
+  public function delete(string $table)
   {
     $this->write("DELETE " . $this->escape($table) . " FROM " . $this->escape($table), $table);
     return $this;
   }
 
-  /* Build a Mysql where clause string based on conditions passed on params,
-     * the join OR or AND and operator as = or LIKE, then return the string.
-     */
-
+  /** 
+   * Build a MySQL "WHERE clause" command, add it to the current SQL command, then returns the instance of the class.
+   * 
+   * @param array $params
+   * @return Sql 
+   */
   public function where(array $params)
   {
     $where = ' WHERE ';
@@ -157,7 +221,14 @@ class Sql
     return $this;
   }
 
-  // Register SQL query data, then return the object.
+  /** 
+   * Registers or updates the SQL command in the instance of the class and returns the instance of the class.
+   * 
+   * @param string $sqlstr
+   * @param string $table = null
+   * @param boolean $overwrite = true
+   * @return Sql 
+   */
   public function write($sqlstr, $table = null, $overwrite = true)
   {
     if ($overwrite) {
@@ -170,11 +241,13 @@ class Sql
     return $this;
   }
 
-  private function escape($val)
-  {
-    return $val == "*" ? $val : "`" . $val . "`";
-  }
-
+  /** 
+   * Create an instance of the Sqlobj input class, which reflects the state of the instance of this class and returns it.
+   * If $clear tag is set to true, reset the state of this class.
+   * 
+   * @param boolean $clear = false
+   * @return Sqlobj 
+   */
   public function output($clear = false)
   {
     $obj = new Sqlobj($this->sqlstring, $this->table);
@@ -185,10 +258,27 @@ class Sql
     return $obj;
   }
 
+  /** 
+   * Reset the state of the instance of this class, setting Sql::sqlstring and Sql::table to their initial values.
+   * Returns the instance of the class.
+   * 
+   * @return Sql 
+   */
   public function reset()
   {
     $this->sqlstring = "";
     $this->table = null;
     return $this;
+  }
+
+  /** 
+   * Escapes a value, surrounding it between two grave accents (`), then returns this modified value.
+   * 
+   * @param mixed $val
+   * @return string 
+   */
+  private function escape(mixed $val)
+  {
+    return $val == "*" ? $val : "`" . $val . "`";
   }
 }

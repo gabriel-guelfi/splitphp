@@ -26,6 +26,12 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * If request method were "POST" and the content type header were "application/json", reads the payload from "php://input" file, parse it,
+ * and write its data to the super global $_POST variable, applying a json_decode().
+ * 
+ * @return void 
+ */
 function _parseJson()
 {
   if ($_SERVER['REQUEST_METHOD'] != 'POST' || strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) return;

@@ -26,23 +26,63 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class Dao
+ * 
+ * This class is responsible to manage operations on the database.
+ *
+ * @package engine
+ */
 class Dao
 {
-  // An instance of the class Dblink.
+  /**
+   * @var Dblink $dblink
+   * Stores an instance of the class Dblink.
+   */
   private $dblink;
-  // An instance of the class Sql.
+
+  /**
+   * @var Sql $sqlBuilder
+   * Stores an instance of the class Sql.
+   */
   private $sqlBuilder;
+
+  /**
+   * @var SqlParams $sqlParameters
+   * Stores an instance of the class SqlParams.
+   */
   private $sqlParameters;
-  // Holds table information
+
+  /**
+   * @var string $workingTable
+   * Stores the name of the current execution's working table.
+   */
   private $workingTable;
 
+  /**
+   * @var array $filters
+   * An array of objects, on which each object contains settings of the filters that wil be applied on the operation.
+   */
   private $filters;
-
+  
+  /**
+   * @var array $params
+   * An array containing the parameters dataset, which will be applied to current operation when not empty.
+   */
   private $params;
-
+  
+  /**
+   * @var object $executionControl
+   * This object contains information about the state of multiple nested operations, storing the states and indexes of each nested execution. 
+   */
   private $executionControl;
 
-  // It sets the main table name, instantiate class Mysql and defines the table's primary key.
+  /** 
+   * Instantiates this class, loading the required classes, setting the state properties to their initial values and registering a first initial 
+   * execution on Dao::executionControl. Returns the instance of this class created this way (constructor).
+   * 
+   * @return Dao 
+   */
   public function __construct()
   {
     require_once INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
@@ -50,6 +90,7 @@ class Dao
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
     $this->sqlBuilder = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
     $this->sqlParameters = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
+
     $this->workingTable = null;
     $this->filters = [];
     $this->params = [];
@@ -68,6 +109,13 @@ class Dao
     ];
   }
 
+  /** 
+   * Updates current execution control with the current state, resets this state, setting Dao::workingTable with the passed $tableName, registers 
+   * a new execution on execution control, then returns the instance of the class.
+   * 
+   * @param string $tableName
+   * @return Dao 
+   */
   protected final function getTable(string $tableName)
   {
     $this->updateCurrentExecution();
@@ -82,7 +130,15 @@ class Dao
     return $this;
   }
 
-  protected final function insert($obj, bool $debug = false)
+  /** 
+   * Inserts the data passed on $obj as a new register on the database, then returns this object, with the newly created primary ey added to it. 
+   * If $debug were set to true, return the resulting Sqlobj, instead.
+   * 
+   * @param object|array $obj
+   * @param boolean $debug = false
+   * @return object|Sqlobj
+   */
+  protected final function insert(mixed $obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -105,7 +161,15 @@ class Dao
     return $obj;
   }
 
-  protected final function update($obj, bool $debug = false)
+  /** 
+   * Updates registers on the database, with the data passed on $obj, filtered by the filters set on Dao::filters, then 
+   * returns the number of affected rows of the operation. If $debug were set to true, return the resulting Sqlobj, instead.
+   * 
+   * @param object|array $obj
+   * @param boolean $debug = false
+   * @return integer|Sqlobj
+   */
+  protected final function update(mixed $obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -133,6 +197,13 @@ class Dao
     return $res;
   }
 
+  /** 
+   * Removes registers from the database. The removal is filtered by the filters set on Dao::filters, then 
+   * returns the number of affected rows of the operation. If $debug were set to true, return the resulting Sqlobj, instead.
+   * 
+   * @param boolean $debug = false
+   * @return integer|Sqlobj
+   */
   protected final function delete(bool $debug = false)
   {
     if (is_null($this->workingTable)) {
@@ -159,6 +230,14 @@ class Dao
     return $res;
   }
 
+  /** 
+   * Reads data from the database, executing the command passed on $sql, filtered by the filter set on Dao::filters. If no SQL 
+   * is specified, assumes a default. Returns the SQL's resulting data. If $debug were set to true, return the resulting Sqlobj, instead.
+   * 
+   * @param string $sql = null
+   * @param boolean $debug = false
+   * @return array|Sqlobj
+   */
   protected final function find(string $sql = null, bool $debug = false)
   {
     // Check for defined entity:
@@ -219,6 +298,15 @@ class Dao
     return $res;
   }
 
+  /** 
+   * Reads data from the database, executing the command passed on $sql, filtered by the filter set on Dao::filters. If no SQL 
+   * is specified, assumes a default. Returns the first result from SQL's resulting data or null if results were empty. 
+   * If $debug were set to true, returns the resulting Sqlobj, instead.
+   * 
+   * @param string $sql = null
+   * @param boolean $debug = false
+   * @return object|Sqlobj
+   */
   protected final function first(string $sql = null, bool $debug = false)
   {
     $dbData = $this->find($sql, $debug);
@@ -229,6 +317,16 @@ class Dao
     else return null;
   }
 
+  /** 
+   * Reads data from the database, executing the command passed on $sql, filtered by the filter set on Dao::filters. If no SQL 
+   * is specified, assumes a default. Executes the passed callback function, passing each result found as 
+   * this callback's argument, then returns this altered results. If $debug were set to true, return the resulting Sqlobj, instead.
+   * 
+   * @param callable $callback
+   * @param string $sql = null
+   * @param boolean $debug = false
+   * @return array|Sqlobj
+   */
   protected final function fetch(callable $callback, string $sql = null, $debug = false)
   {
     // Gets query result:
@@ -242,9 +340,17 @@ class Dao
     return $res;
   }
 
-  protected final function bindParams($params, $tbPrefix = null)
+  /** 
+   * Stores passed array of parameters into Dao::params. If Dao::params is not empty, when executing a database operation, 
+   * it performs automatic parameterization using SqlParams class object.
+   * 
+   * @param array $params
+   * @param string $tbPrefix = null
+   * @return Dao
+   */
+  protected final function bindParams(array $params, string $tbPrefix = null)
   {
-    if(!empty($this->filters)) throw new Exception("You cannot use bindParams() alongside filtering methods.");
+    if (!empty($this->filters)) throw new Exception("You cannot use bindParams() alongside filtering methods.");
 
     $this->params = $params;
     $this->tablePrefix = $tbPrefix;
@@ -252,9 +358,16 @@ class Dao
     return $this;
   }
 
-  protected final function filter($key, $sanitize = true)
+  /** 
+   * Add filter data to DAO filter and returns this class instance.
+   * 
+   * @param string $key
+   * @param boolean $sanitize = true
+   * @return Dao 
+   */
+  protected final function filter(string $key, bool $sanitize = true)
   {
-    if(!empty($this->filters)) throw new Exception("You cannot use filter() method alongside bindParams().");
+    if (!empty($this->filters)) throw new Exception("You cannot use filter() method alongside bindParams().");
 
     $filter = (object) [
       'key' => $key,
@@ -268,7 +381,14 @@ class Dao
     return $this;
   }
 
-  protected final function and($key, $sanitize = true)
+  /** 
+   * Add filter data to DAO filter, specifying logical operator to "AND", then returns this class instance.
+   * 
+   * @param string $key
+   * @param boolean $sanitize = true
+   * @return Dao 
+   */
+  protected final function and(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -287,7 +407,14 @@ class Dao
     return $this;
   }
 
-  protected final function or($key, $sanitize = true)
+  /** 
+   * Add filter data to DAO filter, specifying logical operator to "OR", then returns this class instance.
+   * 
+   * @param string $key
+   * @param boolean $sanitize = true
+   * @return Dao 
+   */
+  protected final function or(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -306,7 +433,14 @@ class Dao
     return $this;
   }
 
-  protected final function equalsTo($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function equalsTo(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -322,7 +456,14 @@ class Dao
     return $this;
   }
 
-  protected final function differentFrom($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "!=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function differentFrom(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -338,7 +479,14 @@ class Dao
     return $this;
   }
 
-  protected final function biggerThan($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to ">" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function biggerThan(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -354,7 +502,14 @@ class Dao
     return $this;
   }
 
-  protected final function lesserThan($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "<" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function lesserThan(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -370,7 +525,14 @@ class Dao
     return $this;
   }
 
-  protected final function biggerOrEqualsTo($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to ">=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function biggerOrEqualsTo(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -386,7 +548,14 @@ class Dao
     return $this;
   }
 
-  protected final function lesserOrEqualsTo($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "<=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function lesserOrEqualsTo(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -402,7 +571,14 @@ class Dao
     return $this;
   }
 
-  protected final function likeOf($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "LIKE" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return Dao 
+   */
+  protected final function likeOf(mixed $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -418,11 +594,21 @@ class Dao
     return $this;
   }
 
+  /** 
+   * Returns all filters set on Dao until the moment.
+   * 
+   * @return array 
+   */
   protected final function getFilters()
   {
     return $this->filters;
   }
 
+  /** 
+   * Updates the current execution control, with the current state of the class instance.
+   * 
+   * @return void 
+   */
   private function updateCurrentExecution()
   {
     $currentExecutionHash = $this->executionControl->executionPileHashes[0];
@@ -435,6 +621,11 @@ class Dao
     ];
   }
 
+  /** 
+   * Registers a new execution control, with the current state of the class instance.
+   * 
+   * @return void 
+   */
   private function registerNewExecution()
   {
     $newExecutionHash = 'daoexc-' . uniqid();
@@ -449,6 +640,12 @@ class Dao
     ];
   }
 
+  /** 
+   * Removes the current execution control from the pile and restores this class instance's state with the 
+   * information stored in the previous execution control in line.
+   * 
+   * @return void 
+   */
   private function returnToPreviousExecution()
   {
     // 1. Unset the first hash in executionPileHashes array and its respective execution state snapshot:
