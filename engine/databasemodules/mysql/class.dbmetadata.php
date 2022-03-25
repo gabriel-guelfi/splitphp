@@ -26,12 +26,33 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class Dbmetadata
+ * 
+ * This class is responsible to retrieve and store database metadata.
+ *
+ * @package engine/databasemodules/mysql
+ */
 class Dbmetadata
 {
 
+  /**
+   * @var array $collection
+   * A complete collection of database metadata, divided by tables.
+   */
   private static $collection;
+
+  /**
+   * @var array $tableKeys
+   * Stores table's primary keys.
+   */
   private static $tableKeys;
 
+  /** 
+   * Create a new empty cache file, if it doesn't exist.
+   * 
+   * @return void 
+   */
   public static function initCache()
   {
     $p = INCLUDE_PATH . '/application/cache/';
@@ -50,7 +71,16 @@ class Dbmetadata
     }
   }
 
-  public static function tbInfo($tablename, $updCache = false)
+  /** 
+   * Reads cache file to the collection. Searches for the specified table's metadata on the collection, if it's not found or $updCache is set to true, 
+   * read it from the database, save it in the collection and return it. Updates the cache file with the new Dbmetadata::collections content just before
+   * returning.
+   * 
+   * @param string $tablename
+   * @param boolean $updCache
+   * @return object 
+   */
+  public static function tbInfo(string $tablename, bool $updCache = false)
   {
     if (empty(self::$collection)) {
       self::$collection = self::readCache();
@@ -103,6 +133,13 @@ class Dbmetadata
     return (object) self::$collection[$tablename];
   }
 
+  /** 
+   * Returns the specified table's primary key name from the Dbmetadata::tableKeys collection. If the key is not found in the collection,
+   * read it from the database, save it in the collection, then returns it.
+   * 
+   * @param string $tablename
+   * @return string 
+   */
   public static function tbPrimaryKey(string $tablename)
   {
     if (!isset(self::$tableKeys[$tablename])) {
@@ -116,6 +153,11 @@ class Dbmetadata
     return self::$tableKeys[$tablename];
   }
 
+  /** 
+   * Returns a list of all tables in the database.
+   * 
+   * @return array 
+   */
   public static function listTables()
   {
     $dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
@@ -131,26 +173,11 @@ class Dbmetadata
     return $ret;
   }
 
-  private static function readCache()
-  {
-    try {
-      return (array) unserialize(file_get_contents(INCLUDE_PATH . '/application/cache/database-metadata.cache'));
-    } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
-    }
-  }
-
-  private static function updCache()
-  {
-    $p = INCLUDE_PATH . '/application/cache/database-metadata.cache';
-
-    try {
-      return file_put_contents($p, serialize(array_merge(self::readCache(), self::$collection)));
-    } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
-    }
-  }
-
+  /** 
+   * Deletes dbmetadata cache file, then calls Dbmetadata::initCache() method to create a new empty one.
+   * 
+   * @return void 
+   */
   public static function clearCache()
   {
     try {
@@ -160,6 +187,37 @@ class Dbmetadata
     }
 
     self::initCache();
+  }
+
+  /** 
+   * Returns the data contained in the dbmetadata cache file.
+   * 
+   * @return array 
+   */
+  private static function readCache()
+  {
+    try {
+      return (array) unserialize(file_get_contents(INCLUDE_PATH . '/application/cache/database-metadata.cache'));
+    } catch (Exception $ex) {
+      System::log('sys_error', $ex->getMessage());
+    }
+  }
+
+  /** 
+   * Write all data contained in Dbmetadata::collection serialized into the dbmetadata cache file.
+   * Returns the number of bytes written this way or false in case of failure.
+   * 
+   * @return integer|boolean 
+   */
+  private static function updCache()
+  {
+    $p = INCLUDE_PATH . '/application/cache/database-metadata.cache';
+
+    try {
+      return file_put_contents($p, serialize(array_merge(self::readCache(), self::$collection)));
+    } catch (Exception $ex) {
+      System::log('sys_error', $ex->getMessage());
+    }
   }
 }
 
