@@ -396,7 +396,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function equalsTo(mixed $value)
+  private final function equalsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -419,7 +419,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function differentFrom(mixed $value)
+  private final function differentFrom( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -442,7 +442,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function biggerThan(mixed $value)
+  private final function biggerThan( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -465,7 +465,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function lesserThan(mixed $value)
+  private final function lesserThan( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -488,7 +488,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function biggerOrEqualsTo(mixed $value)
+  private final function biggerOrEqualsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -511,7 +511,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function lesserOrEqualsTo(mixed $value)
+  private final function lesserOrEqualsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -534,7 +534,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function likeOf(mixed $value)
+  private final function likeOf( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {

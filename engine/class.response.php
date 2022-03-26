@@ -120,7 +120,7 @@ class Response
    * @param boolean $escape = true
    * @return Response 
    */
-  public function withData(mixed $data, bool $escape = true)
+  public function withData($data, bool $escape = true)
   {
     $this->contentType = 'application/json';
     $this->data = $escape ? json_encode($this->sanitizeOutput($data)) : json_encode($data);
@@ -199,7 +199,7 @@ class Response
    * @param mixed $payload
    * @return mixed 
    */
-  private function sanitizeOutput(mixed $payload)
+  private function sanitizeOutput($payload)
   {
     if (is_array($payload) || (gettype($payload) == 'object'))
       foreach ($payload as &$value) {

@@ -138,7 +138,7 @@ class Dao
    * @param boolean $debug = false
    * @return object|Sqlobj
    */
-  protected final function insert(mixed $obj, bool $debug = false)
+  protected final function insert( $obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -169,7 +169,7 @@ class Dao
    * @param boolean $debug = false
    * @return integer|Sqlobj
    */
-  protected final function update(mixed $obj, bool $debug = false)
+  protected final function update( $obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -440,7 +440,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function equalsTo(mixed $value)
+  protected final function equalsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -463,7 +463,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function differentFrom(mixed $value)
+  protected final function differentFrom( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -486,7 +486,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function biggerThan(mixed $value)
+  protected final function biggerThan( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -509,7 +509,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lesserThan(mixed $value)
+  protected final function lesserThan( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -532,7 +532,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function biggerOrEqualsTo(mixed $value)
+  protected final function biggerOrEqualsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -555,7 +555,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lesserOrEqualsTo(mixed $value)
+  protected final function lesserOrEqualsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -578,7 +578,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function likeOf(mixed $value)
+  protected final function likeOf( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {

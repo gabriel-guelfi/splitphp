@@ -26,6 +26,13 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class RestService
+ * 
+ * This class manages the response's information.
+ *
+ * @package engine
+ */
 abstract class RestService extends Service
 {
   protected $routes;
@@ -73,8 +80,6 @@ abstract class RestService extends Service
 
   public final function execute($route, $httpVerb)
   {
-    $response = new Response();
-
     if ($httpVerb != 'GET' && $httpVerb != 'POST' && $httpVerb != 'PUT' && $httpVerb != 'DELETE') {
       http_response_code(405);
       die;
@@ -103,8 +108,21 @@ abstract class RestService extends Service
         $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
+
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on")
-        $this->dblink->getConnection('writer')->rollbackTransaction();
+        $this->dblink->getConnection('writer', false)->rollbackTransaction();
+
+
+      if (APPLICATION_LOG == "on") {
+        if ($exc instanceof DatabaseException) {
+          System::errorLog('db_error', $exc, [
+            'sqlState' => $exc->getSqlState(),
+            'sqlCommand' => $exc->getSqlCmd()
+          ]);
+        } else {
+          System::errorLog('application_error', $exc);
+        }
+      }
 
       $status = $this->userFriendlyErrorStatus($exc);
       $err = (object) [
@@ -116,11 +134,8 @@ abstract class RestService extends Service
         "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
       ];
 
-      if (APPLICATION_LOG)
-        System::errorLog('application_error', $exc);
-
       $return = $this->respond(
-        $response
+        $this->response
           ->withStatus(($status != false ? $status : 500))
           ->withData($err)
       );

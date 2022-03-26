@@ -108,7 +108,7 @@ class Sql
    * @param string $table
    * @return Sql 
    */
-  public function insert(mixed $dataset, string $table)
+  public function insert( $dataset, string $table)
   {
     $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
@@ -151,7 +151,7 @@ class Sql
    * @param string $table
    * @return Sql 
    */
-  public function update(mixed $dataset, string $table)
+  public function update( $dataset, string $table)
   {
     $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
@@ -277,7 +277,7 @@ class Sql
    * @param mixed $val
    * @return string 
    */
-  private function escape(mixed $val)
+  private function escape( $val)
   {
     return $val == "*" ? $val : "`" . $val . "`";
   }

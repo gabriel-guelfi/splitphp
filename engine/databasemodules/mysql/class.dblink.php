@@ -26,6 +26,8 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use FFI\Exception;
+
 /**
  * Class Dblink
  * 
@@ -97,12 +99,13 @@ class Dblink
 
   /** 
    * Set a connection, based on the value passed in $connectionName parameter, as the current connection. 
-   * If there is no such connection established, create a new one.
+   * If there is no such connection established and $attemptConnection flag is set to true, create a new one.
    * 
    * @param string $connectionName
+   * @param boolean $attemptConnection = true
    * @return Dblink 
    */
-  public function getConnection(string $connectionName)
+  public function getConnection(string $connectionName, bool $attemptConnection = true)
   {
     if (DB_CONNECT != 'on') throw new Exception("Database connections are turned off. Turn it on in config.ini file.");
 
@@ -112,7 +115,7 @@ class Dblink
     $this->isGetConnectionInvoked = true;
     $this->currentConnectionName = $connectionName;
 
-    if (!array_key_exists($connectionName, $this->connections) || empty($this->connections[$this->currentConnectionName]))
+    if ($attemptConnection && (!array_key_exists($connectionName, $this->connections) || empty($this->connections[$this->currentConnectionName])))
       $this->connections[$this->currentConnectionName] = $this->connect();
 
     $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
@@ -175,9 +178,9 @@ class Dblink
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $res = $this->runsql($sqlobj, $currentTry + 1);
+        return;
       } else {
-        System::errorLog('db_error', $ex, ['sql' => $sqlobj->sqlstring]);
-        throw $ex;
+        throw new DatabaseException($ex, "Only for PHP 8 or >", $sqlobj->sqlstring);
       }
     }
 
@@ -217,9 +220,12 @@ class Dblink
       throw new Exception("There is already an active transaction. It must be finished before starting a new one.");
     }
 
-    $this->connections[$this->currentConnectionName]->autocommit(false);
-    $this->transactionMode = true;
-    $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
+    if (!empty($this->connections[$this->currentConnectionName])) {
+      $this->connections[$this->currentConnectionName]->autocommit(false);
+      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
+      $this->transactionMode = true;
+    }
+
     $this->isGetConnectionInvoked = false;
   }
 
@@ -236,10 +242,12 @@ class Dblink
     if ($this->transactionMode) {
       $this->transactionMode = false;
 
-      $this->connections[$this->currentConnectionName]->commit();
+      if (!empty($this->connections[$this->currentConnectionName]))
+        $this->connections[$this->currentConnectionName]->commit();
     }
 
-    $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
+    if (!empty($this->connections[$this->currentConnectionName]))
+      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
     $this->isGetConnectionInvoked = false;
   }
 
@@ -256,10 +264,12 @@ class Dblink
     if ($this->transactionMode) {
       $this->transactionMode = false;
 
-      $this->connections[$this->currentConnectionName]->rollBack();
+      if (!empty($this->connections[$this->currentConnectionName]))
+        $this->connections[$this->currentConnectionName]->rollBack();
     }
 
-    $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
+    if (!empty($this->connections[$this->currentConnectionName]))
+      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
     $this->isGetConnectionInvoked = false;
   }
 
@@ -269,7 +279,7 @@ class Dblink
    * @param mixed $dataset
    * @return mixed 
    */
-  public function escapevar(mixed $dataset)
+  public function escapevar($dataset)
   {
     if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
@@ -348,8 +358,11 @@ class Dblink
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $connection = $this->connect($currentTry + 1);
+        return;
       } else {
-        System::errorLog('db_error', $ex);
+        if (!empty($connection))
+          $connection->close();
+        throw new DatabaseException($ex, "Only for PHP 8 or >");
       }
       $this->disconnect($this->currentConnectionName);
     }
