@@ -26,15 +26,35 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class Utils
+ * 
+ * This class is a gateway object to extra miscellaneous functionality. There are some built-in misc functions here, like encrypt/decrypt, for example 
+ * amongst others and you can register custom misc functions here too. The vendors's objects also will be loaded in this class's instance, 
+ * which is available in all services. 
+ *
+ * @package engine
+ */
 class Utils
 {
-  /* $summary is an index of utils specified in config.ini file. 
-     * It holds data like util's class name, path and arguments to be passed to utils's construct method.
-     */
-
+  /**
+   * @var array $summary
+   * It is a collection to loaded vendor objects.
+   */
   private $summary;
+  
+  /**
+   * @var array $methodsCollection
+   * Stores all registered custom misc functions.
+   */
   private static $methodsCollection = [];
 
+  /** 
+   * This is the constructor of Utils class. It parses all vendors set in config.ini then register them in the summary. 
+   * If the utils autoload, set in config.ini file, is on, automatically loads all vendors registered this way.
+   * 
+   * @return Utils 
+   */
   public function __construct()
   {
     $c = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
@@ -59,7 +79,15 @@ class Utils
     }
   }
 
-  public function load($name, $path = null, $args = array())
+  /** 
+   * Loads and returns a vendor class object. If the vendor isn't registered in the summary, yet, register it before loading. 
+   * 
+   * @param string $name
+   * @param string $path
+   * @param array $args = []
+   * @return mixed 
+   */
+  public function load(string $name, string $path = null, array $args = [])
   {
     $name = strtolower($name);
     if (!empty($path) && !array_key_exists($name, $this->summary)) {
@@ -69,21 +97,27 @@ class Utils
     return $this->$name = System::loadClass(INCLUDE_PATH . "/public/utils/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
   }
 
-  private function register($name, $path, $args = array())
-  {
-    $this->summary[$name] = (object) array(
-      'path' => $path,
-      'args' => $args
-    );
-  }
-
-  public static function registerMethod($methodName, $instructions)
+  /** 
+   * Register the closure function received in $instructions as a custom static method of the Utils object, with the specified $methodName. 
+   * 
+   * @param string $methodName
+   * @param callable $instructions
+   * @return void 
+   */
+  public static function registerMethod(string $methodName, callable $instructions)
   {
     if (is_callable($instructions))
       self::$methodsCollection[$methodName] = $instructions;
   }
 
-  public static function __callstatic($name, $arguments)
+  /** 
+   * Calls a Utils's custom static method, previously registered with Utils::registerMethod(), then returns its result.
+   * 
+   * @param string $name
+   * @param array $arguments = []
+   * @return mixed
+   */
+  public static function __callstatic(string $name, array $arguments = [])
   {
     try {
       if (!isset(self::$methodsCollection[$name]))
@@ -92,9 +126,15 @@ class Utils
       return call_user_func_array(self::$methodsCollection[$name], $arguments);
     } catch (Exception $ex) {
       System::log('sys_error', $ex->getMessage());
+      die;
     }
   }
 
+  /** 
+   * Returns the string representation of a line break.
+   * 
+   * @return mixed
+   */
   public static function lineBreak()
   {
     if (PATH_SEPARATOR == ":")
@@ -102,6 +142,13 @@ class Utils
     else return "\n";
   }
 
+  /** 
+   * Encrypts the string passed in $data into a reversible hash, using the passed $key. Returns the encrypted hash.
+   * 
+   * @param string $data
+   * @param string $key
+   * @return string
+   */
   public static function dataEncrypt(string $data, string $key)
   {
     $m = 'AES-256-CBC';
@@ -116,6 +163,14 @@ class Utils
     return base64_encode(serialize([$iv, $dt]));
   }
 
+  /** 
+   * Using the passed $key, decrypts the hash passed in $data into the original data, previously encrypted with Utils::dataEncrypt(). 
+   * Returns the original data.
+   * 
+   * @param string $data
+   * @param string $key
+   * @return string
+   */
   public static function dataDecrypt(string $data, string $key)
   {
     $m = 'AES-256-CBC';
@@ -127,42 +182,19 @@ class Utils
     return openssl_decrypt($data, $m, $key, 0, $iv);
   }
 
-  public static function XML_encode($data, $node_block = 'nodes', $node_name = 'node')
-  {
-    $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
-
-    $xml .= '<' . $node_block . '>' . "\n";
-    $xml .= self::_dataToXML($data, $node_name);
-    $xml .= '</' . $node_block . '>' . "\n";
-
-    return $xml;
-  }
-
-  private static function _dataToXML($data, $node_name)
-  {
-    $xml = '';
-
-    if (is_array($data) || is_object($data)) {
-      foreach ($data as $key => $value) {
-        if (is_numeric($key)) {
-          $key = $node_name;
-        }
-
-        $xml .= '<' . $key . '>' . self::lineBreak() . self::_dataToXML($value, $node_name) . '</' . $key . '>' . self::lineBreak();
-      }
-    } else {
-      $xml = htmlspecialchars($data, ENT_QUOTES) . self::lineBreak();
-    }
-
-    return $xml;
-  }
-
   public static function preg_grep_keys($pattern, $input, $flags = 0)
   {
     return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
   }
 
-  public static function filterInputs($filterRules, $data)
+  /** 
+   * Removes regex patterns specified in $filterRules from $data, then returns the modified $data.
+   * 
+   * @param array $filterRules
+   * @param mixed $data
+   * @return mixed
+   */
+  public static function filterInputs(array $filterRules, $data)
   {
     foreach ($data as $key => $value) {
       if (gettype($value == 'array') || (gettype($value == 'object' && $value instanceof StdClass)))
@@ -316,5 +348,51 @@ class Utils
     }
 
     return null;
+  }
+
+  public static function XML_encode($data, $node_block = 'nodes', $node_name = 'node')
+  {
+    $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
+
+    $xml .= '<' . $node_block . '>' . "\n";
+    $xml .= self::_dataToXML($data, $node_name);
+    $xml .= '</' . $node_block . '>' . "\n";
+
+    return $xml;
+  }
+
+  /** 
+   * Registers the $path and $args of a vendor class, in the summary, under the key $name. 
+   * 
+   * @param string $name
+   * @param string $path
+   * @param array $args = []
+   * @return void 
+   */
+  private function register(string $name, string $path, $args = [])
+  {
+    $this->summary[$name] = (object) array(
+      'path' => $path,
+      'args' => $args
+    );
+  }
+
+  private static function _dataToXML($data, $node_name)
+  {
+    $xml = '';
+
+    if (is_array($data) || is_object($data)) {
+      foreach ($data as $key => $value) {
+        if (is_numeric($key)) {
+          $key = $node_name;
+        }
+
+        $xml .= '<' . $key . '>' . self::lineBreak() . self::_dataToXML($value, $node_name) . '</' . $key . '>' . self::lineBreak();
+      }
+    } else {
+      $xml = htmlspecialchars($data, ENT_QUOTES) . self::lineBreak();
+    }
+
+    return $xml;
   }
 }

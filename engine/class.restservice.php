@@ -29,20 +29,68 @@
 /**
  * Class RestService
  * 
- * This class manages the response's information.
+ * This class aims to provide an interface where the developer creates the application's API layer, defines its endpoints, handles the requests and builds
+ * standardized responses. Here's where the RESTful magic happens.
  *
  * @package engine
  */
 abstract class RestService extends Service
 {
+  /**
+   * @var array $routes
+   * Stores a list of endpoint routes.
+   */
   protected $routes;
-  protected $routeIndex;
-  protected $response;
-  private $template404;
-  private $dblink;
-  private $xsrfToken;
-  private $antiXsrfValidation;
 
+  /**
+   * @var array $routeIndex
+   * This is a summary for the $routes list.
+   */
+  protected $routeIndex;
+
+  /**
+   * @var Response $response
+   * Stores an instance of the class Response, used to build the standardized responses.
+   */
+  protected $response;
+
+  /**
+   * @var object $template404
+   * Stores an object containing information about a pre-defined 404 template.
+   */
+  private $template404;
+
+  /**
+   * @var Dblink $template404
+   * Stores an instance of the class Dblink, used to perform database connections and operations.
+   */
+  private $dblink;
+
+  /**
+   * @var string $xsrfToken
+   * Stores a automatically generated dynamic token, which is used to authenticate requests and ensure that the request
+   * is coming from an authorized application.
+   */
+  private $xsrfToken;
+
+  /**
+   * @var boolean $antiXsrfValidation
+   * This flag is a control to whether the requests received by the Rest Service shall be authenticates by a XSRF token or not. Default = true.
+   */
+  private $antiXsrfValidation;
+  
+  /**
+   * @var array $inputRestriction
+   * This is an array of regex patterns that will be used against request payloads to check for potentially harmful data.
+   */
+  private $inputRestriction;
+
+  /** 
+   * Defines constants for user errors, set properties with their initial values, instantiate other classes, then returns an
+   * instance of the Rest Service(constructor).
+   * 
+   * @return RestService 
+   */
   public function __construct()
   {
     require_once __DIR__ . '/class.response.php';
@@ -78,7 +126,15 @@ abstract class RestService extends Service
     parent::__construct();
   }
 
-  public final function execute($route, $httpVerb)
+  /** 
+   * Checks for allowed HTTP verbs, searches for the request's route in added routes list, generate a new XSRF token, executes the 
+   * handler method provided for the endpoint, then respond the request with the response returned from this handler method.
+   * 
+   * @param string $route
+   * @param string $httpVerb
+   * @return Response 
+   */
+  public final function execute(string $route, string $httpVerb)
   {
     if ($httpVerb != 'GET' && $httpVerb != 'POST' && $httpVerb != 'PUT' && $httpVerb != 'DELETE') {
       http_response_code(405);
@@ -124,7 +180,6 @@ abstract class RestService extends Service
         }
       }
 
-      $status = $this->userFriendlyErrorStatus($exc);
       $err = (object) [
         "error" => true,
         "user_friendly" => $status !== false,
@@ -136,7 +191,7 @@ abstract class RestService extends Service
 
       $return = $this->respond(
         $this->response
-          ->withStatus(($status != false ? $status : 500))
+          ->withStatus($this->userFriendlyErrorStatus($exc))
           ->withData($err)
       );
     } finally {
@@ -146,6 +201,17 @@ abstract class RestService extends Service
     }
   }
 
+  /** 
+   * Registers an endpoint on the list $routes, in other words: makes an endpoint available within the Rest Service, with the 
+   * HTTP verb, route and handler method provided.
+   * 
+   * @param string $httpVerb
+   * @param string $route
+   * @param mixed $method
+   * @param boolean $antiXsrf = null
+   * @param boolean $validateInput = true
+   * @return void 
+   */
   protected final function addEndpoint(string $httpVerb, string $route, $method, bool $antiXsrf = null, bool $validateInput = true)
   {
     if (!array_key_exists($httpVerb, $this->routes))
@@ -173,6 +239,12 @@ abstract class RestService extends Service
     ];
   }
 
+  /** 
+   * Responds the request setting content type, payload, status code and headers according to the Response object passed as parameter.
+   * 
+   * @param Response $res
+   * @return Response 
+   */
   protected final function respond(Response $res)
   {
     http_response_code($res->getStatus());
@@ -187,7 +259,14 @@ abstract class RestService extends Service
     return $res;
   }
 
-  protected final function set404template($path, $args = [])
+  /** 
+   * Sets the information of a template that will be rendered in case of a 404 (not found) status.
+   * 
+   * @param string $path
+   * @param array $args = []
+   * @return void 
+   */
+  protected final function set404template(string $path, array $args = [])
   {
     $this->template404 = (object) [
       "path" => $path,
@@ -195,17 +274,35 @@ abstract class RestService extends Service
     ];
   }
 
+  /** 
+   * Returns the auto-generated XSRF token.
+   * 
+   * @return string 
+   */
   protected final function xsrfToken()
   {
     return $this->xsrfToken;
   }
 
+  /** 
+   * Turn on/off the Anti XSRF validation.
+   * 
+   * @param boolean $validate
+   * @return void 
+   */
   protected final function setAntiXsrfValidation(bool $validate)
   {
     $this->antiXsrfValidation = $validate;
   }
 
-  private function routeConfig($route)
+  /** 
+   * Configure the settings of the request's route, separating what is route and what is parameter. Returns an object containing 
+   * the route and the parameters with their values set accordingly.
+   * 
+   * @param string $route
+   * @return object 
+   */
+  private function routeConfig(string $route)
   {
     $result = (object) [
       "pattern" => '',
@@ -227,7 +324,15 @@ abstract class RestService extends Service
     return $result;
   }
 
-  private function findRoute($route, $httpVerb)
+  /** 
+   * Using the request's URL, Searches for a route in the routes's summary, where the URL and HTTP verb matches with the pattern and verb 
+   * registered on the endpoint. Returns the route data or false, in case of not founding it.
+   * 
+   * @param string $route
+   * @param string $httpVerb
+   * @return object|boolean 
+   */
+  private function findRoute(string $route, string $httpVerb)
   {
     foreach ($this->routeIndex as $summary) {
       if (preg_match('/' . $summary->pattern . '/', $route) && $httpVerb == $summary->httpVerb) {
@@ -238,7 +343,17 @@ abstract class RestService extends Service
     return false;
   }
 
-  private function prepareParams($route, $routeData, $httpVerb, $validate = true)
+  /** 
+   * Merges the request's payload data with the parameters received in line on the route and returns this merged array of data. If the 
+   * flag $validate is set to true, performs a check for potentially harmful data.
+   * 
+   * @param string $route
+   * @param object $routeData
+   * @param string $httpVerb
+   * @param boolean $validate = true
+   * @return array
+   */
+  private function prepareParams(string $route, object $routeData, string $httpVerb, bool $validate = true)
   {
     $params = [];
 
@@ -268,6 +383,12 @@ abstract class RestService extends Service
     return $params;
   }
 
+  /** 
+   * Performs a check for potentially harmful data within $input. If found, log information about it and throws exception.
+   * 
+   * @param mixed $input
+   * @return void
+   */
   private function inputValidation($input)
   {
     foreach ($input as $content) {
@@ -334,6 +455,12 @@ abstract class RestService extends Service
     }
   }
 
+  /** 
+   * Returns an integer representing a specific http status code for predefined types of exceptions. Defaults to 500.
+   * 
+   * @param Exception $exc
+   * @return integer
+   */
   private function userFriendlyErrorStatus(Exception $exc)
   {
     switch ($exc->getCode()) {
@@ -357,9 +484,15 @@ abstract class RestService extends Service
         break;
     }
 
-    return false;
+    return 500;
   }
 
+  /** 
+   * Nullify string representations od empty values, like 'null' or 'undefined', then returns the modified dataset.
+   * 
+   * @param mixed $data
+   * @return mixed
+   */
   private function actualizeEmptyValues($data)
   {
     foreach ($data as $key => $value) {
@@ -374,6 +507,11 @@ abstract class RestService extends Service
     return $data;
   }
 
+  /** 
+   * Responds the request with the rendered pre defined template for 404 cases.
+   * 
+   * @return void
+   */
   private function render404()
   {
     $response = new Response();
@@ -382,6 +520,11 @@ abstract class RestService extends Service
     die;
   }
 
+  /** 
+   * Searches within request's data for the XSRF token and returns it. If not found, returns null.
+   * 
+   * @return string
+   */
   private function xsrfTknFromRequest()
   {
     if (!empty($_SERVER['HTTP_XSRF_TOKEN'])) {
@@ -394,7 +537,13 @@ abstract class RestService extends Service
     return null;
   }
 
-  private function antiXsrfValidation($routeData)
+  /** 
+   * Authenticates the XSRF token received on the request is valid.
+   * 
+   * @param object $routeData
+   * @return void
+   */
+  private function antiXsrfValidation(object $routeData)
   {
     // Whether the request must check XSRF token:
     if ($routeData->antiXsrf) {

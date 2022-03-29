@@ -26,27 +26,43 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class System
+ * 
+ * This is the main class, the entry point of the application.
+ *
+ * @package engine
+ */
 class System
 {
-
-  // Holds general configuration
+  /**
+   * @var array $configs
+   * Stores all the settings that come from config.ini file.
+   */
   private static $configs;
-  // Global Vars:
+
+  /**
+   * @var array $globals
+   * Used to store static data that must be available in the entire application.
+   */
   public static $globals;
 
-  // Include some global core classes and uses data passed on POST, GET or URI to set running controller, action and args.
+  /** 
+   * This is the constructor of System class. It initiate the $globals property, create configuration constants, load and runs 
+   * extensions, load custom exception classes, include the main classes, then executes the request.
+   * 
+   * @return System 
+   */
   public function __construct()
   {
     self::$globals = [];
-    
+
     define('INCLUDE_PATH', __DIR__ . "/..");
     define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
     define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['SERVER_NAME']);
 
     $this->loadExtensions();
     $this->loadExceptions();
-
-    $this->registerGlobalMethods();
 
     // Setting up general configs:
     self::$configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
@@ -69,11 +85,27 @@ class System
     $this->execute(new Request($_SERVER["REQUEST_URI"]));
   }
 
+  /** 
+   * This is a wrapper to ObjLoader::load() method. Returns the instance of a class registered on the collection. 
+   * If the class instance isn't registered yet, create a new instance of that class, register it on the collection, then returns it.
+   * 
+   * @param string $path
+   * @param string $classname
+   * @param array $args = []
+   * @return mixed 
+   */
   public static function loadClass(string $path, string $classname, array $args = array())
   {
     return ObjLoader::load($path, $classname, $args);
   }
 
+  /** 
+   * Creates a log file under /application/log with the specified $logname, writing down $logmsg with the current datetime 
+   * 
+   * @param string $logname
+   * @param mixed $logmsg
+   * @return void 
+   */
   public static function log(string $logname, $logmsg)
   {
     $path = INCLUDE_PATH . "/application/log/";
@@ -92,12 +124,28 @@ class System
     fclose($log);
   }
 
-  public static function errorLog(string $logname, Exception $exc, $info = [])
+  /** 
+   * Creates a log file under /application/log with the specified $logname, with specific information about the exception received in $exc. 
+   * Use $info to add extra information on the log.
+   * 
+   * @param string $logname
+   * @param Exception $exc
+   * @param array $info = []
+   * @return void 
+   */
+  public static function errorLog(string $logname, Exception $exc, array $info = [])
   {
     self::log($logname, self::exceptionBuildLog($exc, $info));
   }
 
-  public static function navigateToUrl($url, $afterResponse = false)
+  /** 
+   * Navigate the user agent to the specified $url. If $afterResponse flag is set to true, echoes a front-end script that does that.
+   * 
+   * @param string $url
+   * @param boolean $afterResponse
+   * @return void 
+   */
+  public static function navigateToUrl(string $url, bool $afterResponse = false)
   {
     if ($afterResponse) echo '<script type="text/javascript">window.location.href="' . $url . '";</script>';
     else header('Location: ' . $url);
@@ -105,9 +153,13 @@ class System
     die;
   }
 
-  /*/ Create an instance of a custom controller and calls it's method, passing specified arguments. 
-   * If no controller, action or args is supplied, it uses the ones setted in __construct method, above.
-  /*/
+  /** 
+   * Using the information stored in the received Request object, set and run a specific RestService, passing along the route 
+   * and data specified in that Request object.
+   * 
+   * @param Request $request
+   * @return Response 
+   */
   private function execute(Request $request)
   {
     if (file_exists($request->getRestService()->path . $request->getRestService()->name . ".php") === false) {
@@ -125,10 +177,12 @@ class System
     }
   }
 
-  private function registerGlobalMethods()
-  {
-  }
-
+  /** 
+   * Loads and runs all scripts located at /engine/extensions. It is used to add extra functionalities to PHP's interface, like $_PUT 
+   * superglobal, for instance.
+   * 
+   * @return void 
+   */
   private function loadExtensions()
   {
     if ($dir = opendir(__DIR__ . '/extensions/')) {
@@ -138,6 +192,11 @@ class System
     }
   }
 
+  /** 
+   * Includes all custom exception classes located at /engine/exceptions.
+   * 
+   * @return void 
+   */
   private function loadExceptions()
   {
     if ($dir = opendir(__DIR__ . '/exceptions/')) {
@@ -147,7 +206,15 @@ class System
     }
   }
 
-  private static function exceptionBuildLog(Exception $exc, $info)
+  /** 
+   * Using the information of the exception received in $exc, and the extra $info, builds a fittable 
+   * error log object to be used as $logmsg.  
+   * 
+   * @param Exception $exc
+   * @param array $info
+   * @return void 
+   */
+  private static function exceptionBuildLog(Exception $exc, array $info)
   {
     return (object) [
       "datetime" => date('Y-m-d H:i:s'),
