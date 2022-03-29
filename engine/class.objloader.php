@@ -26,31 +26,43 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ObjLoader {
+/**
+ * Class ObjLoader
+ * 
+ * This class is responsible loading the classes's objects, respecting the singleton OOP concept.
+ *
+ * @package engine
+ */
+class ObjLoader
+{
 
-    // A collection of already loaded objects.
-    private static $collection = array();
+  /**
+   * @var array $collection
+   * Stores a collection of already loaded objects.
+   */
+  private static $collection = [];
 
-    private function __construct() {
-
+  /** 
+   * Returns the instance of a class registered on the collection. If the class instance isn't registered yet, 
+   * create a new instance of that class, register it on the collection, then returns it.
+   * 
+   * @param string $path
+   * @param string $classname
+   * @param array $args = []
+   * @return mixed 
+   */
+  public static function load(string $path, string $classname, array $args = [])
+  {
+    if (!isset(self::$collection[$path])) {
+      try {
+        include_once $path;
+        $r = new ReflectionClass(ucfirst($classname));
+        self::$collection[$path] = $r->newInstanceArgs($args);
+      } catch (Exception $ex) {
+        throw $ex;
+      }
     }
 
-    /* Returns the instance of a class registered on collection.
-     * If the class isn't registered yet, create a new instance of that, register it on collection, then returns it.
-     */
-
-    public static function load($path, $classname, $args = array()) {
-        if (!isset(self::$collection[$path])) {
-            try {
-                include_once $path;
-                $r = new ReflectionClass(ucfirst($classname));
-                self::$collection[$path] = $r->newInstanceArgs($args);
-            } catch (Exception $ex) {
-                throw $ex;
-            }
-        }
-
-        return self::$collection[$path];
-    }
-
+    return self::$collection[$path];
+  }
 }

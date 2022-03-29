@@ -27,195 +27,77 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Class Response
+ * Class DatabaseException
  * 
- * This class manages the response's information.
+ * This class represents an extension of exceptions for Database operations and is able to store the SQL command, so the developer can
+ * make a more detailed analysis of the problem. 
  *
- * @package engine
+ * @package engine/exceptions
  */
-class Response
+class DatabaseException extends Exception
 {
   /**
-   * @var integer $status
-   * Stores the response's status code.
+   * @var string $sqlstate
+   * Stores the SQl State code.
    */
-  private $status;
-  
-  /**
-   * @var string $contentType
-   * A string containing the response's content type header.
-   */
-  private $contentType;
+  private $sqlstate;
 
   /**
-   * @var mixed $data
-   * Stores the payload which will be sent on the response.
+   * @var string $sqlcommand
+   * Stores the SQl command.
    */
-  private $data;
-
-  /**
-   * @var array $headers
-   * An array of string representations of the response's custom headers.
-   */
-  private $headers;
+  private $sqlcommand;
 
   /** 
-   * Set the default response's status, content type, payload data and custom headers. Returns an instance of Response (constructor)
+   * Runs Exception class constructor, sets common Exception properties with the data retrieved from the Exception object passed on $exc, 
+   * set sqlstate property with the data passed on $sqlstate, set property sqlcommand with the value passed on $sqlcmd, then returns an 
+   * instance of this class (constructor).
    * 
-   * @return Response 
+   * @param Exception $exc
+   * @param string $sqlstate
+   * @param string $sqlcmd
+   * @return DatabaseException 
    */
-  public function __construct()
+  public function __construct(Exception $exc, string $sqlstate, string $sqlcmd = null)
   {
-    $this->status = 200;
-    $this->contentType = 'text/plain';
-    $this->data = null;
-    $this->headers = [];
+    parent::__construct($exc->getMessage(), $exc->getCode(), $exc->getPrevious());
+
+    $this->message = $exc->getMessage();
+    $this->code = $exc->getCode();
+    $this->file = $exc->getFile();
+    $this->line = $exc->getLine();
+
+    $this->sqlstate = $sqlstate;
+    $this->sqlcommand = $sqlcmd;
   }
 
   /** 
-   * Add a string representation of a header to the Response's headers collection. Each header stored on this collection, will be added to 
-   * the response, later.
-   * 
-   * @param string $header
-   * @return Response 
-   */
-  public function setHeader(string $header)
-  {
-    $this->headers[] = $header;
-    return $this;
-  }
-
-  /** 
-   * Set the status code of the response.
-   * 
-   * @param integer $code
-   * @return Response 
-   */
-  public function withStatus(int $code)
-  {
-    $this->status = $code;
-    return $this;
-  }
-
-  /** 
-   * Set the response's content type to "text/plain" and the response's payload data, with the data passed on $text.
-   * If $escape flag is set to false, the payload data will be set unescaped(insecure).
-   * 
-   * @param string $text
-   * @param boolean $escape = true
-   * @return Response 
-   */
-  public function withText(string $text, bool $escape = true)
-  {
-    $this->contentType = 'text/plain';
-    $this->data = $escape ? $this->sanitizeOutput($text) : $text;
-    return $this;
-  }
-
-  /** 
-   * Set the response's content type to "application/json" and the response's payload data, with the data passed on $data.
-   * If $escape flag is set to false, the payload data will be set unescaped(insecure).
-   * 
-   * @param mixed $data
-   * @param boolean $escape = true
-   * @return Response 
-   */
-  public function withData($data, bool $escape = true)
-  {
-    $this->contentType = 'application/json';
-    $this->data = $escape ? json_encode($this->sanitizeOutput($data)) : json_encode($data);
-    return $this;
-  }
-
-  /** 
-   * Set the response's content type to "text/html", encoded with utf-8 charset, and the response's payload data, with the data passed on $content.
-   * 
-   * @param string $content
-   * @return Response 
-   */
-  public function withHTML(string $content)
-  {
-    $this->contentType = 'text/html; charset=utf-8';
-    $this->data = $content;
-    return $this;
-  }
-
-  /** 
-   * Set the response's content type to "application/xml" and the response's payload data, with the data passed on $data.
-   * 
-   * @param mixed $data
-   * @return Response 
-   */
-  public function withXMLData($data)
-  {
-    $this->contentType = 'application/xml';
-    $this->data = Utils::XML_encode($data);
-    return $this;
-  }
-
-  /** 
-   * Returns the collection of response's custom headers.
-   * 
-   * @return array 
-   */
-  public function getHeaders()
-  {
-    return $this->headers;
-  }
-
-  /** 
-   * Returns the response's status code.
-   * 
-   * @return integer 
-   */
-  public function getStatus()
-  {
-    return $this->status;
-  }
-
-  /** 
-   * Returns the response's content type string representation.
+   * Returns a string representation of the instance.
    * 
    * @return string 
    */
-  public function getContentType()
+  public function __toString()
   {
-    return $this->contentType;
+    return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+  }
+  
+  /** 
+   * Returns the value stored on DatabaseException::sqlstate.
+   * 
+   * @return string 
+   */
+  public function getSqlState()
+  {
+    return $this->sqlstate;
   }
 
   /** 
-   * Returns the response's payload data.
+   * Returns the value stored on DatabaseException::sqlcmd.
    * 
-   * @return mixed 
+   * @return string 
    */
-  public function getData()
+  public function getSqlCmd()
   {
-    return $this->data;
-  }
-
-  /** 
-   * Sanitizes the passed data, encoding it with htmlspecialchars(), in order to avoid XSS attacks. Returns the sanitized data.
-   * 
-   * @param mixed $payload
-   * @return mixed 
-   */
-  private function sanitizeOutput($payload)
-  {
-    if (is_array($payload) || (gettype($payload) == 'object'))
-      foreach ($payload as &$value) {
-        if (gettype($value) == 'array' || (gettype($value) == 'object')) {
-          $value = $this->sanitizeOutput($value);
-          continue;
-        }
-
-        if (!is_numeric($value))
-          $value = htmlspecialchars($value);
-      }
-    else{
-        if (!is_numeric($payload))
-          $payload = htmlspecialchars($payload);
-    }
-
-    return $payload;
+    return $this->sqlcommand;
   }
 }

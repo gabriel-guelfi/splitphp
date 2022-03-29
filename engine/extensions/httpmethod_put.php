@@ -26,6 +26,11 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** 
+ * If request method were "PUT", reads the payload from "php://input" file and parse it writing its data to a super global $_PUT variable.
+ * 
+ * @return void 
+ */
 function _parsePut()
 {
   global $_PUT;

@@ -26,11 +26,38 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class SqlParams
+ * 
+ * This class parameterizes database operations automatically, editing the SQL command string and adding filters to the DAO, 
+ * according to the parameters passed to it.
+ *
+ * @package engine/databasemodules/mysql
+ */
 class SqlParams
 {
+  /**
+   * @var object $settings
+   * An object containing some param settings.
+   */
   private $settings;
+  
+  /**
+   * @var array $filters
+   * An array of objects, on which each object contains settings of the filters that wil be applied on the operation.
+   */
   private $filters;
 
+  /** 
+   * Set DAO's filtering, sorting and pagination parameters, based on the data received in $params. If a query is passed in $sql,
+   * edit this query, according to the filters set. If a $paramPrefix is set, add this prefix on all parameter names. Returns an object containing 
+   * the resulting DAO filters and SQL query.
+   * 
+   * @param array $params = []
+   * @param string $sql = null
+   * @param string $paramPrefix = null
+   * @return object 
+   */
   public function parameterize(array $params = [], string $sql = null, string $paramPrefix = null)
   {
     $this->filters = [];
@@ -78,6 +105,12 @@ class SqlParams
     ];
   }
 
+  /** 
+   * Set the default logic operator ("AND" / "OR"), based on the parameters.
+   * 
+   * @param array $params = []
+   * @return void 
+   */
   private function setup(array $params)
   {
     $this->settings = (object) [];
@@ -88,6 +121,15 @@ class SqlParams
     } else $this->settings->logicalOperator = 'AND';
   }
 
+  /** 
+   * Based on the received parameters, add DAO filters for filtering and edit SQL's WHERE clause. Returns 
+   * an object containing the resulting SQL query.
+   * 
+   * @param array $params = []
+   * @param string $sql = null
+   * @param string $paramPrefix = null
+   * @return object 
+   */
   private function filtering(array $params = [], string $sql = null, string $paramPrefix = null)
   {
     if (!empty($sql) && substr($sql, -1) != " ") $sql .= " ";
@@ -217,6 +259,14 @@ class SqlParams
     ];
   }
 
+  /** 
+   * Based on the received parameters, add DAO filters for sorting and edit SQL's ORDER BY clause. Returns 
+   * an object containing the resulting SQL query.
+   * 
+   * @param array $params
+   * @param string $sql = null
+   * @return object 
+   */
   private function sorting(array $params, string $sql = null)
   {
     $params['sortDirection'] = strtoupper($params['sortDirection']);
@@ -236,6 +286,14 @@ class SqlParams
     ];
   }
 
+  /** 
+   * Based on the received parameters, add DAO filters for pagination purposes and edit SQL's LIMIT/OFFSET clause. Returns 
+   * an object containing the resulting SQL query.
+   * 
+   * @param array $params
+   * @param string $sql = null
+   * @return object 
+   */
   private function pagination(array $params, string $sql = null)
   {
     if (!empty($params['page']) && !empty($params['limit'])) {
@@ -258,7 +316,14 @@ class SqlParams
     ];
   }
 
-  private final function filter($key, $sanitize = true)
+  /** 
+   * Add filter data to DAO filter and returns this class instance.
+   * 
+   * @param string $key
+   * @param boolean $sanitize = true
+   * @return SqlParams 
+   */
+  private final function filter(string $key, $sanitize = true)
   {
     $filter = (object) [
       'key' => $key,
@@ -272,7 +337,14 @@ class SqlParams
     return $this;
   }
 
-  private final function and($key, $sanitize = true)
+  /** 
+   * Add filter data to DAO filter, specifying logical operator to "AND", then returns this class instance.
+   * 
+   * @param string $key
+   * @param boolean $sanitize = true
+   * @return SqlParams 
+   */
+  private final function and(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -291,7 +363,14 @@ class SqlParams
     return $this;
   }
 
-  private final function or($key, $sanitize = true)
+  /** 
+   * Add filter data to DAO filter, specifying logical operator to "OR", then returns this class instance.
+   * 
+   * @param string $key
+   * @param boolean $sanitize = true
+   * @return SqlParams 
+   */
+  private final function or(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -310,7 +389,14 @@ class SqlParams
     return $this;
   }
 
-  private final function equalsTo($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function equalsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -326,7 +412,14 @@ class SqlParams
     return $this;
   }
 
-  private final function differentFrom($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "!=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function differentFrom( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -342,7 +435,14 @@ class SqlParams
     return $this;
   }
 
-  private final function biggerThan($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to ">" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function biggerThan( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -358,7 +458,14 @@ class SqlParams
     return $this;
   }
 
-  private final function lesserThan($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "<" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function lesserThan( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -374,7 +481,14 @@ class SqlParams
     return $this;
   }
 
-  private final function biggerOrEqualsTo($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to ">=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function biggerOrEqualsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -390,7 +504,14 @@ class SqlParams
     return $this;
   }
 
-  private final function lesserOrEqualsTo($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "<=" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function lesserOrEqualsTo( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -406,7 +527,14 @@ class SqlParams
     return $this;
   }
 
-  private final function likeOf($value)
+  /** 
+   * Edit the last added DAO filter data, specifying comparison operator to "LIKE" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   * 
+   * @param mixed $value
+   * @return SqlParams 
+   */
+  private final function likeOf( $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {

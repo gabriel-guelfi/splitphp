@@ -26,19 +26,51 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class Request
+ * 
+ * This class if for capturing the incoming requests and managing its informations.
+ *
+ * @package engine
+ */
 class Request
 {
+  /**
+   * @var string $route
+   * Stores the current accessed route.
+   */
   private $route;
+  
+  /**
+   * @var string $restServicePath
+   * Stores the defined RestService class path.
+   */
   private $restServicePath;
+  
+  /**
+   * @var string $restServiceName
+   * Stores the defined RestService class name.
+   */
   private $restServiceName;
+  
+  /**
+   * @var array $args
+   * Stores the parameters and data passed along the request.
+   */
   private $args;
 
+  /** 
+   * Parse the incoming URI, separating DNS, Rest Service's path and name, route and arguments. Returns an instance of the Request class (constructor).
+   * 
+   * @param string $uri
+   * @return Request 
+   */
   public function __construct(string $uri)
   {
     $urlElements = explode("/", str_replace(strrchr($uri, "?"), "", urldecode($uri)));
     array_shift($urlElements);
 
-    $this->setRestService('/application/routes/', $urlElements);
+    $this->restServiceFindAndSet('/application/routes/', $urlElements);
 
     $this->args = [
       $this->route,
@@ -46,11 +78,21 @@ class Request
     ];
   }
 
+  /** 
+   * Returns the stored route.
+   * 
+   * @return string 
+   */
   public function getRoute()
   {
     return $this->route;
   }
 
+  /** 
+   * Returns an object containing the name and the path of the Rest Service class.
+   * 
+   * @return object 
+   */
   public function getRestService()
   {
     return (object) [
@@ -59,11 +101,21 @@ class Request
     ];
   }
 
+  /** 
+   * Returns the parameters and data passed along the request.
+   * 
+   * @return array 
+   */
   public function getArgs()
   {
     return $this->args;
   }
 
+  /** 
+   * Returns the client's IP.
+   * 
+   * @return string 
+   */
   public static function getUserIP()
   {
     //whether ip is from the share internet  
@@ -81,7 +133,15 @@ class Request
     return $ip;
   }
 
-  private function setRestService(string $path, $urlElements)
+  /** 
+   * Using $path as a base, loops through the $urlElements searching for a valid Rest Service filepath. Once it is found, define the 
+   * Rest Service's path and name, and the rest of the remaining elements up to that point are defined as the route.
+   * 
+   * @param string $path
+   * @param array $urlElements
+   * @return void 
+   */
+  private function restServiceFindAndSet(string $path, array $urlElements)
   {
     $basePath = "";
     if (strpos($path, INCLUDE_PATH)) {

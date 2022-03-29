@@ -26,11 +26,33 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Class Service
+ * 
+ * This class aims to provide an interface where the developer creates the application's Service layer, applying all th business rules, logic and database 
+ * operations of the application.
+ *
+ * @package engine
+ */
 class Service extends Dao
 {
+  /**
+   * @var Utils $utils
+   * Stores an instance of the Utils class.
+   */
   protected $utils;
+
+  /**
+   * @var string $templateRoot
+   * Stores the path from which the template rendering must start, when searching for a template path.
+   */
   private $templateRoot;
 
+  /** 
+   * Runs the parent's constructor, initiate the properties, calls init() method then returns an instance of the class (constructor).
+   * 
+   * @return Service 
+   */
   public function __construct()
   {
     parent::__construct();
@@ -42,17 +64,36 @@ class Service extends Dao
     $this->init();
   }
 
-  protected function init()
+  /** 
+   * It's an empty abstract method, used to replace __construct(), in case the dev wants to initiate his Service with some initial execution, he 
+   * can extend this method and perform whatever he wants on the initiation of the Service.
+   * 
+   * @return mixed 
+   */
+  public function init()
   {
   }
 
-  protected final function getService(string $path, array $args = [])
+  /** 
+   * This returns an instance of a service specified in $path.
+   * 
+   * @param string $path
+   * @return Service 
+   */
+  protected final function getService(string $path)
   {
     @$className = strpos($path, '/') ? end(explode('/', $path)) : $path;
 
-    return System::loadClass(INCLUDE_PATH . '/application/services/' . $path . '.php', $className, $args);
+    return System::loadClass(INCLUDE_PATH . '/application/services/' . $path . '.php', $className);
   }
 
+  /** 
+   * Renders a template, at a location specified in $path, starting from Service::templateRoot, then returns the rendered result in a string.
+   * 
+   * @param string $path
+   * @param array $varlist = []
+   * @return string 
+   */
   protected final function renderTemplate(string $path, array $varlist = [])
   {
     if (!empty($varlist)) extract($this->escapeOutput($varlist));
@@ -64,6 +105,16 @@ class Service extends Dao
     return ob_get_clean();
   }
 
+  /** 
+   * Executes a cURL request on the specified $url, passing data under the $payload, using the defined $httpVerb, passing along the $headers, then returns 
+   * an object containing the status and the resulting data.
+   * 
+   * @param string $url
+   * @param array $payload = null
+   * @param string $httpVerb = "GET"
+   * @param array $headers = null
+   * @return object 
+   */
   protected final function requestURL(string $url, array $payload = null, string $httpVerb = 'GET', array $headers = null)
   {
     // basic setup
@@ -86,6 +137,7 @@ class Service extends Dao
         break;
       case 'DELETE':
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        $url = $this->payloadToQueryString($url, $payload);
       case 'GET':
         $url = $this->payloadToQueryString($url, $payload);
     }
@@ -111,6 +163,12 @@ class Service extends Dao
     return $output;
   }
 
+  /** 
+   * By default, the root path of the templates is at /application/templates. With this method, you can add more directories under that.
+   * 
+   * @param string $path
+   * @return void 
+   */
   protected final function setTemplateRoot(string $path)
   {
     if (!empty($path) && substr($path, -1) != "/") $path .= "/";
@@ -118,6 +176,12 @@ class Service extends Dao
     $this->templateRoot = $path;
   }
 
+  /** 
+   * Sanitizes the a given dataset, specified on $payload, using htmlspecialchars() function, to avoid XSS attacks.
+   * 
+   * @param mixed $payload
+   * @return void 
+   */
   private function escapeOutput($payload)
   {
     foreach ($payload as &$value) {
@@ -132,6 +196,13 @@ class Service extends Dao
     return $payload;
   }
 
+  /** 
+   * Add a query string data on the given $url, based on the dataset passed in $payload, then returns the resulting URL. 
+   * 
+   * @param string $url
+   * @param array $payload
+   * @return string 
+   */
   private function payloadToQueryString(string $url, array $payload)
   {
     if (!empty($payload)) {
