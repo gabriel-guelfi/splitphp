@@ -225,7 +225,15 @@ class Utils
     return $data;
   }
 
-  public static function validateData($validationRules, $data)
+  /** 
+   * Checks for regex patterns specified in $filterRules in $data, if found, throws exception.
+   * Returns true if the validation succeed or false in case of failure.
+   * 
+   * @param array $validationRules
+   * @param mixed $data
+   * @return boolean
+   */
+  public static function validateData(array $validationRules, $data)
   {
     // Check required fields:
     foreach ($validationRules as $field => $_rule) {
@@ -337,7 +345,13 @@ class Utils
     return true;
   }
 
-  public static function uploadFile($inputName)
+  /** 
+   * Saves an uploaded file into /public/upload directory and returns the resulting file's URL.
+   * 
+   * @param string $inputName
+   * @return string
+   */
+  public static function uploadFile(string $inputName)
   {
     if (!empty($_FILES[$inputName])) {
       $filename = uniqid() . '_' . $_FILES[$inputName]['name'];
@@ -350,7 +364,15 @@ class Utils
     return null;
   }
 
-  public static function XML_encode($data, $node_block = 'nodes', $node_name = 'node')
+  /** 
+   * Encodes the given $data into a string representing an XML of the data, and returns it.
+   * 
+   * @param mixed $data
+   * @param string $node_block = 'nodes'
+   * @param string $node_name = 'node'
+   * @return string
+   */
+  public static function XML_encode($data, string $node_block = 'nodes', string $node_name = 'node')
   {
     $xml = '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
 
@@ -377,6 +399,13 @@ class Utils
     );
   }
 
+  /** 
+   * Encodes the given $data into a string representing an XML of the data, and returns it.
+   * 
+   * @param mixed $data
+   * @param string $node_name
+   * @return string
+   */
   private static function _dataToXML($data, $node_name)
   {
     $xml = '';
