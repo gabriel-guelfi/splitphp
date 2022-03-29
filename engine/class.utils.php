@@ -59,7 +59,7 @@ class Utils
   {
     $c = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
 
-    foreach ($c["UTILS"] as $k => $v) {
+    foreach ($c["VENDORS"] as $k => $v) {
       $k = strtolower($k);
       $temp = explode("?", $v);
       $v = $temp[0];
@@ -73,7 +73,7 @@ class Utils
 
       $this->register($k, $v, $args);
 
-      if ($c["SYSTEM"]["UTILS_AUTOLOAD"]) {
+      if ($c["SYSTEM"]["VENDORS_AUTOLOAD"]) {
         $this->load($k);
       }
     }
@@ -94,7 +94,7 @@ class Utils
       $this->register($name, $path, $args);
     }
 
-    return $this->$name = System::loadClass(INCLUDE_PATH . "/public/utils/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
+    return $this->$name = System::loadClass(INCLUDE_PATH . "/vendors/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
   }
 
   /** 

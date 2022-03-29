@@ -68,7 +68,7 @@ class System
     self::$configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
 
     foreach (self::$configs as $key => $val) {
-      if ($key != "UTILS") {
+      if ($key != "VENDORS") {
         foreach ($val as $k => $v) {
           define(strtoupper($k), $v);
         }
