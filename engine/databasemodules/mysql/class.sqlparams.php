@@ -41,7 +41,7 @@ class SqlParams
    * An object containing some param settings.
    */
   private $settings;
-  
+
   /**
    * @var array $filters
    * An array of objects, on which each object contains settings of the filters that wil be applied on the operation.
@@ -148,6 +148,7 @@ class SqlParams
       }
 
       $logicalOperator = '';
+      $logicalOperatorMethod = 'and';
       if (strpos($instruction[0], '$and') !== false) {
         $logicalOperator = 'AND';
         $logicalOperatorMethod = 'and';
@@ -396,7 +397,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function equalsTo( $value)
+  private final function equalsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -419,7 +420,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function differentFrom( $value)
+  private final function differentFrom($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -442,7 +443,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function biggerThan( $value)
+  private final function biggerThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -465,7 +466,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function lesserThan( $value)
+  private final function lesserThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -488,7 +489,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function biggerOrEqualsTo( $value)
+  private final function biggerOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -511,7 +512,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function lesserOrEqualsTo( $value)
+  private final function lesserOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -534,7 +535,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function likeOf( $value)
+  private final function likeOf($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
