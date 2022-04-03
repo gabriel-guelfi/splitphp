@@ -78,7 +78,7 @@ abstract class RestService extends Service
    * This flag is a control to whether the requests received by the Rest Service shall be authenticates by a XSRF token or not. Default = true.
    */
   private $antiXsrfValidation;
-  
+
   /**
    * @var array $inputRestriction
    * This is an array of regex patterns that will be used against request payloads to check for potentially harmful data.
@@ -180,19 +180,18 @@ abstract class RestService extends Service
         }
       }
 
-      $err = (object) [
-        "error" => true,
-        "user_friendly" => $status !== false,
-        "message" => $exc->getMessage(),
-        "route" => $route,
-        "method" => $httpVerb,
-        "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
-      ];
-
+      $status = $this->userFriendlyErrorStatus($exc);
       $return = $this->respond(
         $this->response
-          ->withStatus($this->userFriendlyErrorStatus($exc))
-          ->withData($err)
+          ->withStatus($status)
+          ->withData([
+            "error" => true,
+            "user_friendly" => $status !== 500,
+            "message" => $exc->getMessage(),
+            "route" => $route,
+            "method" => $httpVerb,
+            "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
+          ])
       );
     } finally {
       if (DB_CONNECT == "on")
