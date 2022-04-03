@@ -73,7 +73,7 @@ class Utils
 
       $this->register($k, $v, $args);
 
-      if ($c["SYSTEM"]["VENDORS_AUTOLOAD"]) {
+      if ($c["SYSTEM"]["VENDORS_AUTOLOAD"] == "on") {
         $this->load($k);
       }
     }
