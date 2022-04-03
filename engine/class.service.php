@@ -78,7 +78,7 @@ class Service extends Dao
    * This returns an instance of a service specified in $path.
    * 
    * @param string $path
-   * @return Service 
+   * @return mixed 
    */
   protected final function getService(string $path)
   {
