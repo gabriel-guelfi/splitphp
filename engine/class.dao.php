@@ -260,7 +260,7 @@ class Dao
 
     if (!empty($this->params)) {
       $parameterized = $this->sqlParameters->parameterize($this->params, $sql, $this->tablePrefix);
-      $this->filters = $parameterized->filters;
+      $this->filters = array_merge($parameterized->filters, $this->filters);
       $sql = $parameterized->sql;
       $buildWhereClause = false;
     }
@@ -350,8 +350,6 @@ class Dao
    */
   protected final function bindParams(array $params, string $tbPrefix = null)
   {
-    if (!empty($this->filters)) throw new Exception("You cannot use bindParams() alongside filtering methods.");
-
     $this->params = $params;
     $this->tablePrefix = $tbPrefix;
 
@@ -367,8 +365,6 @@ class Dao
    */
   protected final function filter(string $key, bool $sanitize = true)
   {
-    if (!empty($this->filters)) throw new Exception("You cannot use filter() method alongside bindParams().");
-
     $filter = (object) [
       'key' => $key,
       'value' => null,
@@ -392,7 +388,6 @@ class Dao
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
-      return false;
     }
     $filter = (object) [
       'key' => $key,
@@ -418,7 +413,6 @@ class Dao
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
-      return false;
     }
     $filter = (object) [
       'key' => $key,
