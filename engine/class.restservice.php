@@ -410,7 +410,7 @@ abstract class RestService extends Service
               "log_time" => date('d/m/Y H:i:s'),
               "message" => "Someone has attempted to submit possible malware whithin a request payload.",
               // "store" => $this->getService('store/store')->getInfo(),
-              "user" => $this->getService('user/session')->getLoggedUser(),
+              // "user" => $this->getService('user/session')->getLoggedUser(),
               "suspicious_content" => $matches,
               "client" => (object) [
                 "user_agent" => $_SERVER['HTTP_USER_AGENT'],
