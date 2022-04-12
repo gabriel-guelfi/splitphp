@@ -1,5 +1,9 @@
 <?php
 
+namespace application\services;
+
+use \engine\Service;
+
 class Example extends Service
 {
   public function welcomeMsg()

@@ -26,6 +26,10 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace engine;
+
+use stdClass;
+
 /**
  * Class Service
  * 
@@ -180,7 +184,7 @@ class Service extends Dao
    * Sanitizes the a given dataset, specified on $payload, using htmlspecialchars() function, to avoid XSS attacks.
    * 
    * @param mixed $payload
-   * @return void 
+   * @return mixed 
    */
   private function escapeOutput($payload)
   {

@@ -26,6 +26,8 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace engine;
+
 /**
  * Class Request
  * 
@@ -166,6 +168,10 @@ class Request
         $this->restServiceName = $urlPart;
         $this->route = '/'.implode('/', array_slice($urlElements, $i +1));
         break;
+      }
+      else {
+        http_response_code(404);
+        die;
       }
     }
   }

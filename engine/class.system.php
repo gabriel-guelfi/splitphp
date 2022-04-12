@@ -26,6 +26,11 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace engine;
+
+use stdClass;
+use Exception;
+
 /**
  * Class System
  * 
@@ -76,6 +81,7 @@ class System
     }
 
     // Including main classes:
+    require_once __DIR__ . "/class.objloader.php";
     require_once __DIR__ . "/class.request.php";
     require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";

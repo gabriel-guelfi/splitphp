@@ -25,8 +25,12 @@
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.     //
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+namespace engine\databasemodules\mysql;
 
-use FFI\Exception;
+use Exception;
+use \engine\exceptions\DatabaseException;
+use \mysqli;
+use \mysqli_sql_exception;
 
 /**
  * Class Dblink

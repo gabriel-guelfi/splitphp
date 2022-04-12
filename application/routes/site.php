@@ -1,4 +1,9 @@
 <?php
+
+namespace application\routes;
+
+use \engine\RestService;
+
 class Site extends RestService
 {
   public function init()

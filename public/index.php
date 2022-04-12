@@ -37,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 
 // Includes main loader class "ObjLoader":
-require_once $_SERVER['DOCUMENT_ROOT'] . "/../engine/class.objloader.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/../engine/class.system.php";
 
 // Initiate the application, running the main class System:
-$system = ObjLoader::load($_SERVER['DOCUMENT_ROOT'] . "/../engine/class.system.php", "system");
+$system = new \engine\System();
 
 die;

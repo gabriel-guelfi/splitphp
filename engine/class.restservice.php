@@ -26,6 +26,12 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace engine;
+
+use Exception;
+use stdClass;
+use \engine\exceptions\DatabaseException;
+
 /**
  * Class RestService
  * 
@@ -436,14 +442,14 @@ abstract class RestService extends Service
           System::log('security', json_encode($info));
 
           try {
-            $this->getService('mail_service')->sendEmail(new MailObject((object) [
-              "fromMail" => SMTP_SENDER_EMAIL,
-              "fromName" => APPLICATION_NAME,
-              "destMail" => ADMIN_EMAIL,
-              "destName" => "System Administrator",
-              "subject" => "ALERT - Malware Hazard",
-              "body" => json_encode($info)
-            ]));
+            // $this->getService('mail_service')->sendEmail(new MailObject((object) [
+            //   "fromMail" => SMTP_SENDER_EMAIL,
+            //   "fromName" => APPLICATION_NAME,
+            //   "destMail" => ADMIN_EMAIL,
+            //   "destName" => "System Administrator",
+            //   "subject" => "ALERT - Malware Hazard",
+            //   "body" => json_encode($info)
+            // ]));
           } catch (Exception $exc) {
             System::errorLog('sys_error', $exc);
           }

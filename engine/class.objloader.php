@@ -26,6 +26,11 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace engine;
+
+use Exception;
+use ReflectionClass;
+
 /**
  * Class ObjLoader
  * 
@@ -53,16 +58,21 @@ class ObjLoader
    */
   public static function load(string $path, string $classname, array $args = [])
   {
-    if (!isset(self::$collection[$path])) {
+    $arrClassPath = explode("/", str_replace(__DIR__ . "/..", "", $path));
+    unset($arrClassPath[count($arrClassPath) - 1]);
+    $strNamespaceClass = implode('\\', $arrClassPath).'\\'.ucfirst($classname);
+
+    if (!isset(self::$collection[$strNamespaceClass])) {
       try {
         include_once $path;
-        $r = new ReflectionClass(ucfirst($classname));
-        self::$collection[$path] = $r->newInstanceArgs($args);
+
+        $r = new ReflectionClass($strNamespaceClass);
+        self::$collection[$strNamespaceClass] = $r->newInstanceArgs($args);
       } catch (Exception $ex) {
         throw $ex;
       }
     }
 
-    return self::$collection[$path];
+    return self::$collection[$strNamespaceClass];
   }
 }
