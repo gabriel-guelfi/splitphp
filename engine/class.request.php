@@ -69,7 +69,7 @@ class Request
    */
   public function __construct(string $uri)
   {
-    $urlElements = explode("/", str_replace(strrchr($uri, "?"), "", urldecode($uri)));
+    $urlElements = explode("/", str_replace(strrchr(urldecode($uri), "?"), "", urldecode($uri)));
     array_shift($urlElements);
 
     $this->restServiceFindAndSet('/application/routes/', $urlElements);

@@ -58,21 +58,21 @@ class ObjLoader
    */
   public static function load(string $path, string $classname, array $args = [])
   {
-    $arrClassPath = explode("/", str_replace(__DIR__ . "/..", "", $path));
+    $arrClassPath = explode("/", str_replace(INCLUDE_PATH, "", $path));
     unset($arrClassPath[count($arrClassPath) - 1]);
-    $strNamespaceClass = implode('\\', $arrClassPath).'\\'.ucfirst($classname);
+    $classFullName = implode('\\', $arrClassPath).'\\'.ucfirst($classname);
 
-    if (!isset(self::$collection[$strNamespaceClass])) {
+    if (!isset(self::$collection[$classFullName])) {
       try {
         include_once $path;
 
-        $r = new ReflectionClass($strNamespaceClass);
-        self::$collection[$strNamespaceClass] = $r->newInstanceArgs($args);
+        $r = new ReflectionClass($classFullName);
+        self::$collection[$classFullName] = $r->newInstanceArgs($args);
       } catch (Exception $ex) {
         throw $ex;
       }
     }
 
-    return self::$collection[$strNamespaceClass];
+    return self::$collection[$classFullName];
   }
 }
