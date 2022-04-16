@@ -77,7 +77,7 @@ class Dblink
    * 
    * @return Dblink 
    */
-  public function __construct()
+  public final function __construct()
   {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -94,7 +94,7 @@ class Dblink
    * 
    * @return void 
    */
-  public function __destruct()
+  public final function __destruct()
   {
     foreach ($this->connections as $cnnName => $cnn) {
       $this->disconnect($cnnName);

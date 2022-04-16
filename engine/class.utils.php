@@ -60,7 +60,7 @@ class Utils
    * 
    * @return Utils 
    */
-  public function __construct()
+  public final function __construct()
   {
     $c = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
 

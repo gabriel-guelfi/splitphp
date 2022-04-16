@@ -66,7 +66,7 @@ class Response
    * 
    * @return Response 
    */
-  public function __construct()
+  public final function __construct()
   {
     $this->status = 200;
     $this->contentType = 'text/plain';

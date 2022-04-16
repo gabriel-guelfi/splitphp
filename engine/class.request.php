@@ -67,7 +67,7 @@ class Request
    * @param string $uri
    * @return Request 
    */
-  public function __construct(string $uri)
+  public final function __construct(string $uri)
   {
     $urlElements = explode("/", str_replace(strrchr(urldecode($uri), "?"), "", urldecode($uri)));
     array_shift($urlElements);

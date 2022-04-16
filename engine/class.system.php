@@ -58,7 +58,7 @@ class System
    * 
    * @return System 
    */
-  public function __construct()
+  public final function __construct()
   {
     self::$globals = [];
 

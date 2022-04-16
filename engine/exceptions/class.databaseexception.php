@@ -62,7 +62,7 @@ class DatabaseException extends Exception
    * @param string $sqlcmd
    * @return DatabaseException 
    */
-  public function __construct(Exception $exc, string $sqlstate, string $sqlcmd = null)
+  public final function __construct(Exception $exc, string $sqlstate, string $sqlcmd = null)
   {
     parent::__construct($exc->getMessage(), $exc->getCode(), $exc->getPrevious());
 

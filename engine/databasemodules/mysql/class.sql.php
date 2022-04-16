@@ -57,7 +57,7 @@ class Sqlobj
    * 
    * @return Sqlobj 
    */
-  public function __construct($str, $table)
+  public final function __construct($str, $table)
   {
     $this->sqlstring = $str;
     $this->table = $table;
@@ -98,7 +98,7 @@ class Sql
    * 
    * @return Sql 
    */
-  public function __construct()
+  public final function __construct()
   {
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
     $this->sqlstring = "";

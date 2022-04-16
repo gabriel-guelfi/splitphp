@@ -97,7 +97,7 @@ abstract class RestService extends Service
    * 
    * @return RestService 
    */
-  public function __construct()
+  public final function __construct()
   {
     require_once __DIR__ . '/class.response.php';
 
