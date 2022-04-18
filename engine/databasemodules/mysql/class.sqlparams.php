@@ -144,6 +144,7 @@ class SqlParams
 
       $paramName = empty($paramPrefix) ? $key : $paramPrefix . '.' . $key;
 
+      // Treat $tbprefix param option:
       $regexMatches = [];
       preg_match('/\$tbprefix=(.+)/', $instruction[0], $regexMatches);
       if (!empty($regexMatches[1])) {
@@ -151,9 +152,25 @@ class SqlParams
         $instruction[0] = preg_replace('/\$tbprefix=.+/', '', $instruction[0]);
       }
 
+      // Treat Filter Grouping param option:
+      $filterGroupStart = '';
+      $filterGroupEnd = '';
+      if (strpos($instruction[0], '$startFilterGroup') !== false) {
+        $filterGroupStart = '(';
+        $instruction[0] = str_replace('$startFilterGroup', '', $instruction[0]);
+      }
+      if (strpos($instruction[0], '$endFilterGroup') !== false) {
+        $filterGroupEnd = ')';
+        $instruction[0] = str_replace('$endFilterGroup', '', $instruction[0]);
+      }
+
+      // Treat LOGICAL OPERATOR($or/$and) param option:
       $logicalOperator = '';
-      $logicalOperatorMethod = 'and';
-      if (strpos($instruction[0], '$and') !== false) {
+      $logicalOperatorMethod = '';
+      if ($firstIteration && empty($this->filters)) {
+        $logicalOperator = 'WHERE';
+        $logicalOperatorMethod = 'filter';
+      } elseif (strpos($instruction[0], '$and') !== false) {
         $logicalOperator = 'AND';
         $logicalOperatorMethod = 'and';
         $instruction[0] = str_replace('$and', '', $instruction[0]);
@@ -161,101 +178,66 @@ class SqlParams
         $logicalOperator = 'OR';
         $logicalOperatorMethod = 'or';
         $instruction[0] = str_replace('$or', '', $instruction[0]);
-      } else $logicalOperator = $this->settings->logicalOperator;
+      } else {
+        $logicalOperator = $this->settings->logicalOperator;
+        $logicalOperatorMethod = strtolower($this->settings->logicalOperator);
+      }
 
+      // Treat COMPARISON OPERATOR param option:
+      $alreadyFiltered = false;
       switch ($instruction[0]) {
         case '$eqto':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " = ?" . $key . "? ";
-            $this->filter($key)->equalsTo($instruction[1]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " = ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->equalsTo($instruction[1]);
-          }
+          $comparisonOperatorMethod = 'equalsTo';
+          $comparisonOperator = ' = ';
           break;
         case '$difr':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " != ?" . $key . "? ";
-            $this->filter($key)->differentFrom($instruction[1]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " != ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->differentFrom($instruction[1]);
-          }
+          $comparisonOperatorMethod = 'differentFrom';
+          $comparisonOperator = ' != ';
           break;
         case '$bgth':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " > ?" . $key . "? ";
-            $this->filter($key)->biggerThan($instruction[1]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " > ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->biggerThan($instruction[1]);
-          }
+          $comparisonOperatorMethod = 'biggerThan';
+          $comparisonOperator = ' > ';
           break;
         case '$bgeq':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " >= ?" . $key . "? ";
-            $this->filter($key)->biggerOrEqualsTo($instruction[1]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " >= ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->biggerOrEqualsTo($instruction[1]);
-          }
+          $comparisonOperatorMethod = 'biggerOrEqualsTo';
+          $comparisonOperator = ' >= ';
           break;
         case '$lsth':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " < ?" . $key . "? ";
-            $this->filter($key)->lesserThan($instruction[1]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " < ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->lesserThan($instruction[1]);
-          }
+          $comparisonOperatorMethod = 'lesserThan';
+          $comparisonOperator = ' < ';
           break;
         case '$lseq':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " <= ?" . $key . "? ";
-            $this->filter($key)->lesserOrEqualsTo($instruction[1]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " <= ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->lesserOrEqualsTo($instruction[1]);
-          }
+          $comparisonOperatorMethod = 'lesserOrEqualsTo';
+          $comparisonOperator = ' <= ';
           break;
         case '$lkof':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " LIKE ?" . $key . "? ";
-            $this->filter($key)->likeOf('%' . $instruction[1] . '%');
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " LIKE ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->likeOf('%' . $instruction[1] . '%');
-          }
+          $comparisonOperatorMethod = 'likeOf';
+          $comparisonOperator = ' LIKE ';
+          $instruction[1] = '%' . $instruction[1] . '%';
           break;
         case '$btwn':
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) {
-              $sql .= "WHERE (" . $paramName . " >= ?" . $key . "_start? ";
-              $sql .= "AND " . $paramName . " <= ?" . $key . "_end?) ";
-            }
-
-            $this->filter($key . '_start')->lesserOrEqualsTo($instruction[1]);
-            $this->$logicalOperatorMethod($key . '_end')->biggerOrEqualsTo($instruction[2]);
-          } else {
-            if (!empty($sql)) {
-              $sql .= $logicalOperator . " (" . $paramName . " >= ?" . $key . "_start? ";
-              $sql .= "AND " . $paramName . " <= ?" . $key . "_end?) ";
-            }
-
-            $this->$logicalOperatorMethod($key . '_start')->lesserOrEqualsTo($instruction[1]);
-            $this->$logicalOperatorMethod($key . '_end')->biggerOrEqualsTo($instruction[2]);
+          if (!empty($sql)) {
+            $sql .= $logicalOperator . $filterGroupStart . " (" . $paramName . " >= ?" . $key . "_start? ";
+            $sql .= "AND " . $paramName . " <= ?" . $key . "_end?)" . $filterGroupEnd . " ";
           }
+
+          $this->$logicalOperatorMethod($key . '_start')->lesserOrEqualsTo($instruction[1]);
+          $this->and($key . '_end')->biggerOrEqualsTo($instruction[2]);
+          $alreadyFiltered = true;
           break;
         default:
-          if ($firstIteration && empty($this->filters)) {
-            if (!empty($sql)) $sql .= "WHERE " . $paramName . " = ?" . $key . "? ";
-            $this->filter($key)->equalsTo($instruction[0]);
-          } else {
-            if (!empty($sql)) $sql .= $logicalOperator . " " . $paramName . " = ?" . $key . "? ";
-            $this->$logicalOperatorMethod($key)->equalsTo($instruction[0]);
-          }
+          $comparisonOperatorMethod = 'equalsTo';
+          $comparisonOperator = ' = ';
+          $instruction[1] = $instruction[0];
           break;
       }
+
+      // Filter Dao and query:
+      if (!$alreadyFiltered) {
+        if (!empty($sql)) $sql .= $logicalOperator . ' ' . $filterGroupStart . $paramName . $comparisonOperator . "?" . $key . "?" . $filterGroupEnd . " ";
+        $this->$logicalOperatorMethod($key)->$comparisonOperatorMethod($instruction[1]);
+      }
+
       $firstIteration = false;
     }
 
