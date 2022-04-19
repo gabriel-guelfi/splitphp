@@ -41,12 +41,6 @@ use Exception;
 class System
 {
   /**
-   * @var array $configs
-   * Stores all the settings that come from config.ini file.
-   */
-  private static $configs;
-
-  /**
    * @var array $globals
    * Used to store static data that must be available in the entire application.
    */
@@ -70,15 +64,9 @@ class System
     $this->loadExceptions();
 
     // Setting up general configs:
-    self::$configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+    $this->loadConfigsFromFile();
+    $this->setConfigsFromEnv();
 
-    foreach (self::$configs as $key => $val) {
-      if ($key != "VENDORS") {
-        foreach ($val as $k => $v) {
-          define(strtoupper($k), $v);
-        }
-      }
-    }
 
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
@@ -173,14 +161,8 @@ class System
       die;
     }
 
-    try {
-      $c_obj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
-      $res = call_user_func_array(array($c_obj, 'execute'), $request->getArgs());
-      return $res;
-    } catch (Exception $ex) {
-      self::errorLog('sys_error', $ex);
-      throw $ex;
-    }
+    $restServiceObj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
+    return call_user_func_array(array($restServiceObj, 'execute'), $request->getArgs());
   }
 
   /** 
@@ -231,5 +213,54 @@ class System
       "file" => $exc->getFile(),
       "line" => $exc->getLine()
     ];
+  }
+
+  /** 
+   * Parse the /config.ini file and for each variable found, sets it on the environment variables if it already does not exists  
+   * 
+   * @return void 
+   */
+  private function loadConfigsFromFile()
+  {
+    $configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+
+    foreach ($configs as $section => $innerSettings) {
+      foreach ($innerSettings as $var => $value) {
+        if ($section == 'CUSTOM') {
+          define(strtoupper($var), $value);
+        } elseif ($section != "VENDORS") {
+          if (empty(getenv(strtoupper($var)))) putenv(strtoupper($var) . '=' . $value);
+        }
+      }
+    }
+  }
+
+  /** 
+   * Sets global constants from specific environment variables:
+   * 
+   * @return void 
+   */
+  private function setConfigsFromEnv()
+  {
+    // Define Database configuration constants:
+    define('DB_CONNECT', getenv('DB_CONNECT'));
+    define('DBNAME', getenv('DBNAME'));
+    define('DBHOST', getenv('DBHOST'));
+    define('DBUSER_MAIN', getenv('DBUSER_MAIN'));
+    define('DBPASS_MAIN', getenv('DBPASS_MAIN'));
+    define('DBUSER_READONLY', getenv('DBUSER_READONLY'));
+    define('DBPASS_READONLY', getenv('DBPASS_READONLY'));
+    define('DBTYPE', getenv('DBTYPE'));
+    define('DB_TRANSACTIONAL', getenv('DB_TRANSACTIONAL'));
+    define('DB_WORK_AROUND_FACTOR', getenv('DB_WORK_AROUND_FACTOR'));
+    define('CACHE_DB_METADATA', getenv('CACHE_DB_METADATA'));
+
+    // Define System configuration constants:
+    define('APPLICATION_NAME', getenv('APPLICATION_NAME'));
+    define('DEFAULT_ROUTE', getenv('DEFAULT_ROUTE'));
+    define('HANDLE_ERROR_TYPES', getenv('HANDLE_ERROR_TYPES'));
+    define('APPLICATION_LOG', getenv('APPLICATION_LOG'));
+    define('PRIVATE_KEY', getenv('PRIVATE_KEY'));
+    define('PUBLIC_KEY', getenv('PUBLIC_KEY'));
   }
 }
