@@ -222,14 +222,16 @@ class System
    */
   private function loadConfigsFromFile()
   {
-    $configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+    if (file_exists(INCLUDE_PATH . "/config.ini")) {
+      $configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
 
-    foreach ($configs as $section => $innerSettings) {
-      foreach ($innerSettings as $var => $value) {
-        if ($section == 'CUSTOM') {
-          define(strtoupper($var), $value);
-        } elseif ($section != "VENDORS") {
-          if (empty(getenv(strtoupper($var)))) putenv(strtoupper($var) . '=' . $value);
+      foreach ($configs as $section => $innerSettings) {
+        foreach ($innerSettings as $var => $value) {
+          if ($section == 'CUSTOM') {
+            define(strtoupper($var), $value);
+          } elseif ($section != "VENDORS") {
+            if (empty(getenv(strtoupper($var)))) putenv(strtoupper($var) . '=' . $value);
+          }
         }
       }
     }
