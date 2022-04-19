@@ -27,6 +27,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Make http verbs used in REST available:
+
+use \engine\System;
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
@@ -36,10 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
   die;
 }
 
-// Includes main loader class "ObjLoader":
+// Includes main class System:
 require_once $_SERVER['DOCUMENT_ROOT'] . "/../engine/class.system.php";
 
 // Initiate the application, running the main class System:
-$system = new \engine\System();
+try {
+  $system = new System();
+} catch (Exception $ex) {
+  System::errorLog('sys_error', $ex);
+  throw $ex;
+}
 
 die;
