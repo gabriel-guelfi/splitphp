@@ -42,19 +42,19 @@ class Request
    * Stores the current accessed route.
    */
   private $route;
-  
+
   /**
    * @var string $restServicePath
    * Stores the defined RestService class path.
    */
   private $restServicePath;
-  
+
   /**
    * @var string $restServiceName
    * Stores the defined RestService class name.
    */
   private $restServiceName;
-  
+
   /**
    * @var array $args
    * Stores the parameters and data passed along the request.
@@ -71,6 +71,12 @@ class Request
   {
     $urlElements = explode("/", str_replace(strrchr(urldecode($uri), "?"), "", urldecode($uri)));
     array_shift($urlElements);
+
+    // If no route is found under URL, set it as default route:
+    if (empty($urlElements[0])) {
+      $urlElements = explode('/', str_replace(strrchr(urldecode(DEFAULT_ROUTE), "?"), "", urldecode(DEFAULT_ROUTE)));
+      array_shift($urlElements);
+    }
 
     $this->restServiceFindAndSet('/application/routes/', $urlElements);
 
@@ -152,24 +158,15 @@ class Request
       $basePath = INCLUDE_PATH . $path;
     }
 
-    if (empty($urlElements[0])) {
-      $this->restServicePath = $basePath;
-      $this->restServiceName = DEFAULT_REST_SERVICE;
-      $this->route = DEFAULT_ROUTE;
-
-      return;
-    }
-
     foreach ($urlElements as $i => $urlPart) {
       if (is_dir($basePath . $urlPart))
-        $basePath .= $urlPart.'/';
+        $basePath .= $urlPart . '/';
       elseif (is_file($basePath . $urlPart . '.php')) {
         $this->restServicePath = $basePath;
         $this->restServiceName = $urlPart;
-        $this->route = '/'.implode('/', array_slice($urlElements, $i +1));
+        $this->route = '/' . implode('/', array_slice($urlElements, $i + 1));
         break;
-      }
-      else {
+      } else {
         http_response_code(404);
         die;
       }
