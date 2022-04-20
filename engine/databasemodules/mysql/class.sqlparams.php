@@ -136,7 +136,9 @@ class SqlParams
    */
   private function filtering(array $params = [], string $sql = null, string $paramPrefix = null)
   {
-    if (!empty($sql) && substr($sql, -1) != " ") $sql .= " ";
+    if (!empty($sql)){ 
+      $sql = "SELECT * FROM (".$sql.") as derived_table ";
+    }
 
     $firstIteration = true;
     foreach ($params as $key => $strInstruction) {
@@ -144,15 +146,7 @@ class SqlParams
 
       $paramName = empty($paramPrefix) ? $key : $paramPrefix . '.' . $key;
 
-      // Treat $tbprefix param option:
-      $regexMatches = [];
-      preg_match('/\$tbprefix=(.+)/', $instruction[0], $regexMatches);
-      if (!empty($regexMatches[1])) {
-        $paramName = $regexMatches[1] . '.' . $key;
-        $instruction[0] = preg_replace('/\$tbprefix=.+/', '', $instruction[0]);
-      }
-
-      // Treat Filter Grouping param option:
+      // Treat FILTER GROUPING param option:
       $filterGroupStart = '';
       $filterGroupEnd = '';
       if (strpos($instruction[0], '$startFilterGroup') !== false) {
