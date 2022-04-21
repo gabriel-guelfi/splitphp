@@ -99,7 +99,6 @@ class Dao
     $this->workingTable = null;
     $this->filters = [];
     $this->params = [];
-    $this->tablePrefix = null;
 
     $this->executionControl = (object) [
       'executionPileHashes' => ['initial_state'],
@@ -108,7 +107,6 @@ class Dao
           'workingTable' => $this->workingTable,
           'filters' => $this->filters,
           'params' => $this->params,
-          'tablePrefix' => $this->tablePrefix
         ]
       ]
     ];
@@ -128,7 +126,6 @@ class Dao
     $this->workingTable = $tableName;
     $this->filters = [];
     $this->params = [];
-    $this->tablePrefix = null;
 
     $this->registerNewExecution();
 
@@ -264,7 +261,7 @@ class Dao
     }
 
     if (!empty($this->params)) {
-      $parameterized = $this->sqlParameters->parameterize($this->params, $sql, $this->tablePrefix);
+      $parameterized = $this->sqlParameters->parameterize($this->params, $sql);
       $this->filters = array_merge($parameterized->filters, $this->filters);
       $sql = $parameterized->sql;
       $buildWhereClause = false;
@@ -353,10 +350,9 @@ class Dao
    * @param string $tbPrefix = null
    * @return Dao
    */
-  protected final function bindParams(array $params, string $tbPrefix = null)
+  protected final function bindParams(array $params)
   {
     $this->params = $params;
-    $this->tablePrefix = $tbPrefix;
 
     return $this;
   }
@@ -616,7 +612,6 @@ class Dao
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
       'params' => $this->params,
-      'tablePrefix' => $this->tablePrefix
     ];
   }
 
@@ -635,7 +630,6 @@ class Dao
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
       'params' => $this->params,
-      'tablePrefix' => $this->tablePrefix
     ];
   }
 
@@ -657,6 +651,5 @@ class Dao
     $this->workingTable = $this->executionControl->executionStatesSnapshots[$remainingHash]->workingTable;
     $this->filters = $this->executionControl->executionStatesSnapshots[$remainingHash]->filters;
     $this->params = $this->executionControl->executionStatesSnapshots[$remainingHash]->params;
-    $this->tablePrefix = $this->executionControl->executionStatesSnapshots[$remainingHash]->tablePrefix;
   }
 }

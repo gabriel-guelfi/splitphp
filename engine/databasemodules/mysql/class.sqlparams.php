@@ -54,15 +54,14 @@ class SqlParams
 
   /** 
    * Set DAO's filtering, sorting and pagination parameters, based on the data received in $params. If a query is passed in $sql,
-   * edit this query, according to the filters set. If a $paramPrefix is set, add this prefix on all parameter names. Returns an object containing 
+   * edit this query, according to the filters set. Returns an object containing 
    * the resulting DAO filters and SQL query.
    * 
    * @param array $params = []
    * @param string $sql = null
-   * @param string $paramPrefix = null
    * @return object 
    */
-  public function parameterize(array $params = [], string $sql = null, string $paramPrefix = null)
+  public function parameterize(array $params = [], string $sql = null)
   {
     $this->filters = [];
     if (!empty($params)) {
@@ -89,7 +88,7 @@ class SqlParams
       }
 
       // FILTER:
-      $filtered = $this->filtering($params, $sql, $paramPrefix);
+      $filtered = $this->filtering($params, $sql);
       $sql = $filtered->sql;
 
       if (!empty($sql)) {
@@ -131,20 +130,17 @@ class SqlParams
    * 
    * @param array $params = []
    * @param string $sql = null
-   * @param string $paramPrefix = null
    * @return object 
    */
-  private function filtering(array $params = [], string $sql = null, string $paramPrefix = null)
+  private function filtering(array $params = [], string $sql = null)
   {
     if (!empty($sql)){ 
       $sql = "SELECT * FROM (".$sql.") as derived_table ";
     }
 
     $firstIteration = true;
-    foreach ($params as $key => $strInstruction) {
+    foreach ($params as $paramName => $strInstruction) {
       $instruction = explode('|', $strInstruction);
-
-      $paramName = empty($paramPrefix) ? $key : $paramPrefix . '.' . $key;
 
       // Treat FILTER GROUPING param option:
       $filterGroupStart = '';
