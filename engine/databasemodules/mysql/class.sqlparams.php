@@ -207,12 +207,12 @@ class SqlParams
           break;
         case '$btwn':
           if (!empty($sql)) {
-            $sql .= $logicalOperator . $filterGroupStart . " (" . $paramName . " >= ?" . $key . "_start? ";
-            $sql .= "AND " . $paramName . " <= ?" . $key . "_end?)" . $filterGroupEnd . " ";
+            $sql .= $logicalOperator . $filterGroupStart . " (" . $paramName . " >= ?" . $paramName . "_start? ";
+            $sql .= "AND " . $paramName . " <= ?" . $paramName . "_end?)" . $filterGroupEnd . " ";
           }
 
-          $this->$logicalOperatorMethod($key . '_start')->lesserOrEqualsTo($instruction[1]);
-          $this->and($key . '_end')->biggerOrEqualsTo($instruction[2]);
+          $this->$logicalOperatorMethod($paramName . '_start')->lesserOrEqualsTo($instruction[1]);
+          $this->and($paramName . '_end')->biggerOrEqualsTo($instruction[2]);
           $alreadyFiltered = true;
           break;
         default:
@@ -224,8 +224,8 @@ class SqlParams
 
       // Filter Dao and query:
       if (!$alreadyFiltered) {
-        if (!empty($sql)) $sql .= $logicalOperator . ' ' . $filterGroupStart . $paramName . $comparisonOperator . "?" . $key . "?" . $filterGroupEnd . " ";
-        $this->$logicalOperatorMethod($key)->$comparisonOperatorMethod($instruction[1]);
+        if (!empty($sql)) $sql .= $logicalOperator . ' ' . $filterGroupStart . $paramName . $comparisonOperator . "?" . $paramName . "?" . $filterGroupEnd . " ";
+        $this->$logicalOperatorMethod($paramName)->$comparisonOperatorMethod($instruction[1]);
       }
 
       $firstIteration = false;
