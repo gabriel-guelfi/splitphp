@@ -13,12 +13,17 @@ It is built on top of SOA (Service Oriented Architecture), which makes it more s
 * Version: 1.2.3
 * Date: 2022-04-26
 
->> **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
->> Added an Anti-XSRF-hack system.
->> Improved error handling.
->> Included very nice features in the *Data Access Object* class.
->> Changed *RestServices* in a way to make them much more flexible.
->> Reengineered all the structure using *namespaces*, so now services can have the same class name without conflict.
+> **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
+
+> Added an Anti-XSRF-hack system.
+
+> Improved error handling.
+
+> Included very nice features in the *Data Access Object* class.
+
+> Changed *RestServices* in a way to make them much more flexible.
+
+> Reengineered all the structure using *namespaces*, so now services can have the same class name without conflict.
 
 ---
 
