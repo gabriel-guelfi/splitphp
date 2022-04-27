@@ -8,6 +8,6 @@ class Example extends Service
 {
   public function welcomeMsg()
   {
-    return "Welcome to DynamoPHP, the lean, low curve modern PHP framework";
+    return "Welcome to SPLIT PHP, the lean, low learning curve PHP framework!";
   }
 }
