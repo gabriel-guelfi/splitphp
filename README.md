@@ -65,6 +65,7 @@ A service is basically an encapsulated piece of functionality, which is **access
 ![splitphp-soa-diagram.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/introduction-soa-1.png)
 
 The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, where the applications's endpoints are defined. From within an endpoint the *RestService* can **call services** or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a RestService. Simple as that!
+
 ---
 
 ### Interface ###
