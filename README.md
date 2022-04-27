@@ -54,9 +54,9 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 4. From */public*, run PHP built-in server at "localhost": `php -S localhost`.
 5. Access http://localhost/ in the browser and you shall see the **SPLIT PHP** Welcome Page.
 
-*PS: The PHP's built-in server is meant to run only on dev environment. To run it properly on production, refer to the [documentation](http://splitphp.org/docs#deploy), at the section "Deploy".*
-
 **Read more about it all at the [Official Documentation](http://splitphp.org/docs#getstarted)**.
+
+*PS: The PHP's built-in server is meant to run only on dev environment. To run it properly on production, refer to the [documentation](http://splitphp.org/docs#deploy), at the section "Deploy".*
 
 ---
 
