@@ -64,7 +64,7 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 A service is basically an encapsulated piece of functionality, which is **accessible from any part within the application**. So all services are accessible to one another from within the system, but not directly from the client, who only have access to an API Layer, which acts as a "gatekeeper" to the application. The result is a pool of reusable services which can be accessed from everywhere inside the application, but with controlled external access.
 ![splitphp-soa-diagram.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/introduction-soa-1.png)
 
-The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, where the applications's endpoints are defined. From within an endpoint the *RestService* can **call services** or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a *RestService*. Simple as that!
+The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, where the applications's endpoints are defined. From within an endpoint the *RestService* can **call services** and/or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a *RestService*. Simple as that!
 
 ---
 
