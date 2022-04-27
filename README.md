@@ -1,5 +1,5 @@
 ### Introduction ###
-![dynamophp-logo.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/SPLIT_PHP-logo-full.png)
+![splitphp-logo.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/SPLIT_PHP-logo-full.png)
 
 ***Knowing PHP should be enough!***
 
@@ -60,38 +60,29 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 
 ---
 
-### The Request/Response cycle ###
-A web application functions mainly through request/response cycles: the *client* makes a request, sending data to the *cloud server*, the server process that data and responds to the *client* with more data, which can be, HTML, XML, JSON or even just status information.
+### The SOA Architecture ###
+A service is basically an encapsulated piece of functionality, which is **accessible from any part within the application**. So all services are accessible to one another from within the system, but not directly from the client, who only have access to an API Layer, which acts as a "gatekeeper" to the application. The result is a pool of reusable services which can be accessed from everywhere inside the application, but with controlled external access.
+![splitphp-soa-diagram.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/introduction-soa-1.png)
 
-**DynamoPHP** works on *server-side*, processing the requests, basically in this order: 
-1. Server receives the request and calls System(the entry point class of Dynamo)
-2. System sets the configs and calls the proper Rest Service
-3. Rest Service resolves the request input data and call the Services
-4. Services do all the work, as updating data on the database, for instance, and responds to the Rest Service
-5. Rest Service builds a *response* object and send it back to the *client*
-
-**See a diagram of this cycle below:**
-
-![dynamophp-cycle.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/DynamoPHP-I_O-cycle-526X850.png)
-
+The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, where the applications's endpoints are defined. From within an endpoint the *RestService* can **call services** or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a RestService. Simple as that!
 ---
 
 ### Interface ###
 Your application will be basically built within three main folders under "/application"
-![dynamophp-app-dirtree.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/Dynamo-application-dirtree.png)
+![splitphp-app-dirtree.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/Dynamo-application-dirtree.png)
 
 Under "/routes" you create your *Rest Services* which are pretty much your router and API layer:
-![dynamophp-rest-service.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-restservice-example.png)
+![splitphp-rest-service.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-restservice-example.png)
 In the example above, you could access that "/home" endpoint at "your-application-domain.com/site/home"
 
 Under "/services" you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes within the *Services*:
-![dynamophp-service.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-service-example.png)
+![splitphp-service.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-service-example.png)
 
 Under "/templates" goes your HTML templates.
-![dynamophp-template.png](https://dynamophp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-template-example.png)
+![splitphp-template.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-template-example.png)
 Then, you can render it in *Services* and *Rest services*. (See the Rest Service example above)
 
-***PS: For more information visit the [Official Documentation](http://docs.dynamophp.org)**
+***PS: For more information visit the [Official Documentation](http://docs.splitphp.org)**
 
 ---
 
@@ -110,7 +101,7 @@ If you create some cool abstract functionality with **DynamoPHP**, share it with
 ### Conclusion ###
 **DynamoPHP** requires only basic software setup: a web server, a database server and the PHP itself, its syntax has nothing different from the PHP proper syntax, no "special comments" that are something more than comments, no other engines other than its own to make it work fully.
 
-Visit the [Official Documentation](http://docs.dynamophp.org) to learn more about it and build rich and modern web applications, in whatever architecture you need.
+Visit the [Official Documentation](http://docs.splitphp.org) to learn more about it and build rich and modern web applications, in whatever architecture you need.
 
 This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to DynamoPHP's Slack Channel.
 
