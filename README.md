@@ -83,6 +83,7 @@ Under *"/application/routes/"* you create your *RestServices*, your API Layer:
 > 1. A HTTP verb ("GET")
 > 2. The route ("/home")
 > 3. The handler function, which executes when the endpoint is accessed at the route.
+> 
 > **In the example above, you could access that "/home" endpoint at "http://localhost/site/home"**
 
 Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:
