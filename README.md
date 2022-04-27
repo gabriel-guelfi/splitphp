@@ -88,6 +88,7 @@ Your application will be basically built within three main folders under *"/appl
 > **In the example above, you could access that "/home" endpoint at "http://localhost/site/home"**
 
 **Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:**
+
 ![splitphp-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-service-example.png)
 
 Under *"/application/templates/"* goes your *Views*, your HTML templates.
