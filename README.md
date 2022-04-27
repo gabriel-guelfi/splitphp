@@ -43,12 +43,12 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 * **P**urity: No tons of vendors and **no new vendor-specific syntaxes**, only the plain and good PHP and Object-Oriented Programming. A framework is intended to be a facilitator, a toolbox for a specific technology, so **the dependencies of the framework, shall be, ideally, only the technology itself**.
 * **L**ightness: Related to the 2 concepts above, a **fast and light** software tool creates **cheaper and better quality** systems and avoids lots of headaches and money losses.
 * **I**tuitiveness: A developer should only **have difficulties learning** how to use a lib or framework if this developer **isn't acquainted with the very technology** on which the lib or framework is based. Take the colossally successful example of *JQuery*. A dev who knows javascript, understands *JQuery* in a matter of hours. This is tightly related to the **"Purity"** concept. If a PHP senior has to practice for weeks before becoming really comfortable using a specific PHP framework or lib, again: something is definitely not right.
-* **T**arget Mindness: A framework exists as a facilitator, so the engineer don't have to worry about technical issues and be able to **focus only** on building **the solutions that address the business issues** for which the system is being created.
+* **T**arget Mindness: A framework exists as a facilitator, so the engineer don't have to worry about technical issues and will be able to **focus only** on building **the solutions that address the business issues** for which the system is being created.
 
 ---
 
-### Get Started ###
-1. Download the framework source on the path of your application using this [link](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) 
+### Getting Started ###
+1. [Download](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. 
 2. Rename the file */example.config.ini* to "/config.ini"
 3. Setup */config.ini* file according to your application's needs
 4. From */public*, run PHP built-in server at "localhost": `php -S localhost`
