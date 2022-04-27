@@ -77,7 +77,7 @@ Your application will be basically built within three main folders under *"/appl
 
 ![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
 
-**Under *"/application/routes/"* you create your *RestServices*, your API Layer:**
+* **Under *"/application/routes/"* you create your *RestServices*, your API Layer:**
 
 ![splitphp-rest-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-restservice-example.png)
 > An endpoint is composed by 3 parts:
@@ -87,7 +87,7 @@ Your application will be basically built within three main folders under *"/appl
 > 
 > **In the example above, you could access that "/home" endpoint at "http://localhost/site/home"**
 
-**Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:**
+* **Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:**
 
 ![splitphp-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-service-example.png)
 
