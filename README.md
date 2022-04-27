@@ -86,7 +86,7 @@ Under *"/application/services/"* you create your *Services* on which all the mag
 
 Under *"/application/templates/"* goes your *Views*, your HTML templates.
 ![splitphp-template.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-template-example.png)
-Then, you can render it in *Services* and *RestServices*. (See the RestService example above)
+Then, you can render it in *Services* and *RestServices*. (See the RestService example above as a reference)
 
 **For more information visit the [Official Documentation](http://splitphp.org/docs)**
 
