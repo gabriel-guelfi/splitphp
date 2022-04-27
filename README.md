@@ -75,7 +75,7 @@ Your application will be basically built within three main folders under *"/appl
 
 Under *"/application/routes/"* you create your *RestServices*:
 ![splitphp-rest-service.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-restservice-example.png)
-In the example above, you could access that "/home" endpoint at "your-application-domain.com/site/home"
+In the example above, you could access that "/home" endpoint at "http://localhost/site/home"
 
 Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:
 ![splitphp-service.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-service-example.png)
