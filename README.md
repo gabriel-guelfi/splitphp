@@ -56,7 +56,7 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 
 *PS: The PHP's built-in server is meant to run only on dev environment. To run it properly on production, refer to the [documentation](http://splitphp.org/docs#deploy), at the section "Deploy".*
 
-**Read more about it at the [Official Documentation](http://splitphp.org/docs#getstarted)**
+**Read more about it all at the [Official Documentation](http://splitphp.org/docs#getstarted)**
 
 ---
 
