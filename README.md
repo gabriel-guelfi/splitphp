@@ -52,7 +52,7 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 ---
 
 ### Getting Started ###
-1. [Download](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. 
+1. [Download](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
 2. Rename the file */example.config.ini* to "/config.ini".
 3. Setup */config.ini* file according to your application's needs.
 4. From */public*, run PHP built-in server at "localhost": `php -S localhost`.
