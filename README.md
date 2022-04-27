@@ -68,43 +68,32 @@ The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, wher
 
 ---
 
-### Interface ###
-Your application will be basically built within three main folders under "/application"
-![splitphp-app-dirtree.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/Dynamo-application-dirtree.png)
+### Coding Interface ###
+Your application will be basically built within three main folders under *"/application/"*
 
-Under "/routes" you create your *Rest Services* which are pretty much your router and API layer:
+![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
+
+Under *"/application/routes/"* you create your *RestServices*:
 ![splitphp-rest-service.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-restservice-example.png)
 In the example above, you could access that "/home" endpoint at "your-application-domain.com/site/home"
 
-Under "/services" you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes within the *Services*:
+Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:
 ![splitphp-service.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-service-example.png)
 
-Under "/templates" goes your HTML templates.
+Under *"/application/templates/"* goes your *Views*, your HTML templates.
 ![splitphp-template.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-template-example.png)
-Then, you can render it in *Services* and *Rest services*. (See the Rest Service example above)
+Then, you can render it in *Services* and *RestServices*. (See the RestService example above)
 
-***PS: For more information visit the [Official Documentation](http://docs.splitphp.org)**
-
----
-
-### Presets ###
-There are some presets, which consist of packages of *Services*, *Rest Services* and some *SQL*. They are already pre-built functionalities often used in systems, that you can import inside your application without having to develop'em every time. Here are some that I created myself:
-
-* [IAM](https://github.com/gabriel-guelfi/IAM)
-* [Utils Service Pack](https://github.com/gabriel-guelfi/Utils-Service-Pack)
-* [Log Web Viewer](https://github.com/gabriel-guelfi/Log-Webviewer)
-* [Application Modules](https://github.com/gabriel-guelfi/Application-Modules)
-
-If you create some cool abstract functionality with **DynamoPHP**, share it with the community.
+***For more information visit the [Official Documentation](http://splitphp.org/docs)**
 
 ---
 
 ### Conclusion ###
-**DynamoPHP** requires only basic software setup: a web server, a database server and the PHP itself, its syntax has nothing different from the PHP proper syntax, no "special comments" that are something more than comments, no other engines other than its own to make it work fully.
+**SPLIT PHP** requires only PHP to run, its syntax has nothing different from the PHP proper syntax, no "special annotations" that are something more than comments, no other engines other than its own to make it work fully.
 
-Visit the [Official Documentation](http://docs.splitphp.org) to learn more about it and build rich and modern web applications, in whatever architecture you need.
+Visit the [Official Website](http://splitphp.org) to learn more about it and build rich and modern web applications in PHP.
 
-This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to DynamoPHP's Slack Channel.
+This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to SPLIT PHP's Slack Channel.
 
 Ah, if you liked the work, don't forget to star it and follow this repository to be up to date with our new features. Thx!
 
