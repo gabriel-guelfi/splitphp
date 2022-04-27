@@ -32,7 +32,7 @@
 ---
 
 ### Requirements ###
-* PHP 7+ (Yes, that's it! ;P )
+* PHP 7+ (Yes, that's all! ;P )
 
 ---
 
