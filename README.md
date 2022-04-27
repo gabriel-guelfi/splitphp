@@ -72,7 +72,7 @@ The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, wher
 
 ---
 
-### Coding Interface ###
+### Coding With SPLIT ###
 Your application will be basically built within three main folders under *"/application/"*
 
 ![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
@@ -94,6 +94,7 @@ Your application will be basically built within three main folders under *"/appl
 * **Under *"/application/templates/"* goes your *Views*, your HTML templates.**
 
 ![splitphp-template.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-template-example.png)
+
 > Note that this is the template rendered in the *RestService* in the first example, and this $data variable has the same
 > name passed when it was being rendered. In these 3 examples, if you access "http://localhost/site/home" you shall see 
 > a web page with the contents of this HTML template.
