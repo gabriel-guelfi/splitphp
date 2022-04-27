@@ -55,7 +55,7 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 1. [Download](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
 2. Rename the file */example.config.ini* to "/config.ini".
 3. Setup */config.ini* file according to your application's needs.
-4. From */public*, run PHP built-in server at "localhost": `php -S localhost`.
+4. From your **application's root dir**, run PHP's built-in server at "localhost": **`php -S localhost -t public`**.
 5. Access http://localhost/ in the browser and you shall see the **SPLIT PHP** Welcome Page.
 
 **Read more about it all at the [Official Documentation](http://splitphp.org/docs#getstarted)**.
