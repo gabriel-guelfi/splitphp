@@ -77,7 +77,8 @@ Your application will be basically built within three main folders under *"/appl
 
 ![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
 
-Under *"/application/routes/"* you create your *RestServices*, your API Layer:
+**Under *"/application/routes/"* you create your *RestServices*, your API Layer:**
+
 ![splitphp-rest-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-restservice-example.png)
 > An endpoint is composed by 3 parts:
 > 1. A HTTP verb ("GET")
