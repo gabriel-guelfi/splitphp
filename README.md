@@ -91,9 +91,12 @@ Your application will be basically built within three main folders under *"/appl
 
 ![splitphp-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-service-example.png)
 
-Under *"/application/templates/"* goes your *Views*, your HTML templates.
-![splitphp-template.png](https://splitphp-resources.s3.sa-east-1.amazonaws.com/img-docs/dynamo-template-example.png)
-Then, you can render it in *Services* and *RestServices*. (See the RestService example above as a reference)
+* **Under *"/application/templates/"* goes your *Views*, your HTML templates.**
+
+![splitphp-template.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-template-example.png)
+> Note that this is the template rendered in the *RestService* in the first example, and this $data variable has the same
+> name passed when it was being rendered. In these 3 examples, if you access "http://localhost/site/home" you shall see 
+> a web page with the contents of this HTML template.
 
 **For more information visit the [Official Documentation](http://splitphp.org/docs)**
 
