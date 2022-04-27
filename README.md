@@ -49,18 +49,18 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 
 ### Getting Started ###
 1. [Download](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. 
-2. Rename the file */example.config.ini* to "/config.ini"
-3. Setup */config.ini* file according to your application's needs
-4. From */public*, run PHP built-in server at "localhost": `php -S localhost`
+2. Rename the file */example.config.ini* to "/config.ini".
+3. Setup */config.ini* file according to your application's needs.
+4. From */public*, run PHP built-in server at "localhost": `php -S localhost`.
 5. Access http://localhost/ in the browser and you shall see the **SPLIT PHP** Welcome Page.
 
 *PS: The PHP's built-in server is meant to run only on dev environment. To run it properly on production, refer to the [documentation](http://splitphp.org/docs#deploy), at the section "Deploy".*
 
-**Read more about it all at the [Official Documentation](http://splitphp.org/docs#getstarted)**
+**Read more about it all at the [Official Documentation](http://splitphp.org/docs#getstarted)**.
 
 ---
 
-### The SOA Architecture ###
+### Service Oriented Architecture (SOA) ###
 A service is basically an encapsulated piece of functionality, which is **accessible from any part within the application**. So all services are accessible to one another from within the system, but not directly from the client, who only have access to an API Layer, which acts as a "gatekeeper" to the application. The result is a pool of reusable services which can be accessed from everywhere inside the application, but with controlled external access.
 ![splitphp-soa-diagram.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/introduction-soa-1.png)
 
