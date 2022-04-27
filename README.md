@@ -89,13 +89,15 @@ Then, you can render it in *Services* and *RestServices*. (See the RestService e
 ---
 
 ### Conclusion ###
-**SPLIT PHP** requires only PHP to run, its syntax has nothing different from the PHP proper syntax, no "special annotations" that are something more than comments, no other engines other than its own to make it work fully.
+**SPLIT PHP** requires only PHP to run, its syntax has nothing different from the PHP proper syntax, no "special annotations" that are something more than comments, no other engines other than its own to make it work fully. A dev who knows basic PHP and Object-Oriented Programming, shall not have problems learning how to use it confidently in a short period and the applications created with it are light and fast.
 
-Visit the [Official Website](http://splitphp.org) to learn more about it and build rich and modern web applications in PHP.
+Visit the **[Official Website](http://splitphp.org)** to learn more about it and build rich and modern web applications in PHP.
 
-This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to the SPLIT PHP's Slack Channel.
+This framework is part of the gigantic Technology Open Source community of the world. It's free to download, use, modify and distribute. For more info about its licensing, see the *MIT LICENSE.pdf* file. 
 
-Ah, if you liked the work, don't forget to star it and follow this repository to be up to date with our new features. Thx!
+If you are a PHP enthusiastic and liked this work, help us enlarge the community and add new features to this framework, joining us. Send me an email and I'll add you to the SPLIT PHP's Slack Channel.
+
+Ah, if you liked the work, don't forget to **star it and follow** this repository to be up to date with our new features. Thx!
 
 ---
 ### Authors ###
