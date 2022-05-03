@@ -1,48 +1,87 @@
-**DynamoPHP Framework - Release Notes**
+**SPLIT PHP Framework - Release Notes**
 
 =====
 
-- Version: 1.2.0
-- Date: 2021-10-05
+- Version: 1.2.3
+- Date: 2022-05-03
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 =====
 
-This release 1.2.0 has some improvements with database operations, included a feature to perform CURLs easier and have some fixes. 
-See the list below for further details
+This release 1.2.3 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
+
+Now it became more conceptual than ever, so I decided to change its name and image, from "DynamoPHP" to "SPLIT PHP", to better represent the 
+fundamentals of the tool. (See more about it in the README.md file and visit its official website at http://splitphp.org)
 
 =====
 
-New Features: 
+>> New Features: 
 
-- Standard .gitignore file, so logs, cache and tests won't mess with the official application's repository anymore.
+- Response headers's management with the methods Response::setHeader() and Response::getHeaders().
 
-- Automatic transactional operations: now everything that happens inside a request/response cycle is wrapped 
-by a transaction, so if something goes wrong along the way, Dynamo will roll back all database operations that 
-were done until that time. This guarantees data consistence. You can also turn this off on config.ini file.
+- Removed too much specific functionalities from the Utils helper class and moved them to a Service Pack.
 
-- Services now has a method named "requestURL()", which provides an easy way to perform CURL calls.
+- Automatic database connection closing assurance.
 
-- The method find from DAO class, now accepts no parameters, creating a default SQL query that brings all fields 
-from the working table. So, if you just want to get all fields from a table, you don't have to write the query 
-anymore, just call: $this->getTable('TABLENAME')->find(). You can also apply filters to this query, using the filtering methods.
+- Added a additional field $info on System::errorLog() method, for custom information.
+
+- Database errors are now being handled with a specific Exception object and now provides the SQL command, which caused the error, on the log.
+
+- The application level errors logging now can turned on/off in the configurations.
+
+- Now it is possible to set a custom templates root dir, using the method Service::setTemplateRoot(). The starting point continues to be the 
+/application/templates/ folder, but now, within a RestService, you can set as root a path inside this folder, so you won't have to specify the entire 
+path when rendering templates.
+
+- All requests are now, by default, validated for a anti-xsrf token, which protects the system against XSRF-type hack attacks. You can turn this behavior
+on and off using the method RestService::setAntiXsrfValidation(), passing true or false. The RestService::xsrfToken() method, returns the auto-generated 
+token for the current request.
+
+- Now it is possible to execute multiple Dao nested calls at once. The system resolves the concurrent executions by itself, without creating new Dao instances.
+
+- Added new Dao::first() and Dao::fetch() wrappers methods, which execute Dao::find() with extra functionalities.
+
+- Database access is now divided by 2 concurrent connections: one is for read-only purposes, and the other is a general, used to perform all database operations.
+The system handles the parallel connections by itself.
+
+- Added a Dao::bindParams() method which is, in my opinion, the most awesome feature of the release. It resolves the passed params and parameterizes automatically 
+the SQL commands, filtering, sorting and paginating. It allows the developer to write really small services, with a really abstract functionality.
+
+- Services now possess a Service::init() method, which executes automatically the moment the Service is called for the first time. Its purpose is to have an interface
+for initializations without having to declare a constructor. It is much similar to the init() method from the old Zend Framework. This method are also extended to RestServices.
+
+- Added a ready-to-use Response object at RestService::response property. You don't have to instantiate it with "new Response()" in every endpoint anymore. 
+
+- The RestService::addEndpoint() method now allows closure functions to be passed, in its third argument, to be the endpoint handler function. An interface 
+much similar to what Node's ExpressJS framework provides.
+
+- Removed all dependencies from the framework, which now depends only on PHP 7+ to run.
+
+- Restructured the entire framework in namespaces. It improves the organization of the engine and allows the developer to write services and rest services 
+with the same class names without conflict.
+
+- It was removed, from the configurations, the DEFAULT_RESTSERVICE option and the DEFAULT_ROUTE now expects the full route to RestService.
+
+- Configurations now are based on environment variables. The config.ini file still exists, but it is not required anymore, functioning exactly as the 
+.env file does in other frameworks.
+
 
 =====
 
-Fixes:
+>> Fixes:
 
-- Removed those annoying references to Pesticide, which was a legacy debugger that came from the previous versions. 
-Pesticide was already removed, but some references to it were still within the engine. It is all removed now.
+- The handling of the returning status code for executions which had thrown exceptions, were a little bit confuse and unpredictable. Fixed the problem 
+and now it always returns with status 500 when an Internal Server Error occurs.
 
-- There was a bug where POST and PUT endpoints weren't receiving the parameters passed through the query string. Now it's solved.
+- Added a default logical operator "and" to the database operations parameterized by Dao::bindParams(). Without it, it was failing with no errors but affecting 
+zero rows.
 
-- DAO operations wasn't working when called directly from Rest Services. The bug is fixed.
-
-- Fixed the location of errors with user readable messages and added 2 more errors.
+- Fixed a problem with the parsing of request with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
 
 =====
 
-So, this release was intended to create features that make the developer's life easier, also improved the consistence of 
-the resulting applications and, of course, fixed some bugs. Hope you enjoy!
+Well, I think there are changes and features here to even a major release, but as I choose to change its name, I decided to maintain it in version 1.
+
+It is now much more robust, conceptual, precise and flexible. Have fun!

@@ -11,7 +11,7 @@
 
 > Version: 1.2.3
 
-> Date: 2022-04-26
+> Date: 2022-05-03
 
 * **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
 
@@ -25,7 +25,7 @@
 
 * Reengineered all the structure using *namespaces*, so now services can have the same class name without conflict.
 
-* Configurations is now based on *environment variables*, so you can get rid of the *config.ini* file on production environments.
+* Configurations are now based on *environment variables*, so you can get rid of the *config.ini* file on production environments.
 
 **Read more in the *Release Notes.txt* file.**
 
