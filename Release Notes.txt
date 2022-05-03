@@ -25,29 +25,29 @@ fundamentals of the tool. (See more about it in the README.md file and visit its
 
 - Automatic database connection closing assurance.
 
-- Added a additional field $info on System::errorLog() method, for custom information.
+- Added an additional field $info on System::errorLog() method, for custom information.
 
 - Database errors are now being handled with a specific Exception object and now provides the SQL command, which caused the error, on the log.
 
-- The application level errors logging now can turned on/off in the configurations.
+- The application level errors logging now can be turned on/off in the configurations.
 
 - Now it is possible to set a custom templates root dir, using the method Service::setTemplateRoot(). The starting point continues to be the 
 /application/templates/ folder, but now, within a RestService, you can set as root a path inside this folder, so you won't have to specify the entire 
 path when rendering templates.
 
-- All requests are now, by default, validated for a anti-xsrf token, which protects the system against XSRF-type hack attacks. You can turn this behavior
-on and off using the method RestService::setAntiXsrfValidation(), passing true or false. The RestService::xsrfToken() method, returns the auto-generated 
+- All requests are now, by default, checked for an anti-xsrf token, which protects the system against XSRF-type hack attacks. You can turn this behavior
+on/off using the method RestService::setAntiXsrfValidation(), passing true or false. The RestService::xsrfToken() method, returns the auto-generated 
 token for the current request.
 
 - Now it is possible to execute multiple Dao nested calls at once. The system resolves the concurrent executions by itself, without creating new Dao instances.
 
-- Added new Dao::first() and Dao::fetch() wrappers methods, which execute Dao::find() with extra functionalities.
+- Added new Dao::first() and Dao::fetch() wrapper methods, which execute Dao::find() with extra functionalities.
 
 - Database access is now divided by 2 concurrent connections: one is for read-only purposes, and the other is a general, used to perform all database operations.
-The system handles the parallel connections by itself.
+The system handles the parallel connections by itself, so it's transparent.
 
-- Added a Dao::bindParams() method which is, in my opinion, the most awesome feature of the release. It resolves the passed params and parameterizes automatically 
-the SQL commands, filtering, sorting and paginating. It allows the developer to write really small services, with a really abstract functionality.
+- Added a Dao::bindParams() method which is, in my opinion, the most awesome feature of the release. It resolves the passed params and parameterizes automagically 
+the SQL commands, filtering, sorting and paginating. It allows the developer to write really small services, with a really robust and abstract functionality.
 
 - Services now possess a Service::init() method, which executes automatically the moment the Service is called for the first time. Its purpose is to have an interface
 for initializations without having to declare a constructor. It is much similar to the init() method from the old Zend Framework. This method are also extended to RestServices.
@@ -62,10 +62,10 @@ much similar to what Node's ExpressJS framework provides.
 - Restructured the entire framework in namespaces. It improves the organization of the engine and allows the developer to write services and rest services 
 with the same class names without conflict.
 
-- It was removed, from the configurations, the DEFAULT_RESTSERVICE option and the DEFAULT_ROUTE now expects the full route to RestService.
+- It was removed, from the configurations, the DEFAULT_RESTSERVICE option and the DEFAULT_ROUTE now expects to receive the full route.
 
 - Configurations now are based on environment variables. The config.ini file still exists, but it is not required anymore, functioning exactly as the 
-.env file does in other frameworks.
+.env file does in other frameworks. So, if you set all the config.ini file's options in environment variables, you can get rid of the file. 
 
 
 =====
@@ -78,10 +78,10 @@ and now it always returns with status 500 when an Internal Server Error occurs.
 - Added a default logical operator "and" to the database operations parameterized by Dao::bindParams(). Without it, it was failing with no errors but affecting 
 zero rows.
 
-- Fixed a problem with the parsing of request with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
+- Fixed a problem with the parsing of requests with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
 
 =====
 
-Well, I think there are changes and features here to even a major release, but as I choose to change its name, I decided to maintain it in version 1.
+Well, I think there are changes and features here to even release a major version, but as I choose to change its name, I decided to maintain it in version 1.
 
 It is now much more robust, conceptual, precise and flexible. Have fun!
