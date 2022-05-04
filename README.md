@@ -47,7 +47,7 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 
 * **I**tuitiveness: A developer should only **have difficulties learning** how to use a lib or framework if this developer **isn't acquainted with the very technology** on which the lib or framework is based. Take the colossally successful example of *JQuery*. A dev who knows javascript, understands *JQuery* in a matter of hours. This is tightly related to the **"Purity"** concept. If a PHP senior has to practice for weeks before becoming really comfortable using a specific PHP framework or lib, again: something is definitely not right.
 
-* **T**arget Mindness: A framework exists as a facilitator, so the engineer don't have to worry about technical issues and will be able to **focus only** on building **the solutions that address the business issues** for which the system is being created.
+* **T**arget Mindness: A framework exists as a facilitator, so allows the engineer to not have to worry about technical issues and to be able to **focus only** on building **the solutions that address the business issues** for which the system is being created.
 
 ---
 
@@ -60,7 +60,7 @@ The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, wher
 ---
 
 ### Getting Started ###
-1. [Download](https://github.com/gabriel-guelfi/DynamoPHP/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
+1. [Download](https://github.com/gabriel-guelfi/splitphp/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
 2. Rename the file */example.config.ini* to "/config.ini".
 3. Setup */config.ini* file according to your application's needs.
 4. From your **application's root dir**, run PHP's built-in server at "localhost": **`php -S localhost -t public`**.
