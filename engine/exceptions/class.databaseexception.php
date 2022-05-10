@@ -26,28 +26,82 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Make http verbs used in REST available:
+namespace engine\exceptions;
 
-use \engine\System;
+use Exception;
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+/**
+ * Class DatabaseException
+ * 
+ * This class represents an extension of exceptions for Database operations and is able to store the SQL command, so the developer can
+ * make a more detailed analysis of the problem. 
+ *
+ * @package engine/exceptions
+ */
+class DatabaseException extends Exception
+{
+  /**
+   * @var string $sqlstate
+   * Stores the SQl State code.
+   */
+  private $sqlstate;
 
-// Respond pre-flight requests:
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-  http_response_code(200);
-  die;
+  /**
+   * @var string $sqlcommand
+   * Stores the SQl command.
+   */
+  private $sqlcommand;
+
+  /** 
+   * Runs Exception class constructor, sets common Exception properties with the data retrieved from the Exception object passed on $exc, 
+   * set sqlstate property with the data passed on $sqlstate, set property sqlcommand with the value passed on $sqlcmd, then returns an 
+   * instance of this class (constructor).
+   * 
+   * @param Exception $exc
+   * @param string $sqlstate
+   * @param string $sqlcmd
+   * @return DatabaseException 
+   */
+  public final function __construct(Exception $exc, string $sqlstate, string $sqlcmd = null)
+  {
+    parent::__construct($exc->getMessage(), $exc->getCode(), $exc->getPrevious());
+
+    $this->message = $exc->getMessage();
+    $this->code = $exc->getCode();
+    $this->file = $exc->getFile();
+    $this->line = $exc->getLine();
+
+    $this->sqlstate = $sqlstate;
+    $this->sqlcommand = $sqlcmd;
+  }
+
+  /** 
+   * Returns a string representation of the instance.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+  }
+  
+  /** 
+   * Returns the value stored on DatabaseException::sqlstate.
+   * 
+   * @return string 
+   */
+  public function getSqlState()
+  {
+    return $this->sqlstate;
+  }
+
+  /** 
+   * Returns the value stored on DatabaseException::sqlcmd.
+   * 
+   * @return string 
+   */
+  public function getSqlCmd()
+  {
+    return $this->sqlcommand;
+  }
 }
-
-// Includes main class System:
-require_once $_SERVER['DOCUMENT_ROOT'] . "/../engine/class.system.php";
-
-// Initiate the application, running the main class System:
-try {
-  $system = new System();
-} catch (Exception $ex) {
-  System::errorLog('sys_error', $ex);
-  throw $ex;
-}
-
-die;
