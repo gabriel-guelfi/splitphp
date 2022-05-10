@@ -3,7 +3,7 @@
 =====
 
 - Version: 1.2.3
-- Date: 2022-05-03
+- Date: 2022-05-10
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)

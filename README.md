@@ -11,7 +11,7 @@
 
 > Version: 1.2.3
 
-> Date: 2022-05-03
+> Date: 2022-05-10
 
 * **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
 
