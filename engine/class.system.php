@@ -216,7 +216,7 @@ class System
   }
 
   /** 
-   * Parse the /config.ini file and for each variable found, sets it on the environment variables if it already does not exists  
+   * Parse the /config.ini file and for each variable found, sets it on the environment variables if it does not exists already 
    * 
    * @return void 
    */
