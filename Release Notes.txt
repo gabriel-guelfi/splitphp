@@ -1,23 +1,22 @@
-**SPLIT PHP Framework - Release Notes**
+SPLIT PHP Framework - Release Notes
+---
 
-=====
-
-- Version: 1.2.3
-- Date: 2022-05-10
+- Version: 1.2
+- Date: 2022-05-11
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
-=====
+---
 
-This release 1.2.3 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
+This release 1.2 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
 
 Now it became more conceptual than ever, so I decided to change its name and image, from "DynamoPHP" to "SPLIT PHP", to better represent the 
 fundamentals of the tool. (See more about it in the README.md file and visit its official website at http://splitphp.org)
 
-=====
+---
 
->> New Features: 
+**New Features:**
 
 - Response headers's management with the methods Response::setHeader() and Response::getHeaders().
 
@@ -68,9 +67,9 @@ with the same class names without conflict.
 .env file does in other frameworks. So, if you set all the config.ini file's options in environment variables, you can get rid of the file. 
 
 
-=====
+---
 
->> Fixes:
+**Fixes:**
 
 - The handling of the returning status code for executions which had thrown exceptions, were a little bit confuse and unpredictable. Fixed the problem 
 and now it always returns with status 500 when an Internal Server Error occurs.
@@ -80,7 +79,7 @@ zero rows.
 
 - Fixed a problem with the parsing of requests with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
 
-=====
+---
 
 Well, I think there are changes and features here to even release a major version, but as I choose to change its name, I decided to maintain it in version 1.
 

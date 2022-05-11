@@ -133,16 +133,14 @@ class System
   }
 
   /** 
-   * Navigate the user agent to the specified $url. If $afterResponse flag is set to true, echoes a front-end script that does that.
+   * Navigate the user agent to the specified $url.
    * 
    * @param string $url
-   * @param boolean $afterResponse
    * @return void 
    */
-  public static function navigateToUrl(string $url, bool $afterResponse = false)
+  public static function navigateToUrl(string $url)
   {
-    if ($afterResponse) echo '<script type="text/javascript">window.location.href="' . $url . '";</script>';
-    else header('Location: ' . $url);
+    header('Location: ' . $url);
 
     die;
   }

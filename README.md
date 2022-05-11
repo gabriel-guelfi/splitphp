@@ -11,7 +11,7 @@
 
 > Version: 1.2.3
 
-> Date: 2022-05-10
+> Date: 2022-05-11
 
 * **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
 
@@ -32,7 +32,7 @@
 ---
 
 ### Requirements ###
-* PHP 7+ (Yes, that's all! ;P )
+* PHP 7+ and its libs (Yes, that's all! ;P )
 
 ---
 
@@ -72,7 +72,7 @@ The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, wher
 
 ---
 
-### Coding With SPLIT ###
+### Basic Usage ###
 Your application will be basically built within three main folders under *"/application/"*
 
 ![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
