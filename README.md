@@ -9,9 +9,11 @@
 
 ### What's New ###
 
-> Version: 1.2
+> Version: 1.2.4
 
-> Date: 2022-05-11
+> Release Date: 2022-05-11
+
+> Last Update: 2022-05-20
 
 * **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
 
