@@ -57,7 +57,7 @@ function _parsePut()
   fclose($putdata);
 
   if (strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
-    $GLOBALS['_PUT'] = json_decode($raw_data, true);
+    $GLOBALS['_PUT'] = empty($raw_data) ? [] : json_decode($raw_data, true);
     $_REQUEST = array_merge($GLOBALS['_PUT'], $_REQUEST);
     return;
   }

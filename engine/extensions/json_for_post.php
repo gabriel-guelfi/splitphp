@@ -48,7 +48,7 @@ function _parseJson()
   /* Close the streams */
   fclose($putdata);
 
-  $_POST = json_decode($raw_data, true);
+  $_POST = empty($raw_data) ? [] : json_decode($raw_data, true);
   $_REQUEST = array_merge($_POST, $_REQUEST);
   return;
 }
