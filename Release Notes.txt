@@ -79,6 +79,8 @@ zero rows.
 
 - Fixed a problem with the parsing of requests with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
 
+- Fixed a problem with requesting with empty JSON payloads when using POST or PUT.
+
 ---
 
 Well, I think there are changes and features here to even release a major version, but as I choose to change its name, I decided to maintain it in version 1.
