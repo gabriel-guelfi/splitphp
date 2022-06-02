@@ -194,7 +194,7 @@ class Service extends Dao
         continue;
       }
 
-      $value = htmlspecialchars($value);
+      if (!empty($value)) $value = htmlspecialchars($value);
     }
 
     return $payload;

@@ -58,8 +58,9 @@ class System
 
     define('INCLUDE_PATH', __DIR__ . "/..");
     define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
-    define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['SERVER_NAME']);
+    define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
 
+    $this->setupErrorHandling();
     $this->loadExtensions();
     $this->loadExceptions();
 
@@ -67,6 +68,9 @@ class System
     $this->loadConfigsFromFile();
     $this->setConfigsFromEnv();
 
+    // Set system's default timezone: 
+    if (!empty(DEFAULT_TIMEZONE))
+      date_default_timezone_set(DEFAULT_TIMEZONE);
 
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
@@ -114,7 +118,7 @@ class System
     }
 
     $log = fopen($path . $logname . '.log', 'a');
-    fwrite($log, "[" . date('Y-m-d H:i:s') . "] - " . $logmsg . str_repeat(Utils::lineBreak(), 2));
+    fwrite($log, "[" . date('Y-m-d H:i:s') . "] - " . $logmsg . str_repeat(PHP_EOL, 2));
     fclose($log);
   }
 
@@ -143,6 +147,31 @@ class System
     header('Location: ' . $url);
 
     die;
+  }
+
+  /** 
+   * Setup /application/log directory and pre-create server.log file
+   * 
+   * @return void 
+   */
+  private function setupErrorHandling()
+  {
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+
+    $path = INCLUDE_PATH . "/application/log";
+    if (!file_exists($path)) {
+      mkdir($path);
+      chmod($path, 0755);
+    }
+
+    $path .= "/server.log";
+    if (!file_exists($path)) {
+      touch($path);
+      chmod($path, 0644);
+    }
+
+    ini_set('error_log', $path);
   }
 
   /** 
@@ -258,6 +287,7 @@ class System
     // Define System configuration constants:
     define('APPLICATION_NAME', getenv('APPLICATION_NAME'));
     define('DEFAULT_ROUTE', getenv('DEFAULT_ROUTE'));
+    define('DEFAULT_TIMEZONE', getenv('DEFAULT_TIMEZONE'));
     define('HANDLE_ERROR_TYPES', getenv('HANDLE_ERROR_TYPES'));
     define('APPLICATION_LOG', getenv('APPLICATION_LOG'));
     define('PRIVATE_KEY', getenv('PRIVATE_KEY'));

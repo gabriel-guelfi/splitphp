@@ -210,11 +210,11 @@ class Response
           continue;
         }
 
-        if (!is_numeric($value))
+        if (!is_numeric($value) && !empty($value))
           $value = htmlspecialchars($value);
       }
     else{
-        if (!is_numeric($payload))
+        if (!is_numeric($payload) && !empty($payload))
           $payload = htmlspecialchars($payload);
     }
 

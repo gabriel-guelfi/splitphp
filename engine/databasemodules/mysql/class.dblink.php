@@ -122,7 +122,8 @@ class Dblink
     if ($attemptConnection && (!array_key_exists($connectionName, $this->connections) || empty($this->connections[$this->currentConnectionName])))
       $this->connections[$this->currentConnectionName] = $this->connect();
 
-    $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
+    if (!empty($this->connections[$this->currentConnectionName]))
+      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
 
     return $this;
   }
@@ -184,7 +185,9 @@ class Dblink
         $res = $this->runsql($sqlobj, $currentTry + 1);
         return;
       } else {
-        throw new DatabaseException($ex, "Only for PHP 8 or >", $sqlobj->sqlstring);
+        $sqlState = "Only for PHP 8 or >";
+        if (preg_match('/8\..*/', phpversion())) $sqlState = $ex->getSqlState();
+        throw new DatabaseException($ex, $sqlState, $sqlobj->sqlstring);
       }
     }
 
@@ -209,6 +212,17 @@ class Dblink
     $this->isGetConnectionInvoked = false;
 
     return $ret;
+  }
+
+  /** 
+   * Check if the connection specified on $connectionName exists.
+   * 
+   * @param string $connectionName
+   * @return boolean 
+   */
+  public function checkConnection($connectionName)
+  {
+    return empty($this->connections[$connectionName]);
   }
 
   /** 
@@ -362,13 +376,12 @@ class Dblink
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $connection = $this->connect($currentTry + 1);
-        return;
       } else {
-        if (!empty($connection))
-          $connection->close();
-        throw new DatabaseException($ex, "Only for PHP 8 or >");
+        $sqlState = "Only for PHP 8 or >";
+        if (preg_match('/8\..*/', phpversion())) $sqlState = $ex->getSqlState();
+
+        throw new DatabaseException($ex, $sqlState);
       }
-      $this->disconnect($this->currentConnectionName);
     }
     return $connection;
   }

@@ -47,7 +47,7 @@ class Utils
    * It is a collection to loaded vendor objects.
    */
   private $summary;
-  
+
   /**
    * @var array $methodsCollection
    * Stores all registered custom misc functions.
@@ -62,26 +62,28 @@ class Utils
    */
   public final function __construct()
   {
-    $c = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+    if (file_exists(INCLUDE_PATH . "/config.ini")) {
 
-    foreach ($c["VENDORS"] as $k => $v) {
-      $k = strtolower($k);
-      $temp = explode("?", $v);
-      $v = $temp[0];
-      $args = array();
-      if (isset($temp[1]))
-        $args = explode("&", $temp[1]);
-      unset($temp);
-      foreach ($args as $i => $val) {
-        $args[$i] = trim(substr($val, strpos($val, "=")), "=");
+      $c = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+
+      foreach ($c["VENDORS"] as $k => $v) {
+        $k = strtolower($k);
+        $temp = explode("?", $v);
+        $v = $temp[0];
+        $args = array();
+        if (isset($temp[1]))
+          $args = explode("&", $temp[1]);
+        unset($temp);
+        foreach ($args as $i => $val) {
+          $args[$i] = trim(substr($val, strpos($val, "=")), "=");
+        }
+
+        $this->register($k, $v, $args);
+
+        // if ($c["SYSTEM"]["VENDORS_AUTOLOAD"] == "on") {
+        //   $this->load($k);
+        // }
       }
-
-      $this->register($k, $v, $args);
-
-      // if ($c["SYSTEM"]["VENDORS_AUTOLOAD"] == "on") {
-      //   $this->load($k);
-      // }
-      
     }
   }
 
@@ -134,18 +136,6 @@ class Utils
       System::log('sys_error', $ex->getMessage());
       die;
     }
-  }
-
-  /** 
-   * Returns the string representation of a line break.
-   * 
-   * @return mixed
-   */
-  public static function lineBreak()
-  {
-    if (PATH_SEPARATOR == ":")
-      return "\r\n";
-    else return "\n";
   }
 
   /** 

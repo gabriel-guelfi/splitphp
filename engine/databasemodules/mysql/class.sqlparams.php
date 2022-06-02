@@ -300,7 +300,7 @@ class SqlParams
    * @param boolean $sanitize = true
    * @return SqlParams 
    */
-  private final function filter(string $key, $sanitize = true)
+  private function filter(string $key, $sanitize = true)
   {
     $filter = (object) [
       'key' => $key,
@@ -321,7 +321,7 @@ class SqlParams
    * @param boolean $sanitize = true
    * @return SqlParams 
    */
-  private final function and(string $key, bool $sanitize = true)
+  private function and(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -347,7 +347,7 @@ class SqlParams
    * @param boolean $sanitize = true
    * @return SqlParams 
    */
-  private final function or(string $key, bool $sanitize = true)
+  private function or(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -373,7 +373,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function equalsTo($value)
+  private function equalsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -396,7 +396,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function differentFrom($value)
+  private function differentFrom($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -419,7 +419,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function biggerThan($value)
+  private function biggerThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -442,7 +442,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function lesserThan($value)
+  private function lesserThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -465,7 +465,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function biggerOrEqualsTo($value)
+  private function biggerOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -488,7 +488,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function lesserOrEqualsTo($value)
+  private function lesserOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -511,7 +511,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private final function likeOf($value)
+  private function likeOf($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {

@@ -1,16 +1,16 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.2.4
+- Version: 1.2.9
 - Release Date: 2022-05-11
-- Last Update: 2022-05-20
+- Last Update: 2022-06-01
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-This release 1.2.4 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
+This release 1.2.9 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
 
 Now it became more conceptual than ever, so I decided to change its name and image, from "DynamoPHP" to "SPLIT PHP", to better represent the 
 fundamentals of the tool. (See more about it in the README.md file and visit its official website at http://splitphp.org)
@@ -67,6 +67,8 @@ with the same class names without conflict.
 - Configurations now are based on environment variables. The config.ini file still exists, but it is not required anymore, functioning exactly as the 
 .env file does in other frameworks. So, if you set all the config.ini file's options in environment variables, you can get rid of the file. 
 
+- Added a DEFAULT_TIMEZONE config option.
+
 
 ---
 
@@ -81,6 +83,14 @@ zero rows.
 - Fixed a problem with the parsing of requests with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
 
 - Fixed a problem with requesting with empty JSON payloads when using POST or PUT.
+
+- Fixed liability with constant URL_APPLICATION.
+
+- Fixed issues with error reporting.
+
+- Replace linebreak method for PHP_EOL constant.
+
+- Fixed "null" issue with some outputs sanitized by htmlspecialchars().
 
 ---
 

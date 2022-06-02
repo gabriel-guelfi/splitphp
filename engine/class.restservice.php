@@ -170,10 +170,8 @@ abstract class RestService extends Service
         $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
-
-      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on")
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && $this->dblink->checkConnection('writer'))
         $this->dblink->getConnection('writer', false)->rollbackTransaction();
-
 
       if (APPLICATION_LOG == "on") {
         if ($exc instanceof DatabaseException) {

@@ -9,11 +9,11 @@
 
 ### What's New ###
 
-> Version: 1.2.4
+> Version: 1.2.9
 
 > Release Date: 2022-05-11
 
-> Last Update: 2022-05-20
+> Last Update: 2022-06-01
 
 * **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
 
@@ -62,7 +62,7 @@ The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, wher
 ---
 
 ### Getting Started ###
-1. [Download](https://github.com/gabriel-guelfi/splitphp/archive/refs/tags/v1.2.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
+1. [Download](https://github.com/gabriel-guelfi/splitphp/archive/refs/tags/v1.2.9.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
 2. Rename the file */example.config.ini* to "/config.ini".
 3. Setup */config.ini* file according to your application's needs.
 4. From your **application's root dir**, run PHP's built-in server at "localhost": **`php -S localhost -t public`**.
