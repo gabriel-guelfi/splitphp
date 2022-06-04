@@ -26,25 +26,14 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Make http verbs used in REST available:
-
 use \engine\System;
-
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-
-// Respond pre-flight requests:
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-  http_response_code(200);
-  die;
-}
 
 // Includes main class System:
 require_once $_SERVER['DOCUMENT_ROOT'] . "/../engine/class.system.php";
 
 // Initiate the application, running the main class System:
 try {
-  $system = new System();
+  new System();
 } catch (Exception $ex) {
   System::errorLog('sys_error', $ex);
   throw $ex;

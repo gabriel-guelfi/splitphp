@@ -1,16 +1,16 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.2.9
+- Version: 1.2.10
 - Release Date: 2022-05-11
-- Last Update: 2022-06-01
+- Last Update: 2022-06-03
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-This release 1.2.9 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
+This release 1.2.10 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
 
 Now it became more conceptual than ever, so I decided to change its name and image, from "DynamoPHP" to "SPLIT PHP", to better represent the 
 fundamentals of the tool. (See more about it in the README.md file and visit its official website at http://splitphp.org)
@@ -68,6 +68,8 @@ with the same class names without conflict.
 .env file does in other frameworks. So, if you set all the config.ini file's options in environment variables, you can get rid of the file. 
 
 - Added a DEFAULT_TIMEZONE config option.
+
+- Improved CORS Policy to meet the compliance.
 
 
 ---

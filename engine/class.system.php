@@ -54,23 +54,32 @@ class System
    */
   public final function __construct()
   {
+    // Setup error handling:
+    $this->setupErrorHandling();
+
+    // Initiate System::globals static array:
     self::$globals = [];
 
+    // Define runtime constants:
     define('INCLUDE_PATH', __DIR__ . "/..");
     define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
     define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
-
-    $this->setupErrorHandling();
-    $this->loadExtensions();
-    $this->loadExceptions();
 
     // Setting up general configs:
     $this->loadConfigsFromFile();
     $this->setConfigsFromEnv();
 
+    // Setup CORS
+    if (ALLOW_CORS == "on")
+      $this->setupCORS();
+
     // Set system's default timezone: 
     if (!empty(DEFAULT_TIMEZONE))
       date_default_timezone_set(DEFAULT_TIMEZONE);
+
+    // Load extensions:
+    $this->loadExtensions();
+    $this->loadExceptions();
 
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
@@ -150,6 +159,28 @@ class System
   }
 
   /** 
+   * Setup CORS policy and responds pre-flight requests:
+   * 
+   * @return void 
+   */
+  private function setupCORS()
+  {
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400'); // cache for 1 day
+
+    // Respond pre-flight requests:
+    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+      header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+
+      if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+      die;
+    }
+  }
+
+  /** 
    * Setup /application/log directory and pre-create server.log file
    * 
    * @return void 
@@ -158,8 +189,9 @@ class System
   {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
+    error_reporting(E_ALL & ~E_NOTICE & ~E_USER_NOTICE);
 
-    $path = INCLUDE_PATH . "/application/log";
+    $path = __DIR__ . "/../application/log";
     if (!file_exists($path)) {
       mkdir($path);
       chmod($path, 0755);
@@ -292,5 +324,6 @@ class System
     define('APPLICATION_LOG', getenv('APPLICATION_LOG'));
     define('PRIVATE_KEY', getenv('PRIVATE_KEY'));
     define('PUBLIC_KEY', getenv('PUBLIC_KEY'));
+    define('ALLOW_CORS', getenv('ALLOW_CORS'));
   }
 }
