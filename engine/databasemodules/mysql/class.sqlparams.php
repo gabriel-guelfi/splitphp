@@ -140,7 +140,7 @@ class SqlParams
 
     $firstIteration = true;
     foreach ($params as $paramName => $strInstruction) {
-      $instruction = explode('|', $strInstruction);
+      $instruction = explode('|', empty($strInstruction) ? '' : $strInstruction);
 
       // Treat FILTER GROUPING param option:
       $filterGroupStart = '';

@@ -1,16 +1,16 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.2.10
+- Version: 1.2.11
 - Release Date: 2022-05-11
-- Last Update: 2022-06-03
+- Last Update: 2022-06-20
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-This release 1.2.10 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
+This release 1.2.11 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
 
 Now it became more conceptual than ever, so I decided to change its name and image, from "DynamoPHP" to "SPLIT PHP", to better represent the 
 fundamentals of the tool. (See more about it in the README.md file and visit its official website at http://splitphp.org)
@@ -93,6 +93,10 @@ zero rows.
 - Replace linebreak method for PHP_EOL constant.
 
 - Fixed "null" issue with some outputs sanitized by htmlspecialchars().
+
+- Fixed a deprecation warning for using explode() on a possibly null value.
+
+- An issue of log entry duplication in index.php.
 
 ---
 
