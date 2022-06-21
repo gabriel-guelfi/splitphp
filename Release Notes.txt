@@ -3,7 +3,7 @@ SPLIT PHP Framework - Release Notes
 
 - Version: 1.2.11
 - Release Date: 2022-05-11
-- Last Update: 2022-06-20
+- Last Update: 2022-06-21
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)

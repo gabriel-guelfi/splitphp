@@ -13,7 +13,7 @@
 
 > Release Date: 2022-05-11
 
-> Last Update: 2022-06-20
+> Last Update: 2022-06-21
 
 * **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
 
