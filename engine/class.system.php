@@ -90,6 +90,7 @@ class System
     require_once __DIR__ . "/class.utils.php";
 
     $this->execute(new Request($_SERVER["REQUEST_URI"]));
+    $this->serverLogCleanUp();
   }
 
   /** 
@@ -115,6 +116,8 @@ class System
    */
   public static function log(string $logname, $logmsg)
   {
+    if ($logname == 'server') throw new Exception("You cannot manually write data in server's log.");
+
     $path = INCLUDE_PATH . "/application/log/";
 
     if (!file_exists($path))
@@ -126,9 +129,16 @@ class System
       $logmsg = json_encode($logmsg);
     }
 
-    $log = fopen($path . $logname . '.log', 'a');
-    fwrite($log, "[" . date('Y-m-d H:i:s') . "] - " . $logmsg . str_repeat(PHP_EOL, 2));
-    fclose($log);
+    $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
+    if (count($currentLogData) >= MAX_LOG_ENTRIES) {
+      $currentLogData = array_slice($currentLogData, ((MAX_LOG_ENTRIES - 1) * -1));
+      $currentLogData[] = "[" . date('Y-m-d H:i:s') . "] - " . $logmsg;
+      file_put_contents($path . $logname . '.log', implode(str_repeat(PHP_EOL, 2), $currentLogData) . str_repeat(PHP_EOL, 2));
+    } else {
+      $log = fopen($path . $logname . '.log', 'a');
+      fwrite($log, "[" . date('Y-m-d H:i:s') . "] - " . $logmsg . str_repeat(PHP_EOL, 2));
+      fclose($log);
+    }
   }
 
   /** 
@@ -325,5 +335,25 @@ class System
     define('PRIVATE_KEY', getenv('PRIVATE_KEY'));
     define('PUBLIC_KEY', getenv('PUBLIC_KEY'));
     define('ALLOW_CORS', getenv('ALLOW_CORS'));
+    define('MAX_LOG_ENTRIES', !empty(getenv('MAX_LOG_ENTRIES')) ? getenv('MAX_LOG_ENTRIES') : 5);
+  }
+
+  /** 
+   * Remove entries from server's log until it reach the MAX_LOG_ENTRIES limit. The cleaning-up remove the oldest entries and leave the newer:
+   * 
+   * @return void 
+   */
+  private function serverLogCleanUp()
+  {
+    $path = __DIR__ . '/../application/log/server.log';
+
+    if (file_exists($path)) {
+      $rawData = array_filter(explode(PHP_EOL, file_get_contents($path)));
+
+      if (count($rawData) > MAX_LOG_ENTRIES) {
+        $rawData = array_slice($rawData, (MAX_LOG_ENTRIES * -1));
+        file_put_contents($path, implode(PHP_EOL, $rawData) . PHP_EOL);
+      }
+    }
   }
 }

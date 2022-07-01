@@ -1,9 +1,9 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.2.11
+- Version: 1.2.12
 - Release Date: 2022-05-11
-- Last Update: 2022-06-21
+- Last Update: 2022-07-01
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
@@ -70,6 +70,8 @@ with the same class names without conflict.
 - Added a DEFAULT_TIMEZONE config option.
 
 - Improved CORS Policy to meet the compliance.
+
+- Added a MAX_LOG_ENTRIES option into configs. This allows the dev to impose a limit to the size of the log files.
 
 
 ---
