@@ -109,8 +109,12 @@ abstract class Cli extends Service
             'sqlState' => $exc->getSqlState(),
             'sqlCommand' => $exc->getSqlCmd()
           ]);
+          echo "ERROR[Database]: " . $exc->getMessage() . ". In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
+          echo PHP_EOL;
         } else {
           System::errorLog('application_error', $exc);
+          echo "ERROR[Application]: " . $exc->getMessage() . ". In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
+          echo PHP_EOL;
         }
       }
     } finally {
