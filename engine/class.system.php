@@ -52,7 +52,7 @@ class System
    * 
    * @return System 
    */
-  public final function __construct()
+  public final function __construct($cliArgs = [])
   {
     // Setup error handling:
     $this->setupErrorHandling();
@@ -83,13 +83,20 @@ class System
 
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
-    require_once __DIR__ . "/class.request.php";
     require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";
-    require_once __DIR__ . "/class.restservice.php";
     require_once __DIR__ . "/class.utils.php";
 
-    $this->execute(new Request($_SERVER["REQUEST_URI"]));
+    if (empty($cliArgs)) {
+      require_once __DIR__ . "/class.request.php";
+      require_once __DIR__ . "/class.restservice.php";
+      $this->executeRequest(new Request($_SERVER["REQUEST_URI"]));
+    } else {
+      require_once __DIR__ . "/class.action.php";
+      require_once __DIR__ . "/class.cli.php";
+      $this->executeCommand(new Action($cliArgs));
+    }
+
     $this->serverLogCleanUp();
   }
 
@@ -221,9 +228,9 @@ class System
    * and data specified in that Request object.
    * 
    * @param Request $request
-   * @return Response 
+   * @return void
    */
-  private function execute(Request $request)
+  private function executeRequest(Request $request)
   {
     if (file_exists($request->getRestService()->path . $request->getRestService()->name . ".php") === false) {
       http_response_code(404);
@@ -231,7 +238,24 @@ class System
     }
 
     $restServiceObj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
-    return call_user_func_array(array($restServiceObj, 'execute'), $request->getArgs());
+    call_user_func_array(array($restServiceObj, 'execute'), $request->getArgs());
+  }
+
+  /** 
+   * Using the information stored in the received Action object, set and run a specific Cli, passing along the command 
+   * and arguments specified in that Action object.
+   * 
+   * @param Action $action
+   * @return void
+   */
+  private function executeCommand(Action $action)
+  {
+    if (file_exists($action->getCli()->path . $action->getCli()->name . ".php") === false) {
+      throw new Exception("Command not found.");
+    }
+
+    $CliObj = self::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
+    call_user_func_array(array($CliObj, 'execute'), $action->getArgs());
   }
 
   /** 

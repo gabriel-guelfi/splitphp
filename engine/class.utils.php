@@ -104,6 +104,21 @@ class Utils
 
     return $this->$name = System::loadClass(INCLUDE_PATH . "/vendors/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
   }
+  /** 
+   * Outputs a given $data followed by an end-of-line.
+   * 
+   * @param mixed $data
+   * @return void 
+   */
+  public static function printLn($data)
+  {
+    if (gettype($data) == 'array' || (gettype($data) == 'object' && $data instanceof StdClass)) {
+      print_r($data);
+    } else {
+      echo $data;
+      echo PHP_EOL;
+    }
+  }
 
   /** 
    * Register the closure function received in $instructions as a custom static method of the Utils object, with the specified $methodName. 

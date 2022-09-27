@@ -6,8 +6,8 @@ use \engine\Service;
 
 class Example extends Service
 {
-  public function welcomeMsg()
+  public function welcomeMsg($name = "")
   {
-    return "Welcome to SPLIT PHP, the lean, low learning curve PHP framework!";
+    return "Welcome {$name} to SPLIT PHP, the lean, low learning curve PHP framework!";
   }
 }
