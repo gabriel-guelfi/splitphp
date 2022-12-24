@@ -59,6 +59,24 @@ abstract class Cli extends Service
    */
   private $dblink;
 
+  /**
+   * @var int $timeStart
+   * Stores the timestamp of the start of the command's execution.
+   */
+  private $timeStart;
+
+  /**
+   * @var int $timeEnd
+   * Stores the timestamp of the end of the command's execution.
+   */
+  private $timeEnd;
+
+  /**
+   * @var string $cmdString
+   * Stores the current execution's command string.
+   */
+  private $cmdString;
+
   /** 
    * Defines constants for user errors, set properties with their initial values, instantiate other classes, then returns an
    * instance of the CLI(constructor).
@@ -68,6 +86,9 @@ abstract class Cli extends Service
   public final function __construct()
   {
     $this->commands = [];
+    $this->cmdString = "";
+    $this->timeStart = 0;
+    $this->timeEnd = 0;
 
     $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
@@ -82,22 +103,43 @@ abstract class Cli extends Service
    * @param array $args = []
    * @return void 
    */
-  public final function execute(string $cmdString, array $args = [])
+  public final function execute(string $cmdString, array $args = [], $innerExecution = false)
   {
+    $this->cmdString = $cmdString;
+    $this->timeStart = time();
+
     $commandData = $this->findCommand($cmdString);
     if (empty($commandData)) {
       throw new Exception("Command not found");
     }
 
     try {
+      if (!$innerExecution) {
+        echo PHP_EOL;
+        Utils::printLn("*------*------*------*------*------*------*------*");
+        Utils::printLn("[SPLITPHP CONSOLE] Command execution started.");
+        Utils::printLn("*------*------*------*------*------*------*------*");
+        echo PHP_EOL;
+      }
+
       $commandHandler = is_callable($commandData->method) ? $commandData->method : [$this, $commandData->method];
 
-      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && !$innerExecution) {
         $this->dblink->getConnection('writer')->startTransaction();
         call_user_func_array($commandHandler, [$this->prepareArgs($args)]);
         $this->dblink->getConnection('writer')->commitTransaction();
       } else {
         call_user_func_array($commandHandler, [$this->prepareArgs($args)]);
+      }
+
+      $this->timeEnd = time();
+      $durationTime = $this->timeEnd - $this->timeStart;
+      if (!$innerExecution) {
+        echo PHP_EOL;
+        Utils::printLn("*------*------*------*------*------*------*------*");
+        Utils::printLn("[SPLITPHP CONSOLE] Command execution finished. Run time duration: {$durationTime} second(s).");
+        Utils::printLn("*------*------*------*------*------*------*------*");
+        echo PHP_EOL;
       }
     } catch (Exception $exc) {
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && $this->dblink->checkConnection('writer'))
@@ -142,6 +184,22 @@ abstract class Cli extends Service
       "command" => $cmdString,
       "method" => $method
     ];
+  }
+
+  /** 
+   * Runs another command from within a command, based on the received command string. 
+   * Returns the executed command's returned value.
+   * 
+   * @param string $cmdString
+   * @return mixed 
+   */
+  protected final function run(string $cmdString)
+  {
+    $action = new Action(['console', ...explode(" ", $cmdString)]);
+    if ($action->getCmd() == $this->cmdString) throw new Exception("You cannot run a command from within itself");
+
+    $CliObj = System::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
+    return call_user_func_array(array($CliObj, 'execute'), [...$action->getArgs(), true]);
   }
 
   /** 

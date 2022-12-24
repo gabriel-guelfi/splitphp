@@ -67,7 +67,7 @@ class Action
    * Parse the incoming $argv, separating, Cli's path and arguments. Returns an instance of the Action class (constructor).
    * 
    * @param array $args
-   * @return Request 
+   * @return Action 
    */
   public final function __construct(array $args)
   {
