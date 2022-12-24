@@ -41,10 +41,22 @@ use Exception;
 class System
 {
   /**
+   * @var string $restServiceName
+   * Stores the name of the RestService which is being executed in the current request/response.
+   */
+
+  public static $restServiceName;
+  /**
    * @var array $globals
    * Used to store static data that must be available in the entire application.
    */
   public static $globals;
+
+  /**
+   * @var string $cliName
+   * Stores the name of the CLI which is being executed in the current command execution.
+   */
+  private static $cliName;
 
   /** 
    * This is the constructor of System class. It initiate the $globals property, create configuration constants, load and runs 
@@ -57,8 +69,10 @@ class System
     // Setup error handling:
     $this->setupErrorHandling();
 
-    // Initiate System::globals static array:
+    // Initiate System's properties:
     self::$globals = [];
+    self::$restServiceName = "";
+    self::$cliName = "";
 
     // Define runtime constants:
     define('INCLUDE_PATH', __DIR__ . "/..");
@@ -237,6 +251,8 @@ class System
       die;
     }
 
+    self::$restServiceName = $request->getRestService()->name;
+
     $restServiceObj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
     call_user_func_array(array($restServiceObj, 'execute'), $request->getArgs());
   }
@@ -253,6 +269,8 @@ class System
     if (file_exists($action->getCli()->path . $action->getCli()->name . ".php") === false) {
       throw new Exception("Command not found.");
     }
+
+    self::$cliName = $action->getCli()->name;
 
     $CliObj = self::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
     call_user_func_array(array($CliObj, 'execute'), $action->getArgs());
@@ -300,6 +318,8 @@ class System
     return (object) [
       "datetime" => date('Y-m-d H:i:s'),
       "message" => $exc->getMessage(),
+      "restService" => ucfirst(self::$restServiceName),
+      "cli" => ucfirst(self::$cliName),
       "info" => $info,
       "stack_trace" => $exc->getTrace(),
       "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious(), []) : null),
