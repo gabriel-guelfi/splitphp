@@ -349,6 +349,7 @@ class System
     define('DB_TRANSACTIONAL', getenv('DB_TRANSACTIONAL'));
     define('DB_WORK_AROUND_FACTOR', getenv('DB_WORK_AROUND_FACTOR'));
     define('CACHE_DB_METADATA', getenv('CACHE_DB_METADATA'));
+    define('DB_CHARSET', !empty(getenv('DB_CHARSET')) ? getenv('DB_CHARSET') : "utf8");
 
     // Define System configuration constants:
     define('APPLICATION_NAME', getenv('APPLICATION_NAME'));

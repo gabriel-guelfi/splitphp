@@ -373,6 +373,7 @@ class Dblink
 
     try {
       $connection = new mysqli(DBHOST, $dbUsername, $dbUserpass, DBNAME);
+      mysqli_set_charset($connection, DB_CHARSET);
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $connection = $this->connect($currentTry + 1);
