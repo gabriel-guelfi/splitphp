@@ -202,6 +202,7 @@ abstract class RestService extends Service
             "error" => true,
             "user_friendly" => $status !== 500,
             "message" => $exc->getMessage(),
+            "restService" => System::$restServiceName,
             "route" => $route,
             "method" => $httpVerb,
             "params" => $this->prepareParams($route, $routeData, $httpVerb, false)

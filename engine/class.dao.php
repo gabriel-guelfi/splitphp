@@ -610,6 +610,19 @@ class Dao
   }
 
   /** 
+   * Force current transactional database operation to commit manually, then starts a new transaction to continue the runtime.
+   * 
+   * @return void 
+   */
+  protected final function dbCommitChanges()
+  {
+    if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
+      $this->dblink->getConnection('writer')->commitTransaction();
+      $this->dblink->getConnection('writer')->startTransaction();
+    }
+  }
+
+  /** 
    * Updates the current execution control, with the current state of the class instance.
    * 
    * @return void 
