@@ -61,7 +61,7 @@ class System
     self::$globals = [];
 
     // Define runtime constants:
-    define('INCLUDE_PATH', __DIR__ . "/..");
+    define('ROOT_PATH', __DIR__ . "/..");
     define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
     define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
 
@@ -125,7 +125,7 @@ class System
   {
     if ($logname == 'server') throw new Exception("You cannot manually write data in server's log.");
 
-    $path = INCLUDE_PATH . "/application/log/";
+    $path = ROOT_PATH . "/application/log/";
 
     if (!file_exists($path))
       mkdir($path, 0755, true);
@@ -315,8 +315,8 @@ class System
    */
   private function loadConfigsFromFile()
   {
-    if (file_exists(INCLUDE_PATH . "/config.ini")) {
-      $configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+    if (file_exists(ROOT_PATH . "/config.ini")) {
+      $configs = parse_ini_file(ROOT_PATH . "/config.ini", true);
 
       foreach ($configs as $section => $innerSettings) {
         foreach ($innerSettings as $var => $value) {

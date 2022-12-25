@@ -76,7 +76,9 @@ class Action
     array_shift($args);
     $cmdElements = explode(":", $this->cmd);
 
-    $this->cliFindAndSet('/application/commands/', $cmdElements);
+    if (!$this->cliFindAndSet('/engine/commands/', $cmdElements, false))
+      $this->cliFindAndSet('/application/commands/', $cmdElements);
+    else Utils::printLn(PHP_EOL . "[SPLITPHP CONSOLE] **NOTICE: This is a command, from a built-in CLI, which cannot be overwritten by application CLIs." . PHP_EOL . " If there is an application CLI with the same name, this one will be executed, instead.");
 
     $this->args = [
       $this->cmd,
@@ -123,15 +125,15 @@ class Action
    * 
    * @param string $path
    * @param array $cmdElements
-   * @return void 
+   * @return boolean 
    */
-  private function cliFindAndSet(string $path, array $cmdElements)
+  private function cliFindAndSet(string $path, array $cmdElements, $throwNotFound = true)
   {
     $basePath = "";
-    if (strpos($path, INCLUDE_PATH)) {
+    if (strpos($path, ROOT_PATH)) {
       $basePath = $path;
     } else {
-      $basePath = INCLUDE_PATH . $path;
+      $basePath = ROOT_PATH . $path;
     }
 
     foreach ($cmdElements as $i => $cmdPart) {
@@ -140,11 +142,14 @@ class Action
       elseif (is_file($basePath . $cmdPart . '.php')) {
         $this->cliPath = $basePath;
         $this->cliName = $cmdPart;
-        $this->cmd = ":".implode(':', array_slice($cmdElements, $i + 1));
+        $this->cmd = ":" . implode(':', array_slice($cmdElements, $i + 1));
         break;
       } else {
-        throw new Exception("Command not found.");
+        if ($throwNotFound) throw new Exception("Command not found.");
+        else return false;
       }
     }
+
+    return true;
   }
 }

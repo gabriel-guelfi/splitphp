@@ -100,7 +100,7 @@ class Sql
    */
   public final function __construct()
   {
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
+    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
     $this->sqlstring = "";
   }
 

@@ -83,8 +83,8 @@ class SqlParams
       if (isset($params['$page'])) unset($params['$page']);
       if (isset($params['$limit'])) unset($params['$limit']);
 
-      if (!empty($sql) && file_exists(INCLUDE_PATH . '/application/sql/' . $sql . '.sql')) {
-        $sql = file_get_contents(INCLUDE_PATH . '/application/sql/' . $sql . '.sql');
+      if (!empty($sql) && file_exists(ROOT_PATH . '/application/sql/' . $sql . '.sql')) {
+        $sql = file_get_contents(ROOT_PATH . '/application/sql/' . $sql . '.sql');
       }
 
       // FILTER:

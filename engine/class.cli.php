@@ -90,7 +90,7 @@ abstract class Cli extends Service
     $this->timeStart = 0;
     $this->timeEnd = 0;
 
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     parent::__construct();
   }

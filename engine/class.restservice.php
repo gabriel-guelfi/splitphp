@@ -117,7 +117,7 @@ abstract class RestService extends Service
 
     $this->routeIndex = [];
 
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -128,7 +128,7 @@ abstract class RestService extends Service
     ];
 
     $this->antiXsrfValidation = true;
-    $this->response = System::loadClass(INCLUDE_PATH . "/engine/class.response.php", 'response');
+    $this->response = System::loadClass(ROOT_PATH . "/engine/class.response.php", 'response');
     parent::__construct();
   }
 
