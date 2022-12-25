@@ -101,6 +101,19 @@ class System
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    $restService = self::$restServiceName;
+    $cli = self::$cliName;
+    
+    return "class:" . __CLASS__ . "(CLI:{$cli}, RestService:{$restService})";
+  }
+
+  /** 
    * This is a wrapper to ObjLoader::load() method. Returns the instance of a class registered on the collection. 
    * If the class instance isn't registered yet, create a new instance of that class, register it on the collection, then returns it.
    * 
@@ -341,6 +354,7 @@ class System
     define('DB_CONNECT', getenv('DB_CONNECT'));
     define('DBNAME', getenv('DBNAME'));
     define('DBHOST', getenv('DBHOST'));
+    define('DBPORT', !empty(getenv('DBPORT')) ? getenv('DBPORT') : 3306);
     define('DBUSER_MAIN', getenv('DBUSER_MAIN'));
     define('DBPASS_MAIN', getenv('DBPASS_MAIN'));
     define('DBUSER_READONLY', getenv('DBUSER_READONLY'));

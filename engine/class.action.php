@@ -87,6 +87,16 @@ class Action
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    return "class:" . __CLASS__ . "(CLI:{$this->cliName}, Path:{$this->cliPath}, Command:{$this->cmd})";
+  }
+
+  /** 
    * Returns the stored command.
    * 
    * @return string 

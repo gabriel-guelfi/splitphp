@@ -113,6 +113,16 @@ class Dao
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "(Table:{$this->workingTable}, DbLink:{$this->dblink})";
+  }
+
+  /** 
    * Updates current execution control with the current state, resets this state, setting Dao::workingTable with the passed $tableName, registers 
    * a new execution on execution control, then returns the instance of the class.
    * 

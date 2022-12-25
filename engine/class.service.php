@@ -69,6 +69,16 @@ class Service extends Dao
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:Service:" . __CLASS__ . "()";
+  }
+
+  /** 
    * It's an empty abstract method, used to replace __construct(), in case the dev wants to initiate his Service with some initial execution, he 
    * can extend this method and perform whatever he wants on the initiation of the Service.
    * 

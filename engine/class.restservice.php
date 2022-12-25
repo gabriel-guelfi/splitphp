@@ -133,6 +133,16 @@ abstract class RestService extends Service
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:RestService:" . __CLASS__ . "()";
+  }
+
+  /** 
    * Checks for allowed HTTP verbs, searches for the request's route in added routes list, generate a new XSRF token, executes the 
    * handler method provided for the endpoint, then respond the request with the response returned from this handler method.
    * 

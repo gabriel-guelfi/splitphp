@@ -53,6 +53,16 @@ class SqlParams
   private $filters;
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    return "class:SqlParams()";
+  }
+
+  /** 
    * Set DAO's filtering, sorting and pagination parameters, based on the data received in $params. If a query is passed in $sql,
    * edit this query, according to the filters set. Returns an object containing 
    * the resulting DAO filters and SQL query.

@@ -88,6 +88,16 @@ class Utils
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "()";
+  }
+
+  /** 
    * Loads and returns a vendor class object. If the vendor isn't registered in the summary, yet, register it before loading. 
    * 
    * @param string $name

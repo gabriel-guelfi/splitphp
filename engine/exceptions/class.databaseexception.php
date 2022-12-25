@@ -76,15 +76,15 @@ class DatabaseException extends Exception
   }
 
   /** 
-   * Returns a string representation of the instance.
+   * Returns a string representation of this class for printing purposes.
    * 
    * @return string 
    */
-  public function __toString()
+  public final function __toString()
   {
-    return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+    return "class:" . __CLASS__ . "(Code:{$this->code}, Message:{$this->message}, File:{$this->file}, Line:{$this->line}, SqlState:{$this->sqlstate}, SqlCommand:{$this->sqlcommand})";
   }
-  
+
   /** 
    * Returns the value stored on DatabaseException::sqlstate.
    * 

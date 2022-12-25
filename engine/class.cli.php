@@ -96,6 +96,16 @@ abstract class Cli extends Service
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    return "class:Cli:" . __CLASS__ . "(started:{$this->timeStart}, Ended:{$this->timeEnd}, Command:{$this->cmdString})";
+  }
+
+  /** 
    * Searches for the command's string in added commands list then executes the 
    * handler method provided for the command.
    * 
@@ -112,7 +122,7 @@ abstract class Cli extends Service
     if (empty($commandData)) {
       throw new Exception("Command not found");
     }
-
+    
     try {
       if (!$innerExecution) {
         echo PHP_EOL;
@@ -121,9 +131,9 @@ abstract class Cli extends Service
         Utils::printLn("*------*------*------*------*------*------*------*");
         echo PHP_EOL;
       }
-
+      
       $commandHandler = is_callable($commandData->method) ? $commandData->method : [$this, $commandData->method];
-
+      
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && !$innerExecution) {
         $this->dblink->getConnection('writer')->startTransaction();
         call_user_func_array($commandHandler, [$this->prepareArgs($args)]);

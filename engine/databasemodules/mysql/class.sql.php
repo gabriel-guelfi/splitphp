@@ -62,6 +62,16 @@ class Sqlobj
     $this->sqlstring = $str;
     $this->table = $table;
   }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    return "class:Sqlobj(SqlString:{$this->sqlstring}, Table:{$this->table})";
+  }
 }
 
 /**
@@ -105,6 +115,16 @@ class Sql
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    return "class:SqlBuilder(SqlString:{$this->sqlstring}, Table:{$this->table})";
+  }
+
+  /** 
    * Build a insert type query command with the values passed in $dataset, set the working table with the name passed on $table, 
    * then returns the instance of the class.
    * 
@@ -112,7 +132,7 @@ class Sql
    * @param string $table
    * @return Sql 
    */
-  public function insert( $dataset, string $table)
+  public function insert($dataset, string $table)
   {
     $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
@@ -155,7 +175,7 @@ class Sql
    * @param string $table
    * @return Sql 
    */
-  public function update( $dataset, string $table)
+  public function update($dataset, string $table)
   {
     $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
 
@@ -281,7 +301,7 @@ class Sql
    * @param mixed $val
    * @return string 
    */
-  private function escape( $val)
+  private function escape($val)
   {
     return $val == "*" ? $val : "`" . $val . "`";
   }
