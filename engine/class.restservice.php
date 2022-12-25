@@ -117,7 +117,7 @@ abstract class RestService extends Service
 
     $this->routeIndex = [];
 
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -128,8 +128,18 @@ abstract class RestService extends Service
     ];
 
     $this->antiXsrfValidation = true;
-    $this->response = System::loadClass(INCLUDE_PATH . "/engine/class.response.php", 'response');
+    $this->response = System::loadClass(ROOT_PATH . "/engine/class.response.php", 'response');
     parent::__construct();
+  }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:RestService:" . __CLASS__ . "()";
   }
 
   /** 
@@ -408,8 +418,6 @@ abstract class RestService extends Service
             "info" => (object) [
               "log_time" => date('d/m/Y H:i:s'),
               "message" => "Someone has attempted to submit possible malware whithin a request payload.",
-              // "store" => $this->getService('store/store')->getInfo(),
-              // "user" => $this->getService('user/session')->getLoggedUser(),
               "suspicious_content" => $matches,
               "client" => (object) [
                 "user_agent" => $_SERVER['HTTP_USER_AGENT'],
@@ -439,19 +447,6 @@ abstract class RestService extends Service
           ];
 
           System::log('security', json_encode($info));
-
-          try {
-            // $this->getService('mail_service')->sendEmail(new MailObject((object) [
-            //   "fromMail" => SMTP_SENDER_EMAIL,
-            //   "fromName" => APPLICATION_NAME,
-            //   "destMail" => ADMIN_EMAIL,
-            //   "destName" => "System Administrator",
-            //   "subject" => "ALERT - Malware Hazard",
-            //   "body" => json_encode($info)
-            // ]));
-          } catch (Exception $exc) {
-            System::errorLog('sys_error', $exc);
-          }
 
           throw new Exception("Invalid input.", 400);
         }

@@ -90,11 +90,11 @@ class Dao
    */
   public function __construct()
   {
-    require_once INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
+    require_once ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
 
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    $this->sqlBuilder = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-    $this->sqlParameters = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
+    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $this->sqlBuilder = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $this->sqlParameters = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
 
     $this->workingTable = null;
     $this->filters = [];
@@ -110,6 +110,16 @@ class Dao
         ]
       ]
     ];
+  }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "(Table:{$this->workingTable}, DbLink:{$this->dblink})";
   }
 
   /** 
@@ -249,7 +259,7 @@ class Dao
     }
 
     // If argument is a SQL file path, include it, else treat argument as the SQL itself:
-    $path = INCLUDE_PATH . "/application/sql/" . $sql . ".sql";
+    $path = ROOT_PATH . "/application/sql/" . $sql . ".sql";
     if (is_file($path)) {
       $sql = file_get_contents($path);
     }

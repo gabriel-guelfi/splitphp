@@ -75,7 +75,7 @@ class System
     self::$cliName = "";
 
     // Define runtime constants:
-    define('INCLUDE_PATH', __DIR__ . "/..");
+    define('ROOT_PATH', __DIR__ . "/..");
     define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
     define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
 
@@ -115,6 +115,19 @@ class System
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    $restService = self::$restServiceName;
+    $cli = self::$cliName;
+    
+    return "class:" . __CLASS__ . "(CLI:{$cli}, RestService:{$restService})";
+  }
+
+  /** 
    * This is a wrapper to ObjLoader::load() method. Returns the instance of a class registered on the collection. 
    * If the class instance isn't registered yet, create a new instance of that class, register it on the collection, then returns it.
    * 
@@ -139,7 +152,7 @@ class System
   {
     if ($logname == 'server') throw new Exception("You cannot manually write data in server's log.");
 
-    $path = INCLUDE_PATH . "/application/log/";
+    $path = ROOT_PATH . "/application/log/";
 
     if (!file_exists($path))
       mkdir($path, 0755, true);
@@ -335,8 +348,8 @@ class System
    */
   private function loadConfigsFromFile()
   {
-    if (file_exists(INCLUDE_PATH . "/config.ini")) {
-      $configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+    if (file_exists(ROOT_PATH . "/config.ini")) {
+      $configs = parse_ini_file(ROOT_PATH . "/config.ini", true);
 
       foreach ($configs as $section => $innerSettings) {
         foreach ($innerSettings as $var => $value) {
@@ -361,6 +374,7 @@ class System
     define('DB_CONNECT', getenv('DB_CONNECT'));
     define('DBNAME', getenv('DBNAME'));
     define('DBHOST', getenv('DBHOST'));
+    define('DBPORT', !empty(getenv('DBPORT')) ? getenv('DBPORT') : 3306);
     define('DBUSER_MAIN', getenv('DBUSER_MAIN'));
     define('DBPASS_MAIN', getenv('DBPASS_MAIN'));
     define('DBUSER_READONLY', getenv('DBUSER_READONLY'));

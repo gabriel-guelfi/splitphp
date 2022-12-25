@@ -53,6 +53,16 @@ class SqlParams
   private $filters;
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    return "class:SqlParams()";
+  }
+
+  /** 
    * Set DAO's filtering, sorting and pagination parameters, based on the data received in $params. If a query is passed in $sql,
    * edit this query, according to the filters set. Returns an object containing 
    * the resulting DAO filters and SQL query.
@@ -83,8 +93,8 @@ class SqlParams
       if (isset($params['$page'])) unset($params['$page']);
       if (isset($params['$limit'])) unset($params['$limit']);
 
-      if (!empty($sql) && file_exists(INCLUDE_PATH . '/application/sql/' . $sql . '.sql')) {
-        $sql = file_get_contents(INCLUDE_PATH . '/application/sql/' . $sql . '.sql');
+      if (!empty($sql) && file_exists(ROOT_PATH . '/application/sql/' . $sql . '.sql')) {
+        $sql = file_get_contents(ROOT_PATH . '/application/sql/' . $sql . '.sql');
       }
 
       // FILTER:

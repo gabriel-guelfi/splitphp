@@ -75,6 +75,16 @@ class Response
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "(Status:{$this->status}, ContentType:{$this->contentType})";
+  }
+
+  /** 
    * Add a string representation of a header to the Response's headers collection. Each header stored on this collection, will be added to 
    * the response, later.
    * 

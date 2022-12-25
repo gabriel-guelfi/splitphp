@@ -87,6 +87,16 @@ class Request
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "(RestService:{$this->restServiceName}, Path:{$this->restServicePath}, Route:{$this->route})";
+  }
+
+  /** 
    * Returns the stored route.
    * 
    * @return string 
@@ -152,10 +162,10 @@ class Request
   private function restServiceFindAndSet(string $path, array $urlElements)
   {
     $basePath = "";
-    if (strpos($path, INCLUDE_PATH)) {
+    if (strpos($path, ROOT_PATH)) {
       $basePath = $path;
     } else {
-      $basePath = INCLUDE_PATH . $path;
+      $basePath = ROOT_PATH . $path;
     }
 
     foreach ($urlElements as $i => $urlPart) {

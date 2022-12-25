@@ -72,6 +72,18 @@ class Dblink
    */
   private $isGetConnectionInvoked;
 
+  /**
+   * @var string $dbUserName
+   * Stores the current database connection's username.
+   */
+  private $dbUserName;
+
+  /**
+   * @var string $dbUserPass
+   * Stores the current database connection's password.
+   */
+  private $dbUserPass;
+
   /** 
    * Changes MySQL report configs, starts the properties with their initial values, then returns an object of type Dblink(instantiate the class).
    * 
@@ -86,6 +98,21 @@ class Dblink
     $this->cnnInfo = [];
     $this->transactionMode = false;
     $this->isGetConnectionInvoked = false;
+  }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public final function __toString()
+  {
+    $dbType = DBTYPE;
+    $dbHost = DBHOST;
+    $dbPort = DBPORT;
+    $dbName = DBNAME;
+
+    return "class:Dblink(type:{$dbType}, Host:{$dbHost}, Port:{$dbPort}, database:{$dbName}, Connection:{$this->currentConnectionName}, User:{$this->dbUserName}, Password:{$this->dbUserPass})";
   }
 
   /** 
@@ -362,11 +389,11 @@ class Dblink
   private function connect(int $currentTry = 1)
   {
     if ($this->currentConnectionName == 'writer') {
-      $dbUsername = DBUSER_MAIN;
-      $dbUserpass = DBPASS_MAIN;
+      $this->dbUsername = DBUSER_MAIN;
+      $this->dbUserpass = DBPASS_MAIN;
     } elseif ($this->currentConnectionName == 'reader') {
-      $dbUsername = DBUSER_READONLY;
-      $dbUserpass = DBPASS_READONLY;
+      $this->dbUsername = DBUSER_READONLY;
+      $this->dbUserpass = DBPASS_READONLY;
     } else {
       throw new Exception("Invalid Database connection mode.");
     }
@@ -374,6 +401,7 @@ class Dblink
     try {
       $connection = new mysqli(DBHOST, $dbUsername, $dbUserpass, DBNAME);
       mysqli_set_charset($connection, DB_CHARSET);
+
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         $connection = $this->connect($currentTry + 1);

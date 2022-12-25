@@ -63,9 +63,19 @@ class Service extends Dao
 
     $this->templateRoot = "";
 
-    $this->utils = System::loadClass(INCLUDE_PATH . "/engine/class.utils.php", "utils");
+    $this->utils = System::loadClass(ROOT_PATH . "/engine/class.utils.php", "utils");
 
     $this->init();
+  }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:Service:" . __CLASS__ . "()";
   }
 
   /** 
@@ -88,7 +98,7 @@ class Service extends Dao
   {
     @$className = strpos($path, '/') ? end(explode('/', $path)) : $path;
 
-    return System::loadClass(INCLUDE_PATH . '/application/services/' . $path . '.php', $className);
+    return System::loadClass(ROOT_PATH . '/application/services/' . $path . '.php', $className);
   }
 
   /** 
@@ -104,7 +114,7 @@ class Service extends Dao
     $path = ltrim($path, '/');
 
     ob_start();
-    include INCLUDE_PATH . "/application/templates/" . $this->templateRoot . $path . ".php";
+    include ROOT_PATH . "/application/templates/" . $this->templateRoot . $path . ".php";
 
     return ob_get_clean();
   }
