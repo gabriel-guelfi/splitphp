@@ -399,7 +399,7 @@ class Dblink
     }
 
     try {
-      $connection = new mysqli(DBHOST, $dbUsername, $dbUserpass, DBNAME);
+      $connection = new mysqli(DBHOST, $this->dbUsername, $this->dbUserpass, DBNAME);
       mysqli_set_charset($connection, DB_CHARSET);
 
     } catch (mysqli_sql_exception $ex) {
