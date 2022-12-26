@@ -209,6 +209,7 @@ class Dblink
       $res = $this->connections[$this->currentConnectionName]->query($sqlobj->sqlstring);
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
+        sleep(1);
         $res = $this->runsql($sqlobj, $currentTry + 1);
         return;
       } else {
@@ -401,9 +402,9 @@ class Dblink
     try {
       $connection = new mysqli(DBHOST, $this->dbUsername, $this->dbUserpass, DBNAME);
       mysqli_set_charset($connection, DB_CHARSET);
-
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
+        sleep(1);
         $connection = $this->connect($currentTry + 1);
       } else {
         $sqlState = "Only for PHP 8 or >";
