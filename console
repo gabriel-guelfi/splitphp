@@ -37,6 +37,7 @@ try {
     System::errorLog('sys_error', $exc);
     echo "ERROR[System]: " . $exc->getMessage() . " In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
     echo PHP_EOL;
+    throw $exc;
 } finally {
     die;
 }

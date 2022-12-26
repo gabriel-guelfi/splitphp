@@ -36,6 +36,7 @@ try {
   new System();
 } catch (Exception $ex) {
   System::errorLog('sys_error', $ex);
+  throw $ex;
 } finally {
   die;
 }
