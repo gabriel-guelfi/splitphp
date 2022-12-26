@@ -69,13 +69,20 @@ class Dao
    * An array of objects, on which each object contains settings of the filters that wil be applied on the operation.
    */
   private $filters;
-  
+
   /**
    * @var array $params
    * An array containing the parameters dataset, which will be applied to current operation when not empty.
    */
   private $params;
-  
+
+  /**
+   * @var array $persistence
+   * Data returned from SELECT queries will be persisted here, so the next time in which the same query will be executed, 
+   * it retrieves data direct frm this array, instead of performing a SQL query on the database again.
+   */
+  private $persistence;
+
   /**
    * @var object $executionControl
    * This object contains information about the state of multiple nested operations, storing the states and indexes of each nested execution. 
@@ -99,6 +106,7 @@ class Dao
     $this->workingTable = null;
     $this->filters = [];
     $this->params = [];
+    $this->persistence = [];
 
     $this->executionControl = (object) [
       'executionPileHashes' => ['initial_state'],
@@ -150,7 +158,7 @@ class Dao
    * @param boolean $debug = false
    * @return object|Sqlobj
    */
-  protected final function insert( $obj, bool $debug = false)
+  protected final function insert($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -181,7 +189,7 @@ class Dao
    * @param boolean $debug = false
    * @return integer|Sqlobj
    */
-  protected final function update( $obj, bool $debug = false)
+  protected final function update($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -301,8 +309,13 @@ class Dao
 
     if ($debug)
       return $sqlObj;
+
     // Run SQL and store its result:
-    $res = $this->dblink->getConnection('reader')->runsql($sqlObj);
+    $sqlHash = md5($sqlObj->sqlstring);
+    if (!array_key_exists($sqlHash, $this->persistence))
+      $this->persistence[$sqlHash] = $this->dblink->getConnection('reader')->runsql($sqlObj);
+
+    $res = $this->persistence[$sqlHash];
 
     $this->returnToPreviousExecution();
     $this->dblink->disconnect('reader');
@@ -445,7 +458,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function equalsTo( $value)
+  protected final function equalsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -468,7 +481,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function differentFrom( $value)
+  protected final function differentFrom($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -491,7 +504,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function biggerThan( $value)
+  protected final function biggerThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -514,7 +527,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lesserThan( $value)
+  protected final function lesserThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -537,7 +550,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function biggerOrEqualsTo( $value)
+  protected final function biggerOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -560,7 +573,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lesserOrEqualsTo( $value)
+  protected final function lesserOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -583,7 +596,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function likeOf( $value)
+  protected final function likeOf($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
