@@ -117,7 +117,8 @@ abstract class RestService extends Service
 
     $this->routeIndex = [];
 
-    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    if (DB_CONNECT == 'on')
+      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',

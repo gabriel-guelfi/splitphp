@@ -90,7 +90,8 @@ abstract class Cli extends Service
     $this->timeStart = 0;
     $this->timeEnd = 0;
 
-    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    if (DB_CONNECT == 'on')
+      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     parent::__construct();
   }
@@ -122,7 +123,7 @@ abstract class Cli extends Service
     if (empty($commandData)) {
       throw new Exception("Command not found");
     }
-    
+
     try {
       if (!$innerExecution) {
         echo PHP_EOL;
@@ -131,9 +132,9 @@ abstract class Cli extends Service
         Utils::printLn("*------*------*------*------*------*------*------*");
         echo PHP_EOL;
       }
-      
+
       $commandHandler = is_callable($commandData->method) ? $commandData->method : [$this, $commandData->method];
-      
+
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && !$innerExecution) {
         $this->dblink->getConnection('writer')->startTransaction();
         call_user_func_array($commandHandler, [$this->prepareArgs($args)]);

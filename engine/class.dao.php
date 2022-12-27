@@ -97,11 +97,12 @@ class Dao
    */
   public function __construct()
   {
-    require_once ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
-
-    $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    $this->sqlBuilder = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-    $this->sqlParameters = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
+    if (DB_CONNECT == 'on') {
+      require_once ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
+      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $this->sqlBuilder = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+      $this->sqlParameters = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
+    }
 
     $this->workingTable = null;
     $this->filters = [];
