@@ -2,5 +2,5 @@ config.ini
 /application/cache
 /application/log
 /public/resources/upload/*
-!/public/resources/upload/.placeholer
+!/public/resources/upload/.gitkeep
 SplitPHP.pem
