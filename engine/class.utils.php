@@ -120,7 +120,7 @@ class Utils
    * @param mixed $data
    * @return void 
    */
-  public static function printLn($data)
+  public static function printLn($data = "")
   {
     if (gettype($data) == 'array' || (gettype($data) == 'object' && $data instanceof StdClass)) {
       print_r($data);
