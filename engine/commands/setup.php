@@ -9,7 +9,7 @@ class Setup extends Cli
 {
   public function init()
   {
-    $this->addCommand('run', function () {
+    $this->addCommand('', function () {
 
       Utils::printLn("Welcome to SPLIT PHP Framework Setup.");
       Utils::printLn("This Setup will generate a file named 'config.ini' with your settings in the root directory.");
