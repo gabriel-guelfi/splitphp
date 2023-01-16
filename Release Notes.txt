@@ -32,11 +32,11 @@ fundamentals of the tool. (See more about it in the README.md file and visit its
 - The application level errors logging now can be turned on/off in the configurations.
 
 - Now it is possible to set a custom templates root dir, using the method Service::setTemplateRoot(). The starting point continues to be the 
-/application/templates/ folder, but now, within a RestService, you can set as root a path inside this folder, so you won't have to specify the entire 
+/application/templates/ folder, but now, within a WebService, you can set as root a path inside this folder, so you won't have to specify the entire 
 path when rendering templates.
 
 - All requests are now, by default, checked for an anti-xsrf token, which protects the system against XSRF-type hack attacks. You can turn this behavior
-on/off using the method RestService::setAntiXsrfValidation(), passing true or false. The RestService::xsrfToken() method, returns the auto-generated 
+on/off using the method WebService::setAntiXsrfValidation(), passing true or false. The WebService::xsrfToken() method, returns the auto-generated 
 token for the current request.
 
 - Now it is possible to execute multiple Dao nested calls at once. The system resolves the concurrent executions by itself, without creating new Dao instances.
@@ -50,11 +50,11 @@ The system handles the parallel connections by itself, so it's transparent.
 the SQL commands, filtering, sorting and paginating. It allows the developer to write really small services, with a really robust and abstract functionality.
 
 - Services now possess a Service::init() method, which executes automatically the moment the Service is called for the first time. Its purpose is to have an interface
-for initializations without having to declare a constructor. It is much similar to the init() method from the old Zend Framework. This method are also extended to RestServices.
+for initializations without having to declare a constructor. It is much similar to the init() method from the old Zend Framework. This method are also extended to WebServices.
 
-- Added a ready-to-use Response object at RestService::response property. You don't have to instantiate it with "new Response()" in every endpoint anymore. 
+- Added a ready-to-use Response object at WebService::response property. You don't have to instantiate it with "new Response()" in every endpoint anymore. 
 
-- The RestService::addEndpoint() method now allows closure functions to be passed, in its third argument, to be the endpoint handler function. An interface 
+- The WebService::addEndpoint() method now allows closure functions to be passed, in its third argument, to be the endpoint handler function. An interface 
 much similar to what Node's ExpressJS framework provides.
 
 - Removed all dependencies from the framework, which now depends only on PHP 7+ to run.

@@ -41,11 +41,11 @@ use Exception;
 class System
 {
   /**
-   * @var string $restServiceName
-   * Stores the name of the RestService which is being executed in the current request/response.
+   * @var string $webServiceName
+   * Stores the name of the WebService which is being executed in the current request/response.
    */
 
-  public static $restServiceName;
+  public static $webServiceName;
   /**
    * @var array $globals
    * Used to store static data that must be available in the entire application.
@@ -71,7 +71,7 @@ class System
 
     // Initiate System's properties:
     self::$globals = [];
-    self::$restServiceName = "";
+    self::$webServiceName = "";
     self::$cliName = "";
 
     // Define runtime constants:
@@ -103,7 +103,7 @@ class System
 
     if (empty($cliArgs)) {
       require_once __DIR__ . "/class.request.php";
-      require_once __DIR__ . "/class.restservice.php";
+      require_once __DIR__ . "/class.webservice.php";
       $this->executeRequest(new Request($_SERVER["REQUEST_URI"]));
     } else {
       require_once __DIR__ . "/class.action.php";
@@ -121,10 +121,10 @@ class System
    */
   public function __toString()
   {
-    $restService = self::$restServiceName;
+    $webService = self::$webServiceName;
     $cli = self::$cliName;
     
-    return "class:" . __CLASS__ . "(CLI:{$cli}, RestService:{$restService})";
+    return "class:" . __CLASS__ . "(CLI:{$cli}, WebService:{$webService})";
   }
 
   /** 
@@ -251,7 +251,7 @@ class System
   }
 
   /** 
-   * Using the information stored in the received Request object, set and run a specific RestService, passing along the route 
+   * Using the information stored in the received Request object, set and run a specific WebService, passing along the route 
    * and data specified in that Request object.
    * 
    * @param Request $request
@@ -259,15 +259,15 @@ class System
    */
   private function executeRequest(Request $request)
   {
-    if (file_exists($request->getRestService()->path . $request->getRestService()->name . ".php") === false) {
+    if (file_exists($request->getWebService()->path . $request->getWebService()->name . ".php") === false) {
       http_response_code(404);
       die;
     }
 
-    self::$restServiceName = $request->getRestService()->name;
+    self::$webServiceName = $request->getWebService()->name;
 
-    $restServiceObj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
-    call_user_func_array(array($restServiceObj, 'execute'), $request->getArgs());
+    $webServiceObj = self::loadClass($request->getWebService()->path . $request->getWebService()->name . ".php", $request->getWebService()->name);
+    call_user_func_array(array($webServiceObj, 'execute'), $request->getArgs());
   }
 
   /** 
@@ -331,7 +331,7 @@ class System
     return (object) [
       "datetime" => date('Y-m-d H:i:s'),
       "message" => $exc->getMessage(),
-      "restService" => ucfirst(self::$restServiceName),
+      "webService" => ucfirst(self::$webServiceName),
       "cli" => ucfirst(self::$cliName),
       "info" => $info,
       "stack_trace" => $exc->getTrace(),

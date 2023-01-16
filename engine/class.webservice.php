@@ -40,7 +40,7 @@ use \engine\exceptions\DatabaseException;
  *
  * @package engine
  */
-abstract class RestService extends Service
+abstract class WebService extends Service
 {
   /**
    * @var array $routes
@@ -81,7 +81,7 @@ abstract class RestService extends Service
 
   /**
    * @var boolean $antiXsrfValidation
-   * This flag is a control to whether the requests received by the Rest Service shall be authenticates by a XSRF token or not. Default = true.
+   * This flag is a control to whether the requests received by the Web Service shall be authenticates by a XSRF token or not. Default = true.
    */
   private $antiXsrfValidation;
 
@@ -93,9 +93,9 @@ abstract class RestService extends Service
 
   /** 
    * Defines constants for user errors, set properties with their initial values, instantiate other classes, then returns an
-   * instance of the Rest Service(constructor).
+   * instance of the Web Service(constructor).
    * 
-   * @return RestService 
+   * @return WebService 
    */
   public final function __construct()
   {
@@ -140,7 +140,7 @@ abstract class RestService extends Service
    */
   public function __toString()
   {
-    return "class:RestService:" . __CLASS__ . "()";
+    return "class:WebService:" . __CLASS__ . "()";
   }
 
   /** 
@@ -203,7 +203,7 @@ abstract class RestService extends Service
             "error" => true,
             "user_friendly" => $status !== 500,
             "message" => $exc->getMessage(),
-            "restService" => System::$restServiceName,
+            "webService" => System::$webServiceName,
             "route" => $route,
             "method" => $httpVerb,
             "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
@@ -217,7 +217,7 @@ abstract class RestService extends Service
   }
 
   /** 
-   * Registers an endpoint on the list $routes, in other words: makes an endpoint available within the Rest Service, with the 
+   * Registers an endpoint on the list $routes, in other words: makes an endpoint available within the Web Service, with the 
    * HTTP verb, route and handler method provided.
    * 
    * @param string $httpVerb
@@ -562,4 +562,8 @@ abstract class RestService extends Service
       }
     }
   }
+}
+
+class RestService extends WebService{
+  // It is deprecated. Only for compatibility purpose. Use "WebService" class.
 }
