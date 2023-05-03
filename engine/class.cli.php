@@ -85,6 +85,8 @@ abstract class Cli extends Service
    */
   public final function __construct()
   {
+    ini_set('display_errors', 1);
+
     $this->commands = [];
     $this->cmdString = "";
     $this->timeStart = 0;

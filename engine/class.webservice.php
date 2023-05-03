@@ -564,6 +564,7 @@ abstract class WebService extends Service
   }
 }
 
-class RestService extends WebService{
+class RestService extends WebService
+{
   // It is deprecated. Only for compatibility purpose. Use "WebService" class.
 }

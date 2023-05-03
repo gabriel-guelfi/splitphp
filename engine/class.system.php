@@ -90,7 +90,7 @@ class System
     // Set system's default timezone: 
     if (!empty(DEFAULT_TIMEZONE))
       date_default_timezone_set(DEFAULT_TIMEZONE);
-
+      
     // Load extensions:
     $this->loadExtensions();
     $this->loadExceptions();
@@ -100,7 +100,7 @@ class System
     require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.utils.php";
-
+    
     if (empty($cliArgs)) {
       require_once __DIR__ . "/class.request.php";
       require_once __DIR__ . "/class.webservice.php";
@@ -110,10 +110,10 @@ class System
       require_once __DIR__ . "/class.cli.php";
       $this->executeCommand(new Action($cliArgs));
     }
-
+    
     $this->serverLogCleanUp();
   }
-
+  
   /** 
    * Returns a string representation of this class for printing purposes.
    * 
@@ -123,7 +123,7 @@ class System
   {
     $webService = self::$webServiceName;
     $cli = self::$cliName;
-    
+
     return "class:" . __CLASS__ . "(CLI:{$cli}, WebService:{$webService})";
   }
 
@@ -233,7 +233,7 @@ class System
   {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
-    error_reporting(E_ALL & ~E_NOTICE & ~E_USER_NOTICE);
+    error_reporting(E_ALL);
 
     $path = __DIR__ . "/../application/log";
     if (!file_exists($path)) {

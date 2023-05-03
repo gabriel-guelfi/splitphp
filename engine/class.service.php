@@ -29,6 +29,7 @@
 namespace engine;
 
 use stdClass;
+use \Exception;
 
 /**
  * Class Service
@@ -97,6 +98,9 @@ class Service extends Dao
   protected final function getService(string $path)
   {
     @$className = strpos($path, '/') ? end(explode('/', $path)) : $path;
+
+    if (!file_exists(ROOT_PATH . '/application/services/' . $path . '.php'))
+      throw new Exception("The requested service path could not be found.");
 
     return System::loadClass(ROOT_PATH . '/application/services/' . $path . '.php', $className);
   }

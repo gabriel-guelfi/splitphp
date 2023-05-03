@@ -140,6 +140,8 @@ class Dao
    */
   protected final function getTable(string $tableName)
   {
+    if (DB_CONNECT != 'on') throw new Exception("The database connection is turned off. In order to use DAO, turn it on in the configs.");
+    
     $this->updateCurrentExecution();
 
     $this->workingTable = $tableName;

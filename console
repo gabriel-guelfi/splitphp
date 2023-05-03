@@ -33,11 +33,9 @@ require_once "engine/class.system.php";
 // Initiate the application, running the main class System:
 try {
     new System($argv);
+    die;
 } catch (Exception $exc) {
     System::errorLog('sys_error', $exc);
     echo "ERROR[System]: " . $exc->getMessage() . " In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
     echo PHP_EOL;
-    throw $exc;
-} finally {
-    die;
 }

@@ -34,9 +34,7 @@ require_once __DIR__ . "/../engine/class.system.php";
 // Initiate the application, running the main class System:
 try {
   new System();
+  die;
 } catch (Exception $ex) {
   System::errorLog('sys_error', $ex);
-  throw $ex;
-} finally {
-  die;
 }
