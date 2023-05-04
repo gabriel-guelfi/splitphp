@@ -31,6 +31,7 @@ use Exception;
 use \engine\exceptions\DatabaseException;
 use \mysqli;
 use \mysqli_sql_exception;
+use \DateTime;
 
 /**
  * Class Dblink
@@ -92,6 +93,8 @@ class Dblink
   public final function __construct()
   {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+    $this->syncMysqlTimezone();
 
     $this->currentConnectionName = null;
     $this->connections = [];
@@ -221,10 +224,8 @@ class Dblink
 
     if ($res === true || $res === false) {
       if (strpos(strtoupper($sqlobj->sqlstring), 'INSERT') !== false) {
-        $this->lastresult = $this->connections[$this->currentConnectionName]->insert_id;
         $ret = $this->connections[$this->currentConnectionName]->insert_id;
       } else {
-        $this->lastresult = $res;
         $ret = mysqli_affected_rows($this->connections[$this->currentConnectionName]);
       }
     } else {
@@ -414,5 +415,19 @@ class Dblink
       }
     }
     return $connection;
+  }
+
+  private function syncMysqlTimezone()
+  {
+    $now = new DateTime();
+    $mins = $now->getOffset() / 60;
+    $sgn = ($mins < 0 ? -1 : 1);
+    $mins = abs($mins);
+    $hrs = floor($mins / 60);
+    $mins -= $hrs * 60;
+    $offset = sprintf('%+d:%02d', $hrs * $sgn, $mins);
+
+    $cnn = new mysqli(DBHOST, DBUSER_MAIN, DBPASS_MAIN, DBNAME);
+    $cnn->query("SET time_zone='{$offset}';");
   }
 }

@@ -530,7 +530,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lesserThan($value)
+  protected final function lessThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
