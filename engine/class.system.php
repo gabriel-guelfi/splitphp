@@ -68,7 +68,7 @@ class System
   {
     // Setup error handling:
     $this->setupErrorHandling();
-    
+
     // Initiate System's properties:
     self::$globals = [];
     self::$webServiceName = "";
@@ -76,7 +76,7 @@ class System
 
     // Define runtime constants:
     define('ROOT_PATH', __DIR__ . "/..");
-    
+
     // Setting up general configs:
     $this->loadConfigsFromFile();
     $this->setConfigsFromEnv();
@@ -84,21 +84,21 @@ class System
     // Setup CORS
     if (ALLOW_CORS == "on")
       $this->setupCORS();
-      
+
     // Set system's default timezone: 
     if (!empty(DEFAULT_TIMEZONE))
-    date_default_timezone_set(DEFAULT_TIMEZONE);
-    
+      date_default_timezone_set(DEFAULT_TIMEZONE);
+
     // Load extensions:
     $this->loadExtensions();
     $this->loadExceptions();
-    
+
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
     require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.utils.php";
-    
+
     $this->serverLogCleanUp();
 
     if (empty($cliArgs)) {
@@ -164,7 +164,10 @@ class System
       $logmsg = json_encode($logmsg);
     }
 
-    $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
+    if (file_exists($path . $logname . '.log'))
+      $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
+    else $currentLogData = [];
+
     if (count($currentLogData) >= MAX_LOG_ENTRIES) {
       $currentLogData = array_slice($currentLogData, ((MAX_LOG_ENTRIES - 1) * -1));
       $currentLogData[] = "[" . date('Y-m-d H:i:s') . "] - " . $logmsg;

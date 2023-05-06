@@ -94,8 +94,6 @@ class Dblink
   {
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    $this->syncMysqlTimezone();
-
     $this->currentConnectionName = null;
     $this->connections = [];
     $this->cnnInfo = [];
@@ -126,9 +124,10 @@ class Dblink
    */
   public final function __destruct()
   {
-    foreach ($this->connections as $cnnName => $cnn) {
-      $this->disconnect($cnnName);
-    }
+    if (!empty($this->connections))
+      foreach ($this->connections as $cnnName => $cnn) {
+        $this->disconnect($cnnName);
+      }
   }
 
   /** 
@@ -391,18 +390,22 @@ class Dblink
   private function connect(int $currentTry = 1)
   {
     if ($this->currentConnectionName == 'writer') {
-      $this->dbUsername = DBUSER_MAIN;
-      $this->dbUserpass = DBPASS_MAIN;
+      $this->dbUserName = DBUSER_MAIN;
+      $this->dbUserPass = DBPASS_MAIN;
     } elseif ($this->currentConnectionName == 'reader') {
-      $this->dbUsername = DBUSER_READONLY;
-      $this->dbUserpass = DBPASS_READONLY;
+      $this->dbUserName = DBUSER_READONLY;
+      $this->dbUserPass = DBPASS_READONLY;
     } else {
       throw new Exception("Invalid Database connection mode.");
     }
 
     try {
-      $connection = new mysqli(DBHOST, $this->dbUsername, $this->dbUserpass, DBNAME);
+      $connection = new mysqli(DBHOST, $this->dbUserName, $this->dbUserPass, DBNAME);
+
+      //Setup database's settings per connection:
       mysqli_set_charset($connection, DB_CHARSET);
+      $this->syncMysqlTimezone($connection);
+
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         sleep(1);
@@ -417,7 +420,7 @@ class Dblink
     return $connection;
   }
 
-  private function syncMysqlTimezone()
+  private function syncMysqlTimezone($cnn)
   {
     $now = new DateTime();
     $mins = $now->getOffset() / 60;
@@ -427,7 +430,6 @@ class Dblink
     $mins -= $hrs * 60;
     $offset = sprintf('%+d:%02d', $hrs * $sgn, $mins);
 
-    $cnn = new mysqli(DBHOST, DBUSER_MAIN, DBPASS_MAIN, DBNAME);
     $cnn->query("SET time_zone='{$offset}';");
   }
 }
