@@ -1,107 +1,61 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.2.12
-- Release Date: 2022-05-11
-- Last Update: 2022-07-01
+- Version: 1.3.5
+- Release Date: 2023-05-06
+- Last Update: 2023-05-06
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-This release 1.2.11 has improvements in security, error handling and a major improvement on data access and general flexibility, besides some bug fixes.
-
-Now it became more conceptual than ever, so I decided to change its name and image, from "DynamoPHP" to "SPLIT PHP", to better represent the 
-fundamentals of the tool. (See more about it in the README.md file and visit its official website at http://splitphp.org)
+In this release 1.3.5 it was added a very cool CLI. It also has many improvements with error handling and database operations, besides some bug fixes.
 
 ---
 
 **New Features:**
 
-- Response headers's management with the methods Response::setHeader() and Response::getHeaders().
+- Now the user can forcefully commit the database, in a specifically part of his system, even with the transactional db setting turned on, 
+without affecting the rest of the application.
 
-- Removed too much specific functionalities from the Utils helper class and moved them to a Service Pack.
+- Database operations charset setting.
 
-- Automatic database connection closing assurance.
+- Improved error logging with more useful data.
 
-- Added an additional field $info on System::errorLog() method, for custom information.
+- Added a CLI, very simple to use, which on the user can create his own commands, in the same way he can create endpoints.
 
-- Database errors are now being handled with a specific Exception object and now provides the SQL command, which caused the error, on the log.
+- Removed some services dependencies from WebServices.
 
-- The application level errors logging now can be turned on/off in the configurations.
+- Added a cool feature on database reading: now the system persists the data in the RAM, so if you execute the exact same query multiple times, 
+it will only run the SQL once.
 
-- Now it is possible to set a custom templates root dir, using the method Service::setTemplateRoot(). The starting point continues to be the 
-/application/templates/ folder, but now, within a WebService, you can set as root a path inside this folder, so you won't have to specify the entire 
-path when rendering templates.
+- All response's codes are now being checked, if the user try to respond with a status out of the range 100-599, the system throws an exception. 
 
-- All requests are now, by default, checked for an anti-xsrf token, which protects the system against XSRF-type hack attacks. You can turn this behavior
-on/off using the method WebService::setAntiXsrfValidation(), passing true or false. The WebService::xsrfToken() method, returns the auto-generated 
-token for the current request.
+- Added a built-in command "server:start", which initiates a local development server at "http://localhost:8000"
 
-- Now it is possible to execute multiple Dao nested calls at once. The system resolves the concurrent executions by itself, without creating new Dao instances.
+- Added a built-in command "setup", which automatically creates a "config.ini" file from the example and generates random hashes for your application's 
+PUBLIC_KEY and PRIVATE_KEY settings. 
 
-- Added new Dao::first() and Dao::fetch() wrapper methods, which execute Dao::find() with extra functionalities.
-
-- Database access is now divided by 2 concurrent connections: one is for read-only purposes, and the other is a general, used to perform all database operations.
-The system handles the parallel connections by itself, so it's transparent.
-
-- Added a Dao::bindParams() method which is, in my opinion, the most awesome feature of the release. It resolves the passed params and parameterizes automagically 
-the SQL commands, filtering, sorting and paginating. It allows the developer to write really small services, with a really robust and abstract functionality.
-
-- Services now possess a Service::init() method, which executes automatically the moment the Service is called for the first time. Its purpose is to have an interface
-for initializations without having to declare a constructor. It is much similar to the init() method from the old Zend Framework. This method are also extended to WebServices.
-
-- Added a ready-to-use Response object at WebService::response property. You don't have to instantiate it with "new Response()" in every endpoint anymore. 
-
-- The WebService::addEndpoint() method now allows closure functions to be passed, in its third argument, to be the endpoint handler function. An interface 
-much similar to what Node's ExpressJS framework provides.
-
-- Removed all dependencies from the framework, which now depends only on PHP 7+ to run.
-
-- Restructured the entire framework in namespaces. It improves the organization of the engine and allows the developer to write services and rest services 
-with the same class names without conflict.
-
-- It was removed, from the configurations, the DEFAULT_RESTSERVICE option and the DEFAULT_ROUTE now expects to receive the full route.
-
-- Configurations now are based on environment variables. The config.ini file still exists, but it is not required anymore, functioning exactly as the 
-.env file does in other frameworks. So, if you set all the config.ini file's options in environment variables, you can get rid of the file. 
-
-- Added a DEFAULT_TIMEZONE config option.
-
-- Improved CORS Policy to meet the compliance.
-
-- Added a MAX_LOG_ENTRIES option into configs. This allows the dev to impose a limit to the size of the log files.
-
+- Application's timezone is now easily set in config.ini file and this settings also affects the database operations.
 
 ---
 
 **Fixes:**
 
-- The handling of the returning status code for executions which had thrown exceptions, were a little bit confuse and unpredictable. Fixed the problem 
-and now it always returns with status 500 when an Internal Server Error occurs.
+- Some specific errors and exceptions, depending on the type or level of the error or exception, was not being sent to the client, the system was 
+responding 200 with no content and no log was being generated. These issues were fixed.
 
-- Added a default logical operator "and" to the database operations parameterized by Dao::bindParams(). Without it, it was failing with no errors but affecting 
-zero rows.
+- Service::getService() method now validates the service's path which is being passed along. If a invalid path is passed, throws an exception.
 
-- Fixed a problem with the parsing of requests with query strings that had encoded chars. It was parsing these query strings parameters wrongly.
+- Now the Dao::getTable() method check if your DB_CONNECT setting is turned on. Throws an exception otherwise.
 
-- Fixed a problem with requesting with empty JSON payloads when using POST or PUT.
+- Changed the name of the class "RestService" to "WebService", which represents better the concept of this class. (Don't worry, I kept a backward compatibility)
 
-- Fixed liability with constant URL_APPLICATION.
-
-- Fixed issues with error reporting.
-
-- Replace linebreak method for PHP_EOL constant.
-
-- Fixed "null" issue with some outputs sanitized by htmlspecialchars().
-
-- Fixed a deprecation warning for using explode() on a possibly null value.
-
-- An issue of log entry duplication in index.php.
+- Fixed the name of the method Dao::lesserThan() to Dao::lessThan(). (English isn't my mother language, sorry! xD)
 
 ---
 
-Well, I think there are changes and features here to even release a major version, but as I choose to change its name, I decided to maintain it in version 1.
+Well, I think it's now much more stable, versatile and with some really nice new features. 
 
-It is now much more robust, conceptual, precise and flexible. Have fun!
+Hope y'all enjoy!

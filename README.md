@@ -9,25 +9,27 @@
 
 ### What's New ###
 
-> Version: 1.2.12
+> Version: 1.3.5
 
-> Release Date: 2022-05-11
+> Release Date: 2023-05-06
 
-> Last Update: 2022-07-01
+> Last Update: 2023-05-06
 
-* **DynamoPHP** is now **SPLIT PHP**. See the section "The Concept" to understand why.
+* Fixed error handling/logging failures and improved the logging.
 
-* Added an Anti-XSRF-hack system.
+* Changed some classes and methods names for better representation.
 
-* Improved error handling.
+* Removed some service's dependencies (zero dependencies policy).
 
-* Included very nice features in the *Data Access Object* class.
+* Timezone, for application and database operations, is now configurable.
 
-* Changed *WebServices* in a way to make them much more flexible.
+* Fixed minor bugs, that were triggering warnings and notices.
 
-* Reengineered all the structure using *namespaces*, so now services can have the same class name without conflict.
+* Added a very cool CLI (Yes, finally!!), with built-in command "server" and more.
 
-* Configurations are now based on *environment variables*, so you can get rid of the *config.ini* file on production environments.
+* Improved data reading from database, persisting data on RAM for better performance.
+
+* Other improvements on database operations.
 
 **Read more in the *Release Notes.txt* file.**
 
@@ -63,10 +65,10 @@ The **SPLIT PHP Framework** represents its API Layer as ***WebServices***, where
 
 ### Getting Started ###
 1. [Download](https://github.com/gabriel-guelfi/splitphp/archive/refs/tags/v1.2.12.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
-2. Rename the file */example.config.ini* to "/config.ini".
+2. Run **`php console setup`**, which will generate a "/config.ini" file, with some auto-settings.
 3. Setup */config.ini* file according to your application's needs.
-4. From your **application's root dir**, run PHP's built-in server at "localhost": **`php -S localhost -t public`**.
-5. Access http://localhost/ in the browser and you shall see the **SPLIT PHP** Welcome Page.
+4. Turn on your app running the command: **`php console server:start`**.
+5. Access http://localhost:8000 in the browser and you shall see the **SPLIT PHP** Welcome Page.
 
 **Read more about it all at the [Official Documentation](http://splitphp.org/docs#getstarted)**.
 
@@ -87,7 +89,7 @@ Your application will be basically built within three main folders under *"/appl
 > 2. The route ("/home")
 > 3. The handler function, which executes when the endpoint is accessed at the route.
 > 
-> **In the example above, you could access that "/home" endpoint at "http://localhost/site/home"**
+> **In the example above, you could access that "/home" endpoint at "http://localhost:8000/site/home"**
 
 * **Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:**
 
@@ -98,7 +100,7 @@ Your application will be basically built within three main folders under *"/appl
 ![splitphp-template.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-template-example.png)
 
 > Note that this is the template rendered in the *WebService* in the first example, and this $data variable has the same
-> name passed when it was being rendered. In these 3 examples, if you access "http://localhost/site/home" you shall see 
+> name passed when it was being rendered. In these 3 examples, if you access "http://localhost:8000/site/home" you shall see 
 > a web page with the contents of this HTML template.
 
 **For more information visit the [Official Documentation](http://splitphp.org/docs)**
