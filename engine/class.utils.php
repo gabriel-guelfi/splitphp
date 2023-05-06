@@ -62,9 +62,9 @@ class Utils
    */
   public final function __construct()
   {
-    if (file_exists(INCLUDE_PATH . "/config.ini")) {
+    if (file_exists(ROOT_PATH . "/config.ini")) {
 
-      $c = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+      $c = parse_ini_file(ROOT_PATH . "/config.ini", true);
 
       foreach ($c["VENDORS"] as $k => $v) {
         $k = strtolower($k);
@@ -88,6 +88,16 @@ class Utils
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "()";
+  }
+
+  /** 
    * Loads and returns a vendor class object. If the vendor isn't registered in the summary, yet, register it before loading. 
    * 
    * @param string $name
@@ -102,7 +112,7 @@ class Utils
       $this->register($name, $path, $args);
     }
 
-    return $this->$name = System::loadClass(INCLUDE_PATH . "/vendors/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
+    return $this->$name = System::loadClass(ROOT_PATH . "/vendors/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
   }
   /** 
    * Outputs a given $data followed by an end-of-line.
@@ -110,7 +120,7 @@ class Utils
    * @param mixed $data
    * @return void 
    */
-  public static function printLn($data)
+  public static function printLn($data = "")
   {
     if (gettype($data) == 'array' || (gettype($data) == 'object' && $data instanceof StdClass)) {
       print_r($data);
@@ -366,7 +376,7 @@ class Utils
   {
     if (!empty($_FILES[$inputName])) {
       $filename = uniqid() . '_' . $_FILES[$inputName]['name'];
-      $filepath = INCLUDE_PATH . '/public/resources/upload/' . $filename;
+      $filepath = ROOT_PATH . '/public/resources/upload/' . $filename;
       if (file_put_contents($filepath, file_get_contents($_FILES[$inputName]['tmp_name']))) {
         return '/resources/upload/' . $filename;
       }

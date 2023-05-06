@@ -58,7 +58,7 @@ class ObjLoader
    */
   public static function load(string $path, string $classname, array $args = [])
   {
-    $arrClassPath = explode("/", str_replace(INCLUDE_PATH, "", $path));
+    $arrClassPath = explode("/", str_replace(ROOT_PATH, "", $path));
     unset($arrClassPath[count($arrClassPath) - 1]);
     $classFullName = implode('\\', $arrClassPath).'\\'.ucfirst($classname);
 

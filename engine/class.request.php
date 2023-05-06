@@ -44,16 +44,16 @@ class Request
   private $route;
 
   /**
-   * @var string $restServicePath
-   * Stores the defined RestService class path.
+   * @var string $webServicePath
+   * Stores the defined WebService class path.
    */
-  private $restServicePath;
+  private $webServicePath;
 
   /**
-   * @var string $restServiceName
-   * Stores the defined RestService class name.
+   * @var string $webServiceName
+   * Stores the defined WebService class name.
    */
-  private $restServiceName;
+  private $webServiceName;
 
   /**
    * @var array $args
@@ -62,7 +62,7 @@ class Request
   private $args;
 
   /** 
-   * Parse the incoming URI, separating DNS, Rest Service's path and name, route and arguments. Returns an instance of the Request class (constructor).
+   * Parse the incoming URI, separating DNS, Web Service's path and name, route and arguments. Returns an instance of the Request class (constructor).
    * 
    * @param string $uri
    * @return Request 
@@ -78,12 +78,22 @@ class Request
       array_shift($urlElements);
     }
 
-    $this->restServiceFindAndSet('/application/routes/', $urlElements);
+    $this->webServiceFindAndSet('/application/routes/', $urlElements);
 
     $this->args = [
       $this->route,
       $_SERVER['REQUEST_METHOD']
     ];
+  }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "(WebService:{$this->webServiceName}, Path:{$this->webServicePath}, Route:{$this->route})";
   }
 
   /** 
@@ -97,15 +107,15 @@ class Request
   }
 
   /** 
-   * Returns an object containing the name and the path of the Rest Service class.
+   * Returns an object containing the name and the path of the Web Service class.
    * 
    * @return object 
    */
-  public function getRestService()
+  public function getWebService()
   {
     return (object) [
-      "name" => $this->restServiceName,
-      "path" => $this->restServicePath
+      "name" => $this->webServiceName,
+      "path" => $this->webServicePath
     ];
   }
 
@@ -142,28 +152,28 @@ class Request
   }
 
   /** 
-   * Using $path as a base, loops through the $urlElements searching for a valid Rest Service filepath. Once it is found, define the 
-   * Rest Service's path and name, and the rest of the remaining elements up to that point are defined as the route.
+   * Using $path as a base, loops through the $urlElements searching for a valid Web Service filepath. Once it is found, define the 
+   * Web Service's path and name, and the rest of the remaining elements up to that point are defined as the route.
    * 
    * @param string $path
    * @param array $urlElements
    * @return void 
    */
-  private function restServiceFindAndSet(string $path, array $urlElements)
+  private function webServiceFindAndSet(string $path, array $urlElements)
   {
     $basePath = "";
-    if (strpos($path, INCLUDE_PATH)) {
+    if (strpos($path, ROOT_PATH)) {
       $basePath = $path;
     } else {
-      $basePath = INCLUDE_PATH . $path;
+      $basePath = ROOT_PATH . $path;
     }
 
     foreach ($urlElements as $i => $urlPart) {
       if (is_dir($basePath . $urlPart))
         $basePath .= $urlPart . '/';
       elseif (is_file($basePath . $urlPart . '.php')) {
-        $this->restServicePath = $basePath;
-        $this->restServiceName = $urlPart;
+        $this->webServicePath = $basePath;
+        $this->webServiceName = $urlPart;
         $this->route = '/' . implode('/', array_slice($urlElements, $i + 1));
         break;
       } else {

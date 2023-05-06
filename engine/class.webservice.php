@@ -40,7 +40,7 @@ use \engine\exceptions\DatabaseException;
  *
  * @package engine
  */
-abstract class RestService extends Service
+abstract class WebService extends Service
 {
   /**
    * @var array $routes
@@ -81,7 +81,7 @@ abstract class RestService extends Service
 
   /**
    * @var boolean $antiXsrfValidation
-   * This flag is a control to whether the requests received by the Rest Service shall be authenticates by a XSRF token or not. Default = true.
+   * This flag is a control to whether the requests received by the Web Service shall be authenticates by a XSRF token or not. Default = true.
    */
   private $antiXsrfValidation;
 
@@ -93,9 +93,9 @@ abstract class RestService extends Service
 
   /** 
    * Defines constants for user errors, set properties with their initial values, instantiate other classes, then returns an
-   * instance of the Rest Service(constructor).
+   * instance of the Web Service(constructor).
    * 
-   * @return RestService 
+   * @return WebService 
    */
   public final function __construct()
   {
@@ -117,7 +117,8 @@ abstract class RestService extends Service
 
     $this->routeIndex = [];
 
-    $this->dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    if (DB_CONNECT == 'on')
+      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -128,8 +129,18 @@ abstract class RestService extends Service
     ];
 
     $this->antiXsrfValidation = true;
-    $this->response = System::loadClass(INCLUDE_PATH . "/engine/class.response.php", 'response');
+    $this->response = System::loadClass(ROOT_PATH . "/engine/class.response.php", 'response');
     parent::__construct();
+  }
+
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:WebService:" . __CLASS__ . "()";
   }
 
   /** 
@@ -146,28 +157,28 @@ abstract class RestService extends Service
       http_response_code(405);
       die;
     }
-
+    
     $routeData = $this->findRoute($route, $httpVerb);
     if (empty($routeData)) {
       if (!empty($this->template404)) $this->render404();
-
+      
       http_response_code(404);
       die;
     }
 
+    
     $this->antiXsrfValidation($routeData);
     $this->xsrfToken = Utils::dataEncrypt((string) Request::getUserIP(), PRIVATE_KEY);
 
-    $return = null;
     try {
       $endpointHandler = is_callable($routeData->method) ? $routeData->method : [$this, $routeData->method];
 
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
         $this->dblink->getConnection('writer')->startTransaction();
-        $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
         $this->dblink->getConnection('writer')->commitTransaction();
       } else {
-        $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && $this->dblink->checkConnection('writer'))
@@ -185,13 +196,14 @@ abstract class RestService extends Service
       }
 
       $status = $this->userFriendlyErrorStatus($exc);
-      $return = $this->respond(
+      $this->respond(
         $this->response
           ->withStatus($status)
           ->withData([
             "error" => true,
             "user_friendly" => $status !== 500,
             "message" => $exc->getMessage(),
+            "webService" => System::$webServiceName,
             "route" => $route,
             "method" => $httpVerb,
             "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
@@ -200,12 +212,11 @@ abstract class RestService extends Service
     } finally {
       if (DB_CONNECT == "on")
         $this->dblink->disconnect('writer');
-      return $return;
     }
   }
 
   /** 
-   * Registers an endpoint on the list $routes, in other words: makes an endpoint available within the Rest Service, with the 
+   * Registers an endpoint on the list $routes, in other words: makes an endpoint available within the Web Service, with the 
    * HTTP verb, route and handler method provided.
    * 
    * @param string $httpVerb
@@ -407,8 +418,6 @@ abstract class RestService extends Service
             "info" => (object) [
               "log_time" => date('d/m/Y H:i:s'),
               "message" => "Someone has attempted to submit possible malware whithin a request payload.",
-              // "store" => $this->getService('store/store')->getInfo(),
-              // "user" => $this->getService('user/session')->getLoggedUser(),
               "suspicious_content" => $matches,
               "client" => (object) [
                 "user_agent" => $_SERVER['HTTP_USER_AGENT'],
@@ -438,19 +447,6 @@ abstract class RestService extends Service
           ];
 
           System::log('security', json_encode($info));
-
-          try {
-            // $this->getService('mail_service')->sendEmail(new MailObject((object) [
-            //   "fromMail" => SMTP_SENDER_EMAIL,
-            //   "fromName" => APPLICATION_NAME,
-            //   "destMail" => ADMIN_EMAIL,
-            //   "destName" => "System Administrator",
-            //   "subject" => "ALERT - Malware Hazard",
-            //   "body" => json_encode($info)
-            // ]));
-          } catch (Exception $exc) {
-            System::errorLog('sys_error', $exc);
-          }
 
           throw new Exception("Invalid input.", 400);
         }
@@ -565,4 +561,9 @@ abstract class RestService extends Service
       }
     }
   }
+}
+
+class RestService extends WebService
+{
+  // It is deprecated. Only for compatibility purpose. Use "WebService" class.
 }

@@ -2,9 +2,9 @@
 
 namespace application\routes;
 
-use \engine\RestService;
+use \engine\WebService;
 
-class Site extends RestService
+class Site extends WebService
 {
   public function init()
   {

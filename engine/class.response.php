@@ -28,6 +28,8 @@
 
 namespace engine;
 
+use Exception;
+
 /**
  * Class Response
  * 
@@ -42,7 +44,7 @@ class Response
    * Stores the response's status code.
    */
   private $status;
-  
+
   /**
    * @var string $contentType
    * A string containing the response's content type header.
@@ -75,6 +77,16 @@ class Response
   }
 
   /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    return "class:" . __CLASS__ . "(Status:{$this->status}, ContentType:{$this->contentType})";
+  }
+
+  /** 
    * Add a string representation of a header to the Response's headers collection. Each header stored on this collection, will be added to 
    * the response, later.
    * 
@@ -95,6 +107,8 @@ class Response
    */
   public function withStatus(int $code)
   {
+    if ($code < 100 || $code > 599) throw new Exception("Invalid HTTP response code.");
+    
     $this->status = $code;
     return $this;
   }
@@ -213,9 +227,9 @@ class Response
         if (!is_numeric($value) && !empty($value))
           $value = htmlspecialchars($value);
       }
-    else{
-        if (!is_numeric($payload) && !empty($payload))
-          $payload = htmlspecialchars($payload);
+    else {
+      if (!is_numeric($payload) && !empty($payload))
+        $payload = htmlspecialchars($payload);
     }
 
     return $payload;

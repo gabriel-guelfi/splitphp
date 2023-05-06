@@ -41,10 +41,22 @@ use Exception;
 class System
 {
   /**
+   * @var string $webServiceName
+   * Stores the name of the WebService which is being executed in the current request/response.
+   */
+
+  public static $webServiceName;
+  /**
    * @var array $globals
    * Used to store static data that must be available in the entire application.
    */
   public static $globals;
+
+  /**
+   * @var string $cliName
+   * Stores the name of the CLI which is being executed in the current command execution.
+   */
+  private static $cliName;
 
   /** 
    * This is the constructor of System class. It initiate the $globals property, create configuration constants, load and runs 
@@ -57,13 +69,13 @@ class System
     // Setup error handling:
     $this->setupErrorHandling();
 
-    // Initiate System::globals static array:
+    // Initiate System's properties:
     self::$globals = [];
+    self::$webServiceName = "";
+    self::$cliName = "";
 
     // Define runtime constants:
-    define('INCLUDE_PATH', __DIR__ . "/..");
-    define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
-    define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
+    define('ROOT_PATH', __DIR__ . "/..");
 
     // Setting up general configs:
     $this->loadConfigsFromFile();
@@ -87,17 +99,33 @@ class System
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.utils.php";
 
+    $this->serverLogCleanUp();
+
     if (empty($cliArgs)) {
+      define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
+      define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
+
       require_once __DIR__ . "/class.request.php";
-      require_once __DIR__ . "/class.restservice.php";
+      require_once __DIR__ . "/class.webservice.php";
       $this->executeRequest(new Request($_SERVER["REQUEST_URI"]));
     } else {
       require_once __DIR__ . "/class.action.php";
       require_once __DIR__ . "/class.cli.php";
       $this->executeCommand(new Action($cliArgs));
     }
+  }
 
-    $this->serverLogCleanUp();
+  /** 
+   * Returns a string representation of this class for printing purposes.
+   * 
+   * @return string 
+   */
+  public function __toString()
+  {
+    $webService = self::$webServiceName;
+    $cli = self::$cliName;
+
+    return "class:" . __CLASS__ . "(CLI:{$cli}, WebService:{$webService})";
   }
 
   /** 
@@ -125,7 +153,7 @@ class System
   {
     if ($logname == 'server') throw new Exception("You cannot manually write data in server's log.");
 
-    $path = INCLUDE_PATH . "/application/log/";
+    $path = ROOT_PATH . "/application/log/";
 
     if (!file_exists($path))
       mkdir($path, 0755, true);
@@ -136,7 +164,10 @@ class System
       $logmsg = json_encode($logmsg);
     }
 
-    $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
+    if (file_exists($path . $logname . '.log'))
+      $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
+    else $currentLogData = [];
+
     if (count($currentLogData) >= MAX_LOG_ENTRIES) {
       $currentLogData = array_slice($currentLogData, ((MAX_LOG_ENTRIES - 1) * -1));
       $currentLogData[] = "[" . date('Y-m-d H:i:s') . "] - " . $logmsg;
@@ -187,7 +218,7 @@ class System
     header('Access-Control-Max-Age: 86400'); // cache for 1 day
 
     // Respond pre-flight requests:
-    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (!empty($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
       header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
       if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
@@ -206,7 +237,7 @@ class System
   {
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
-    error_reporting(E_ALL & ~E_NOTICE & ~E_USER_NOTICE);
+    error_reporting(E_ALL);
 
     $path = __DIR__ . "/../application/log";
     if (!file_exists($path)) {
@@ -224,7 +255,7 @@ class System
   }
 
   /** 
-   * Using the information stored in the received Request object, set and run a specific RestService, passing along the route 
+   * Using the information stored in the received Request object, set and run a specific WebService, passing along the route 
    * and data specified in that Request object.
    * 
    * @param Request $request
@@ -232,13 +263,15 @@ class System
    */
   private function executeRequest(Request $request)
   {
-    if (file_exists($request->getRestService()->path . $request->getRestService()->name . ".php") === false) {
+    if (file_exists($request->getWebService()->path . $request->getWebService()->name . ".php") === false) {
       http_response_code(404);
       die;
     }
 
-    $restServiceObj = self::loadClass($request->getRestService()->path . $request->getRestService()->name . ".php", $request->getRestService()->name);
-    call_user_func_array(array($restServiceObj, 'execute'), $request->getArgs());
+    self::$webServiceName = $request->getWebService()->name;
+
+    $webServiceObj = self::loadClass($request->getWebService()->path . $request->getWebService()->name . ".php", $request->getWebService()->name);
+    call_user_func_array(array($webServiceObj, 'execute'), $request->getArgs());
   }
 
   /** 
@@ -253,6 +286,8 @@ class System
     if (file_exists($action->getCli()->path . $action->getCli()->name . ".php") === false) {
       throw new Exception("Command not found.");
     }
+
+    self::$cliName = $action->getCli()->name;
 
     $CliObj = self::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
     call_user_func_array(array($CliObj, 'execute'), $action->getArgs());
@@ -300,6 +335,8 @@ class System
     return (object) [
       "datetime" => date('Y-m-d H:i:s'),
       "message" => $exc->getMessage(),
+      "webService" => ucfirst(self::$webServiceName),
+      "cli" => ucfirst(self::$cliName),
       "info" => $info,
       "stack_trace" => $exc->getTrace(),
       "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious(), []) : null),
@@ -315,8 +352,8 @@ class System
    */
   private function loadConfigsFromFile()
   {
-    if (file_exists(INCLUDE_PATH . "/config.ini")) {
-      $configs = parse_ini_file(INCLUDE_PATH . "/config.ini", true);
+    if (file_exists(ROOT_PATH . "/config.ini")) {
+      $configs = parse_ini_file(ROOT_PATH . "/config.ini", true);
 
       foreach ($configs as $section => $innerSettings) {
         foreach ($innerSettings as $var => $value) {
@@ -341,6 +378,7 @@ class System
     define('DB_CONNECT', getenv('DB_CONNECT'));
     define('DBNAME', getenv('DBNAME'));
     define('DBHOST', getenv('DBHOST'));
+    define('DBPORT', !empty(getenv('DBPORT')) ? getenv('DBPORT') : 3306);
     define('DBUSER_MAIN', getenv('DBUSER_MAIN'));
     define('DBPASS_MAIN', getenv('DBPASS_MAIN'));
     define('DBUSER_READONLY', getenv('DBUSER_READONLY'));
@@ -349,6 +387,7 @@ class System
     define('DB_TRANSACTIONAL', getenv('DB_TRANSACTIONAL'));
     define('DB_WORK_AROUND_FACTOR', getenv('DB_WORK_AROUND_FACTOR'));
     define('CACHE_DB_METADATA', getenv('CACHE_DB_METADATA'));
+    define('DB_CHARSET', !empty(getenv('DB_CHARSET')) ? getenv('DB_CHARSET') : "utf8");
 
     // Define System configuration constants:
     define('APPLICATION_NAME', getenv('APPLICATION_NAME'));
@@ -372,11 +411,20 @@ class System
     $path = __DIR__ . '/../application/log/server.log';
 
     if (file_exists($path)) {
-      $rawData = array_filter(explode(PHP_EOL, file_get_contents($path)));
+      $pattern = '/^\[\d{2}\-[a-zA-Z]{3}\-\d{4}\s\d{2}\:\d{2}\:\d{2}\s[a-zA-Z]*\/[a-zA-Z_]*\]\s/m';
+      $rawString = file_get_contents($path);
+
+      preg_match_all($pattern, $rawString, $dates);
+      $dates = $dates[0];
+
+      $rawData = preg_split($pattern, $rawString, -1, PREG_SPLIT_NO_EMPTY);
+      foreach ($rawData as $i => &$entry) {
+        $entry = $dates[$i] . $entry;
+      }
 
       if (count($rawData) > MAX_LOG_ENTRIES) {
-        $rawData = array_slice($rawData, (MAX_LOG_ENTRIES * -1));
-        file_put_contents($path, implode(PHP_EOL, $rawData) . PHP_EOL);
+        $rawData = array_slice($rawData, ((MAX_LOG_ENTRIES - 1) * -1));
+        file_put_contents($path, implode("", $rawData));
       }
     }
   }

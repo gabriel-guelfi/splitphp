@@ -35,7 +35,7 @@ function _parsePut()
 {
   global $_PUT;
 
-  if ($_SERVER['REQUEST_METHOD'] != 'PUT') {
+  if (empty($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] != 'PUT') {
     $GLOBALS['_PUT'] = [];
     return;
   }

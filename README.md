@@ -23,7 +23,7 @@
 
 * Included very nice features in the *Data Access Object* class.
 
-* Changed *RestServices* in a way to make them much more flexible.
+* Changed *WebServices* in a way to make them much more flexible.
 
 * Reengineered all the structure using *namespaces*, so now services can have the same class name without conflict.
 
@@ -57,7 +57,7 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 A service is basically an encapsulated piece of functionality, which is **accessible from any part within the application**. So all services are accessible to one another from within the system, but not directly from the client, who only have access to an API Layer, which acts as a "gatekeeper" to the application. The result is a pool of reusable services which can be accessed from everywhere inside the application, but with controlled external access.
 ![splitphp-soa-diagram.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/introduction-soa-1.png)
 
-The **SPLIT PHP Framework** represents its API Layer as ***RestServices***, where the applications's endpoints are defined. From within an endpoint the *RestService* can **call services** and/or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a *RestService*. **Simple as that!**
+The **SPLIT PHP Framework** represents its API Layer as ***WebServices***, where the applications's endpoints are defined. From within an endpoint the *WebService* can **call services** and/or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a *WebService*. **Simple as that!**
 
 ---
 
@@ -79,7 +79,7 @@ Your application will be basically built within three main folders under *"/appl
 
 ![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
 
-* **Under *"/application/routes/"* you create your *RestServices*, your API Layer:**
+* **Under *"/application/routes/"* you create your *WebServices*, your API Layer:**
 
 ![splitphp-rest-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-restservice-example.png)
 > An endpoint is composed by 3 parts:
@@ -97,7 +97,7 @@ Your application will be basically built within three main folders under *"/appl
 
 ![splitphp-template.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-template-example.png)
 
-> Note that this is the template rendered in the *RestService* in the first example, and this $data variable has the same
+> Note that this is the template rendered in the *WebService* in the first example, and this $data variable has the same
 > name passed when it was being rendered. In these 3 examples, if you access "http://localhost/site/home" you shall see 
 > a web page with the contents of this HTML template.
 

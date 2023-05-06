@@ -59,7 +59,7 @@ class Dbmetadata
    */
   public static function initCache()
   {
-    $p = INCLUDE_PATH . '/application/cache/';
+    $p = ROOT_PATH . '/application/cache/';
 
     try {
       if (!file_exists($p)) {
@@ -91,8 +91,8 @@ class Dbmetadata
     }
 
     if (!isset(self::$collection[$tablename]) || $updCache) {
-      $dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-      $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+      $dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $sql = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
       $res_f = $dblink->getConnection('reader')->runsql($sql->write("DESCRIBE `" . $tablename . "`", array(), $tablename)->output());
 
       $fields = array();
@@ -147,8 +147,8 @@ class Dbmetadata
   public static function tbPrimaryKey(string $tablename)
   {
     if (!isset(self::$tableKeys[$tablename])) {
-      $dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-      $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+      $dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $sql = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
       $res_f = $dblink->getConnection('reader')->runsql($sql->write("SHOW KEYS FROM `" . $tablename . "` WHERE Key_name = 'PRIMARY'", array(), $tablename)->output(true));
 
       self::$tableKeys[$tablename] = $res_f[0]->Column_name;
@@ -164,8 +164,8 @@ class Dbmetadata
    */
   public static function listTables()
   {
-    $dblink = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    $sql = System::loadClass(INCLUDE_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $sql = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
     $res = $dblink->getConnection('reader')->runsql($sql->write("SHOW TABLES")->output());
 
     $ret = array();
@@ -185,7 +185,7 @@ class Dbmetadata
   public static function clearCache()
   {
     try {
-      unlink(INCLUDE_PATH . '/application/cache/database-metadata.cache');
+      unlink(ROOT_PATH . '/application/cache/database-metadata.cache');
     } catch (Exception $ex) {
       System::log('sys_error', $ex->getMessage());
     }
@@ -201,7 +201,7 @@ class Dbmetadata
   private static function readCache()
   {
     try {
-      return (array) unserialize(file_get_contents(INCLUDE_PATH . '/application/cache/database-metadata.cache'));
+      return (array) unserialize(file_get_contents(ROOT_PATH . '/application/cache/database-metadata.cache'));
     } catch (Exception $ex) {
       System::log('sys_error', $ex->getMessage());
     }
@@ -215,7 +215,7 @@ class Dbmetadata
    */
   private static function updCache()
   {
-    $p = INCLUDE_PATH . '/application/cache/database-metadata.cache';
+    $p = ROOT_PATH . '/application/cache/database-metadata.cache';
 
     try {
       return file_put_contents($p, serialize(array_merge(self::readCache(), self::$collection)));
