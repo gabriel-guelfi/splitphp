@@ -157,28 +157,28 @@ abstract class WebService extends Service
       http_response_code(405);
       die;
     }
-
+    
     $routeData = $this->findRoute($route, $httpVerb);
     if (empty($routeData)) {
       if (!empty($this->template404)) $this->render404();
-
+      
       http_response_code(404);
       die;
     }
 
+    
     $this->antiXsrfValidation($routeData);
     $this->xsrfToken = Utils::dataEncrypt((string) Request::getUserIP(), PRIVATE_KEY);
 
-    $return = null;
     try {
       $endpointHandler = is_callable($routeData->method) ? $routeData->method : [$this, $routeData->method];
 
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
         $this->dblink->getConnection('writer')->startTransaction();
-        $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
         $this->dblink->getConnection('writer')->commitTransaction();
       } else {
-        $return = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && $this->dblink->checkConnection('writer'))
@@ -196,7 +196,7 @@ abstract class WebService extends Service
       }
 
       $status = $this->userFriendlyErrorStatus($exc);
-      $return = $this->respond(
+      $this->respond(
         $this->response
           ->withStatus($status)
           ->withData([
@@ -212,7 +212,6 @@ abstract class WebService extends Service
     } finally {
       if (DB_CONNECT == "on")
         $this->dblink->disconnect('writer');
-      return $return;
     }
   }
 

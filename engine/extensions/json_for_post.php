@@ -34,7 +34,7 @@
  */
 function _parseJson()
 {
-  if ($_SERVER['REQUEST_METHOD'] != 'POST' || strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) return;
+  if (empty($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] != 'POST' || strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) return;
 
   /* Data comes in on the stdin stream */
   $putdata = fopen("php://input", "r");

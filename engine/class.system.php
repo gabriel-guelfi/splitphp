@@ -68,7 +68,7 @@ class System
   {
     // Setup error handling:
     $this->setupErrorHandling();
-
+    
     // Initiate System's properties:
     self::$globals = [];
     self::$webServiceName = "";
@@ -76,9 +76,7 @@ class System
 
     // Define runtime constants:
     define('ROOT_PATH', __DIR__ . "/..");
-    define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
-    define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
-
+    
     // Setting up general configs:
     $this->loadConfigsFromFile();
     $this->setConfigsFromEnv();
@@ -86,22 +84,27 @@ class System
     // Setup CORS
     if (ALLOW_CORS == "on")
       $this->setupCORS();
-
+      
     // Set system's default timezone: 
     if (!empty(DEFAULT_TIMEZONE))
-      date_default_timezone_set(DEFAULT_TIMEZONE);
-      
+    date_default_timezone_set(DEFAULT_TIMEZONE);
+    
     // Load extensions:
     $this->loadExtensions();
     $this->loadExceptions();
-
+    
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
     require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.utils.php";
     
+    $this->serverLogCleanUp();
+
     if (empty($cliArgs)) {
+      define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
+      define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
+
       require_once __DIR__ . "/class.request.php";
       require_once __DIR__ . "/class.webservice.php";
       $this->executeRequest(new Request($_SERVER["REQUEST_URI"]));
@@ -110,10 +113,8 @@ class System
       require_once __DIR__ . "/class.cli.php";
       $this->executeCommand(new Action($cliArgs));
     }
-    
-    $this->serverLogCleanUp();
   }
-  
+
   /** 
    * Returns a string representation of this class for printing purposes.
    * 
@@ -214,7 +215,7 @@ class System
     header('Access-Control-Max-Age: 86400'); // cache for 1 day
 
     // Respond pre-flight requests:
-    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (!empty($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
       header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
       if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
@@ -407,11 +408,20 @@ class System
     $path = __DIR__ . '/../application/log/server.log';
 
     if (file_exists($path)) {
-      $rawData = array_filter(explode(PHP_EOL, file_get_contents($path)));
+      $pattern = '/^\[\d{2}\-[a-zA-Z]{3}\-\d{4}\s\d{2}\:\d{2}\:\d{2}\s[a-zA-Z]*\/[a-zA-Z_]*\]\s/m';
+      $rawString = file_get_contents($path);
+
+      preg_match_all($pattern, $rawString, $dates);
+      $dates = $dates[0];
+
+      $rawData = preg_split($pattern, $rawString, -1, PREG_SPLIT_NO_EMPTY);
+      foreach ($rawData as $i => &$entry) {
+        $entry = $dates[$i] . $entry;
+      }
 
       if (count($rawData) > MAX_LOG_ENTRIES) {
-        $rawData = array_slice($rawData, (MAX_LOG_ENTRIES * -1));
-        file_put_contents($path, implode(PHP_EOL, $rawData) . PHP_EOL);
+        $rawData = array_slice($rawData, ((MAX_LOG_ENTRIES - 1) * -1));
+        file_put_contents($path, implode("", $rawData));
       }
     }
   }
