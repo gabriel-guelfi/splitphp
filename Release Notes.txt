@@ -46,7 +46,7 @@ PUBLIC_KEY and PRIVATE_KEY settings.
 - Some specific errors and exceptions, depending on the type or level of the error or exception, was not being sent to the client, the system was 
 responding 200 with no content and no log was being generated. These issues were fixed.
 
-- Service::getService() method now validates the service's path which is being passed along. If a invalid path is passed, throws an exception.
+- Service::getService() method now validates the service's path which is being passed along. If an invalid path is passed, throws an exception.
 
 - Now the Dao::getTable() method check if your DB_CONNECT setting is turned on. Throws an exception otherwise.
 
