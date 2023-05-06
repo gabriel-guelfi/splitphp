@@ -16,7 +16,7 @@ In this release 1.3.5 it was added a very cool CLI. It also has many improvement
 
 **New Features:**
 
-- Now the user can forcefully commit the database, in a specifically part of his system, even with the transactional db setting turned on, 
+- Now the user can forcefully commit a specific database operation, even with the transactional db setting turned on, 
 without affecting the rest of the application.
 
 - Database operations charset setting.
