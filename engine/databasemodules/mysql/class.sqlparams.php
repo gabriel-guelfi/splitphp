@@ -203,7 +203,7 @@ class SqlParams
           $comparisonOperator = ' >= ';
           break;
         case '$lsth':
-          $comparisonOperatorMethod = 'lesserThan';
+          $comparisonOperatorMethod = 'lessThan';
           $comparisonOperator = ' < ';
           break;
         case '$lseq':
@@ -452,7 +452,7 @@ class SqlParams
    * @param mixed $value
    * @return SqlParams 
    */
-  private function lesserThan($value)
+  private function lessThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
