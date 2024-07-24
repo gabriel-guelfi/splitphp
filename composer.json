@@ -1,0 +1,29 @@
+{
+  "name": "gabriel-guelfi/splitphp",
+  "type": "library",
+  "description": "The light and modern low learning curve PHP Framework",
+  "keywords": [
+    "split",
+    "splitphp",
+    "php",
+    "framework",
+    "service",
+    "endpoint",
+    "web service",
+    "api",
+    "rest"
+  ],
+  "homepage": "https://splitphp.org",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Gabriel Valentoni Guelfi",
+      "email": "gabriel.valguelfi@gmail.com",
+      "homepage": "https://github.com/gabriel-guelfi",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.4.*"
+  }
+}

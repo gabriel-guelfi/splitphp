@@ -67,16 +67,26 @@ class SqlParams
    * edit this query, according to the filters set. Returns an object containing 
    * the resulting DAO filters and SQL query.
    * 
-   * @param array $params = []
+   * @param array $paramSet = []
    * @param string $sql = null
    * @return object 
    */
-  public function parameterize(array $params = [], string $sql = null)
+  public function parameterize(array $paramSet = [], string $sql = null)
   {
-    $this->filters = [];
-    if (!empty($params)) {
+    $sql = !empty($sql) ? "SELECT * FROM ({$sql}) as derived_table " : null;
+    $finalFilters = [];
+
+    foreach ($paramSet as $placeholder => $paramObj) {
+      if (empty($paramObj->paramList)) continue;
+
+      $this->settings = (object) [];
+      $this->filters = [];
+
+      $params = $paramObj->paramList;
+      $global = $paramObj->global;
+
       $sortParams = [
-        "sortBy" => isset($params['$sort_by']) ? $params['$sort_by'] : 1,
+        "sortBy" => isset($params['$sort_by']) ? (is_numeric($params['$sort_by']) ? intval($params['$sort_by']) : $params['$sort_by']) : 1,
         "sortDirection" => isset($params['$sort_direction']) ? $params['$sort_direction'] : 'ASC'
       ];
 
@@ -85,7 +95,10 @@ class SqlParams
         "limit" => isset($params['$limit']) ? $params['$limit'] : null
       ];
 
-      $this->setup($params);
+      // Set filtering logical operator:
+      if (isset($params['$logical_operator']) && ($params['$logical_operator'] == 'AND' || $params['$logical_operator']  == 'OR')) {
+        $this->settings->logicalOperator = $params['$logical_operator'];
+      } else $this->settings->logicalOperator = 'AND';
 
       if (isset($params['$logical_operator'])) unset($params['$logical_operator']);
       if (isset($params['$sort_by'])) unset($params['$sort_by']);
@@ -93,45 +106,34 @@ class SqlParams
       if (isset($params['$page'])) unset($params['$page']);
       if (isset($params['$limit'])) unset($params['$limit']);
 
-      if (!empty($sql) && file_exists(ROOT_PATH . '/application/sql/' . $sql . '.sql')) {
-        $sql = file_get_contents(ROOT_PATH . '/application/sql/' . $sql . '.sql');
-      }
-
       // FILTER:
-      $filtered = $this->filtering($params, $sql);
-      $sql = $filtered->sql;
+      $filterBLock = $this->filtering($params);
 
       if (!empty($sql)) {
-        // SORT:
-        $sort = $this->sorting($sortParams, $sql);
-        $sql = $sort->sql;
+        // If parameterization is global, attach param blocks to main query, else, replace placeholder for it:
+        if ($global) {
+          // SORT:
+          $sortBlock = $this->sorting($sortParams);
 
-        // PAGINATE:
-        $sort = $this->pagination($pageParams, $sql);
-        $sql = $sort->sql;
+          // PAGINATE:
+          $paginationBlock = $this->pagination($pageParams);
+          $sql .= $filterBLock . $sortBlock . $paginationBlock;
+        } else {
+          $sql = str_replace("#{$placeholder}#", $filterBLock, $sql);
+        }
+
+        // Clear any placeholders that were not replaced by any parameters:
+        $sql = preg_replace('/\#.*\#/', '', $sql);
       }
+
+      $finalFilters = array_merge($finalFilters, $this->filters);
     }
 
+
     return (object) [
-      "filters" => $this->filters,
+      "filters" => $finalFilters,
       "sql" => $sql
     ];
-  }
-
-  /** 
-   * Set the default logic operator ("AND" / "OR"), based on the parameters.
-   * 
-   * @param array $params = []
-   * @return void 
-   */
-  private function setup(array $params)
-  {
-    $this->settings = (object) [];
-
-    // Set filtering logical operator:
-    if (isset($params['$logical_operator']) && ($params['$logical_operator'] == 'AND' || $params['$logical_operator']  == 'OR')) {
-      $this->settings->logicalOperator = $params['$logical_operator'];
-    } else $this->settings->logicalOperator = 'AND';
   }
 
   /** 
@@ -139,15 +141,11 @@ class SqlParams
    * an object containing the resulting SQL query.
    * 
    * @param array $params = []
-   * @param string $sql = null
-   * @return object 
+   * @return string 
    */
-  private function filtering(array $params = [], string $sql = null)
+  private function filtering(array $params = [])
   {
-    if (!empty($sql)){ 
-      $sql = "SELECT * FROM (".$sql.") as derived_table ";
-    }
-
+    $sqlBlock = '';
     $firstIteration = true;
     foreach ($params as $paramName => $strInstruction) {
       $instruction = explode('|', empty($strInstruction) ? '' : $strInstruction);
@@ -216,14 +214,17 @@ class SqlParams
           $instruction[1] = '%' . $instruction[1] . '%';
           break;
         case '$btwn':
-          if (!empty($sql)) {
-            $sql .= $logicalOperator . $filterGroupStart . " (" . $paramName . " >= ?" . $paramName . "_start? ";
-            $sql .= "AND " . $paramName . " <= ?" . $paramName . "_end?)" . $filterGroupEnd . " ";
-          }
+          $sqlBlock .= $logicalOperator . $filterGroupStart . " (" . $paramName . " >= ?" . $paramName . "_start? ";
+          $sqlBlock .= "AND " . $paramName . " <= ?" . $paramName . "_end?)" . $filterGroupEnd . " ";
 
           $this->$logicalOperatorMethod($paramName . '_start')->lesserOrEqualsTo($instruction[1]);
           $this->and($paramName . '_end')->biggerOrEqualsTo($instruction[2]);
           $alreadyFiltered = true;
+          break;
+        case '$in':
+          $comparisonOperatorMethod = 'in';
+          $comparisonOperator = ' IN ';
+          $instruction[1] = array_slice($instruction, 1);
           break;
         default:
           $comparisonOperatorMethod = 'equalsTo';
@@ -234,16 +235,14 @@ class SqlParams
 
       // Filter Dao and query:
       if (!$alreadyFiltered) {
-        if (!empty($sql)) $sql .= $logicalOperator . ' ' . $filterGroupStart . $paramName . $comparisonOperator . "?" . $paramName . "?" . $filterGroupEnd . " ";
+        $sqlBlock .= $logicalOperator . ' ' . $filterGroupStart . $paramName . $comparisonOperator . "?" . $paramName . "?" . $filterGroupEnd . " ";
         $this->$logicalOperatorMethod($paramName)->$comparisonOperatorMethod($instruction[1]);
       }
 
       $firstIteration = false;
     }
 
-    return (object) [
-      "sql" => $sql
-    ];
+    return $sqlBlock;
   }
 
   /** 
@@ -251,26 +250,24 @@ class SqlParams
    * an object containing the resulting SQL query.
    * 
    * @param array $params
-   * @param string $sql = null
-   * @return object 
+   * @return string 
    */
-  private function sorting(array $params, string $sql = null)
+  private function sorting(array $params)
   {
+    $sqlBlock = '';
     $params['sortDirection'] = strtoupper($params['sortDirection']);
 
     if ($params['sortDirection'] != 'ASC' && $params['sortDirection'] != 'DESC') throw new Exception("Parameter Sort Direction is invalid.");
 
     if (empty($this->filters)) {
       $this->filter('sortBy')->equalsTo($params['sortBy']);
-      if (!empty($sql)) $sql .= " ORDER BY ?sortBy? " . $params['sortDirection'] . " ";
+      $sqlBlock .= " ORDER BY ?sortBy? " . $params['sortDirection'] . " ";
     } else {
       $this->and('sortBy')->equalsTo($params['sortBy']);
-      if (!empty($sql)) $sql .= " ORDER BY ?sortBy? " . $params['sortDirection'] . " ";
+      $sqlBlock .= " ORDER BY ?sortBy? " . $params['sortDirection'] . " ";
     }
 
-    return (object) [
-      "sql" => $sql
-    ];
+    return $sqlBlock;
   }
 
   /** 
@@ -278,11 +275,12 @@ class SqlParams
    * an object containing the resulting SQL query.
    * 
    * @param array $params
-   * @param string $sql = null
-   * @return object 
+   * @return string 
    */
-  private function pagination(array $params, string $sql = null)
+  private function pagination(array $params)
   {
+    $sqlBlock = '';
+
     if (!empty($params['page']) && !empty($params['limit'])) {
       if (is_numeric($params['page']) == false || is_numeric($params['limit']) == false)
         throw new Exception("Invalid input.");
@@ -291,16 +289,14 @@ class SqlParams
 
       $params['limit'] = 5 * $params['limit'];
 
-      if (!empty($sql)) $sql .= "LIMIT " . $params['limit'] . " OFFSET " . $offset;
+      $sqlBlock .= "LIMIT " . $params['limit'] . " OFFSET " . $offset;
     } elseif (!empty($params['limit'])) {
       if (is_numeric($params['limit']) == false) throw new Exception("Invalid input.");
 
-      if (!empty($sql)) $sql .= "LIMIT " . $params['limit'];
+      $sqlBlock .= "LIMIT " . $params['limit'];
     }
 
-    return (object) [
-      "sql" => $sql
-    ];
+    return $sqlBlock;
   }
 
   /** 
@@ -536,4 +532,50 @@ class SqlParams
 
     return $this;
   }
+
+  /**
+   * Edit the last added DAO filter data, specifying comparison operator to "IN" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   *
+   * @param array $value
+   * @return Dao
+   */
+  private function in(array $value)
+  {
+    $i = count($this->filters);
+    if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
+      throw new Exception('This method can only be called right after one of the filtering methods.');
+      return false;
+    }
+
+    $i--;
+
+    $this->filters[$i]->value = $value;
+    $this->filters[$i]->operator = 'IN';
+
+    return $this;
+  }
+
+  /**
+  * Edit the last added DAO filter data, specifying comparison operator to "NOT IN" and setting its value based on what it has received in $value.
+  * Returns this class instance.
+  *
+  * @param array $value
+  * @return Dao
+  */
+private function notIn(array $value)
+{
+  $i = count($this->filters);
+  if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
+    throw new Exception('This method can only be called right after one of the filtering methods.');
+    return false;
+  }
+
+  $i--;
+
+  $this->filters[$i]->value = $value;
+  $this->filters[$i]->operator = 'NOT IN';
+
+  return $this;
+}
 }
