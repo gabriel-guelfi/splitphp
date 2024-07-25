@@ -1,7 +1,7 @@
 {
   "name": "gabriel-guelfi/splitphp",
   "type": "library",
-  "description": "The light and modern low learning curve PHP Framework",
+  "description": "The light and modern low learning curve PHP Framework for APIs",
   "keywords": [
     "split",
     "splitphp",
