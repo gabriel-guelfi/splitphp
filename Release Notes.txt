@@ -10,52 +10,20 @@ SPLIT PHP Framework - Release Notes
 
 ---
 
-In this release 1.4.10 it was added several CLI built-in commands. It also has many improvements in Data Access.
+In this release 1.4.10 it was added several CLI built-in commands. It also has many improvements and fixes in data handling and access.
+Requests were also improved, with new features and fixes, besides some other minor fixes.
 
 ---
 
 **New Features:**
 
-- Now the user can forcefully commit a specific database operation, even with the transactional db setting turned on, 
-without affecting the rest of the application.
-
-- Database operations charset setting.
-
-- Improved error logging with more useful data.
-
-- Added a CLI, very simple to use, which on the user can create his own commands, in the same way he can create endpoints.
-
-- Removed some services dependencies from WebServices.
-
-- Added a cool feature on database reading: now the system persists the data in the RAM, so if you execute the exact same query multiple times, 
-it will only run the SQL once.
-
-- All response's codes are now being checked, if the user try to respond with a status out of the range 100-599, the system throws an exception. 
-
-- Added a built-in command "server:start", which initiates a local development server at "http://localhost:8000"
-
-- Added a built-in command "setup", which automatically creates a "config.ini" file from the example and generates random hashes for your application's 
-PUBLIC_KEY and PRIVATE_KEY settings. 
-
-- Application's timezone is now easily set in config.ini file and this settings also affects the database operations.
+- 
 
 ---
 
 **Fixes:**
 
-- Some specific errors and exceptions, depending on the type or level of the error or exception, was not being sent to the client, the system was 
-responding 200 with no content and no log was being generated. These issues were fixed.
-
-- Service::getService() method now validates the service's path which is being passed along. If an invalid path is passed, throws an exception.
-
-- Now the Dao::getTable() method check if your DB_CONNECT setting is turned on. Throws an exception otherwise.
-
-- Changed the name of the class "RestService" to "WebService", which represents better the concept of this class. (Don't worry, I kept a backward compatibility)
-
-- Fixed the name of the method Dao::lesserThan() to Dao::lessThan(). (English isn't my mother language, sorry! xD)
+- 
 
 ---
 
-Well, I think it's now much more stable, versatile and with some really nice new features. 
-
-Hope y'all enjoy!
