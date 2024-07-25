@@ -423,6 +423,18 @@ class Utils
   }
 
   /** 
+   * Test value given in $string to check if it is a json-decodable string.
+   * 
+   * @param string $string
+   * @return boolean
+   */
+  public static function isJson($string)
+  {
+    json_decode($string);
+    return json_last_error() === JSON_ERROR_NONE;
+  }
+
+  /** 
    * Registers the $path and $args of a vendor class, in the summary, under the key $name. 
    * 
    * @param string $name

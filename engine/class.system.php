@@ -41,22 +41,34 @@ use Exception;
 class System
 {
   /**
-   * @var string $webServiceName
-   * Stores the name of the WebService which is being executed in the current request/response.
+   * @var string $webservicePath
+   * Stores the name of the WebService which is being executed in the current execution.
    */
+  public static $webservicePath;
 
-  public static $webServiceName;
+  /**
+   * @var string $cliPath
+   * Stores the name of the CLI which is being executed in the current execution.
+   */
+  private static $cliPath;
+
+  /**
+   * @var string $route
+   * Stores the route or command which is being accessed in the current execution.
+   */
+  private static $route;
+  
+  /**
+   * @var string $httpVerb
+   * Stores the params passed on to the endpoint or command in the current execution.
+   */
+  private static $httpVerb;
+
   /**
    * @var array $globals
    * Used to store static data that must be available in the entire application.
    */
   public static $globals;
-
-  /**
-   * @var string $cliName
-   * Stores the name of the CLI which is being executed in the current command execution.
-   */
-  private static $cliName;
 
   /** 
    * This is the constructor of System class. It initiate the $globals property, create configuration constants, load and runs 
@@ -71,8 +83,10 @@ class System
 
     // Initiate System's properties:
     self::$globals = [];
-    self::$webServiceName = "";
-    self::$cliName = "";
+    self::$webservicePath = "";
+    self::$cliPath = "";
+    self::$route = "";
+    self::$httpVerb = "";
 
     // Define runtime constants:
     define('ROOT_PATH', __DIR__ . "/..");
@@ -93,6 +107,7 @@ class System
     $this->loadExtensions();
     $this->loadExceptions();
 
+
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
     require_once __DIR__ . "/class.dao.php";
@@ -100,11 +115,11 @@ class System
     require_once __DIR__ . "/class.utils.php";
 
     $this->serverLogCleanUp();
-
+    
     if (empty($cliArgs)) {
       define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
       define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
-
+      
       require_once __DIR__ . "/class.request.php";
       require_once __DIR__ . "/class.webservice.php";
       $this->executeRequest(new Request($_SERVER["REQUEST_URI"]));
@@ -122,8 +137,8 @@ class System
    */
   public function __toString()
   {
-    $webService = self::$webServiceName;
-    $cli = self::$cliName;
+    $webService = self::$webservicePath;
+    $cli = self::$cliPath;
 
     return "class:" . __CLASS__ . "(CLI:{$cli}, WebService:{$webService})";
   }
@@ -147,9 +162,10 @@ class System
    * 
    * @param string $logname
    * @param mixed $logmsg
+   * @param boolean $limit
    * @return void 
    */
-  public static function log(string $logname, $logmsg)
+  public static function log(string $logname, $logmsg, $limit = true)
   {
     if ($logname == 'server') throw new Exception("You cannot manually write data in server's log.");
 
@@ -168,7 +184,7 @@ class System
       $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
     else $currentLogData = [];
 
-    if (count($currentLogData) >= MAX_LOG_ENTRIES) {
+    if (count($currentLogData) >= MAX_LOG_ENTRIES && $limit) {
       $currentLogData = array_slice($currentLogData, ((MAX_LOG_ENTRIES - 1) * -1));
       $currentLogData[] = "[" . date('Y-m-d H:i:s') . "] - " . $logmsg;
       file_put_contents($path . $logname . '.log', implode(str_repeat(PHP_EOL, 2), $currentLogData) . str_repeat(PHP_EOL, 2));
@@ -268,7 +284,9 @@ class System
       die;
     }
 
-    self::$webServiceName = $request->getWebService()->name;
+    self::$webservicePath = "{$request->getWebService()->path}/{$request->getWebService()->name}";
+    self::$route = $request->getRoute();
+    self::$httpVerb = $request->getArgs()[1];
 
     $webServiceObj = self::loadClass($request->getWebService()->path . $request->getWebService()->name . ".php", $request->getWebService()->name);
     call_user_func_array(array($webServiceObj, 'execute'), $request->getArgs());
@@ -287,7 +305,8 @@ class System
       throw new Exception("Command not found.");
     }
 
-    self::$cliName = $action->getCli()->name;
+    self::$cliPath = $action->getCli()->name;
+    self::$route = $action->getCmd();
 
     $CliObj = self::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
     call_user_func_array(array($CliObj, 'execute'), $action->getArgs());
@@ -335,13 +354,15 @@ class System
     return (object) [
       "datetime" => date('Y-m-d H:i:s'),
       "message" => $exc->getMessage(),
-      "webService" => ucfirst(self::$webServiceName),
-      "cli" => ucfirst(self::$cliName),
+      "file" => $exc->getFile(),
+      "line" => $exc->getLine(),
+      "webService" => self::$webservicePath,
+      "cli" => self::$cliPath,
+      "route" => self::$route,
+      "httpVerb" => self::$httpVerb,
       "info" => $info,
       "stack_trace" => $exc->getTrace(),
       "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious(), []) : null),
-      "file" => $exc->getFile(),
-      "line" => $exc->getLine()
     ];
   }
 
@@ -399,6 +420,7 @@ class System
     define('PUBLIC_KEY', getenv('PUBLIC_KEY'));
     define('ALLOW_CORS', getenv('ALLOW_CORS'));
     define('MAX_LOG_ENTRIES', !empty(getenv('MAX_LOG_ENTRIES')) ? getenv('MAX_LOG_ENTRIES') : 5);
+    ini_set('memory_limit', '1024M');
   }
 
   /** 

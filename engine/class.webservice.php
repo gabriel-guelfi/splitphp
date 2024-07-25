@@ -202,7 +202,7 @@ abstract class WebService extends Service
             "error" => true,
             "user_friendly" => $status !== 500,
             "message" => $exc->getMessage(),
-            "webService" => System::$webServiceName,
+            "webService" => System::$webservicePath,
             "route" => $route,
             "method" => $httpVerb,
             "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
@@ -486,7 +486,7 @@ abstract class WebService extends Service
   }
 
   /** 
-   * Nullify string representations od empty values, like 'null' or 'undefined', then returns the modified dataset.
+   * Nullify string representations of empty values, like 'null' or 'undefined', then returns the modified dataset.
    * 
    * @param mixed $data
    * @return mixed
@@ -529,7 +529,7 @@ abstract class WebService extends Service
       return $_SERVER['HTTP_XSRF_TOKEN'];
     }
 
-    $xsrfToken = !empty($_REQUEST['XSRF_TOKEN']) ? $_REQUEST['XSRF_TOKEN'] : $_REQUEST['xsrf_token'];
+    $xsrfToken = !empty($_REQUEST['XSRF_TOKEN']) ? $_REQUEST['XSRF_TOKEN'] : (!empty($_REQUEST['xsrf_token']) ? $_REQUEST['xsrf_token'] : null);
     if (!empty($xsrfToken)) return $xsrfToken;
 
     return null;
@@ -560,9 +560,4 @@ abstract class WebService extends Service
       }
     }
   }
-}
-
-class RestService extends WebService
-{
-  // It is deprecated. Only for compatibility purpose. Use "WebService" class.
 }

@@ -148,7 +148,9 @@ class SqlParams
     $sqlBlock = '';
     $firstIteration = true;
     foreach ($params as $paramName => $strInstruction) {
-      $instruction = explode('|', empty($strInstruction) ? '' : $strInstruction);
+      if (is_string($strInstruction) && strpos($strInstruction, '|') !== false) {
+        $instruction = explode('|', $strInstruction);
+      } else $instruction = ['', $strInstruction];
 
       // Treat FILTER GROUPING param option:
       $filterGroupStart = '';
@@ -226,17 +228,53 @@ class SqlParams
           $comparisonOperator = ' IN ';
           $instruction[1] = array_slice($instruction, 1);
           break;
+        case '$notin':
+          $comparisonOperatorMethod = 'notIn';
+          $comparisonOperator = ' NOT IN ';
+          $instruction[1] = array_slice($instruction, 1);
+          break;
         default:
           $comparisonOperatorMethod = 'equalsTo';
           $comparisonOperator = ' = ';
-          $instruction[1] = $instruction[0];
           break;
       }
 
       // Filter Dao and query:
       if (!$alreadyFiltered) {
-        $sqlBlock .= $logicalOperator . ' ' . $filterGroupStart . $paramName . $comparisonOperator . "?" . $paramName . "?" . $filterGroupEnd . " ";
-        $this->$logicalOperatorMethod($paramName)->$comparisonOperatorMethod($instruction[1]);
+        $condition = $paramName . $comparisonOperator . "?" . $paramName . "?";
+        // Filtering by lists of values with "IN/NOT IN" operators:
+        if (is_array($instruction[1])) {
+          $hasNullValue = false;
+          foreach ($instruction[1] as $k => $in_val)
+            if (is_null($in_val) || strtoupper($in_val) === 'NULL') {
+              $hasNullValue = true;
+              unset($instruction[1][$k]);
+            }
+
+          $complement = '';
+          $complementLogOp = '';
+          if ($hasNullValue) {
+            $complement = "{$paramName} IS NULL";
+            $complementLogOp = 'OR';
+            if ($comparisonOperatorMethod == 'notIn') {
+              $complement = "{$paramName} IS NOT NULL";
+              $complementLogOp = 'AND';
+            }
+          }
+
+          if (!empty($instruction[1]))
+            $condition = "{$condition} {$complementLogOp} {$complement}";
+          else $condition = $complement;
+        }
+        // Filtering with NULL values:
+        elseif (is_null($instruction[1])) {
+          $comparisonOperator = $comparisonOperator == '!=' ? 'IS NOT' : 'IS';
+          $condition = "{$paramName} {$comparisonOperator} NULL";
+        }
+
+        $sqlBlock .= $logicalOperator . ' ' . $filterGroupStart .  $condition . $filterGroupEnd . " ";
+        if (!is_null($instruction[1]))
+          $this->$logicalOperatorMethod($paramName)->$comparisonOperatorMethod($instruction[1]);
       }
 
       $firstIteration = false;
@@ -557,25 +595,25 @@ class SqlParams
   }
 
   /**
-  * Edit the last added DAO filter data, specifying comparison operator to "NOT IN" and setting its value based on what it has received in $value.
-  * Returns this class instance.
-  *
-  * @param array $value
-  * @return Dao
-  */
-private function notIn(array $value)
-{
-  $i = count($this->filters);
-  if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
-    throw new Exception('This method can only be called right after one of the filtering methods.');
-    return false;
+   * Edit the last added DAO filter data, specifying comparison operator to "NOT IN" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   *
+   * @param array $value
+   * @return Dao
+   */
+  private function notIn(array $value)
+  {
+    $i = count($this->filters);
+    if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
+      throw new Exception('This method can only be called right after one of the filtering methods.');
+      return false;
+    }
+
+    $i--;
+
+    $this->filters[$i]->value = $value;
+    $this->filters[$i]->operator = 'NOT IN';
+
+    return $this;
   }
-
-  $i--;
-
-  $this->filters[$i]->value = $value;
-  $this->filters[$i]->operator = 'NOT IN';
-
-  return $this;
-}
 }

@@ -225,18 +225,44 @@ class Sql
         if (!is_null($join))
           $where .= ' ' . $join . ' ';
 
+        // Full text filtering with "LIKE" operator:
         if (strtoupper($operator) == "LIKE") {
           $where .= $key . ' LIKE "%' . $this->dblink->getConnection('writer')->escapevar($val) . '%"';
-        } else if (is_array($val) && !empty($val)) {
+        }
+        // Filtering by lists of values with "IN/NOT IN" operators:
+        else if (is_array($val) && !empty($val)) {
           $val = $this->dblink->getConnection('writer')->escapevar($val);
 
           $joined_values = array();
+          $hasNullValue = false;
           foreach ($val as $in_val) {
-            $joined_values[] = !is_string($in_val) ? $in_val : '"' . $in_val . '"';
+            if (is_null($in_val)) $hasNullValue = true;
+            else $joined_values[] = !is_string($in_val) ? $in_val : '"' . $in_val . '"';
           }
 
-          $where .= $key . "{$operator} (" . join(',', $joined_values) . ')';
-        } else {
+          $complement = '';
+          $complementLogOp = '';
+          if ($hasNullValue) {
+            if ($operator == 'NOT IN') {
+              $complement = " {$key} IS NOT NULL";
+              $complementLogOp = ' AND';
+            } else {
+              $complement = " {$key} IS NULL";
+              $complementLogOp = ' OR';
+            }
+          }
+
+          if (!empty($joined_values))
+            $where .= $key . " {$operator} (" . join(',', $joined_values) . ')' . $complementLogOp . $complement;
+          else $where .= $complement;
+        }
+        // Filtering with NULL values:
+        elseif (is_null($val)) {
+          if ($operator == '<>') $where .= "{$key} IS NOT NULL";
+          else $where .= "{$key} IS NULL";
+        }
+        // General filtering:
+        else {
           $where .= $key . ' ' . $operator . ' ' . (!is_string($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
         }
       }

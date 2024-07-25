@@ -296,7 +296,9 @@ class Dao
     }
 
     if ($buildWhereClause) {
-      $sqlObj = $this->sqlBuilder->write($sql, $this->workingTable)->where($this->filters)->output(true);
+      $sqlObj = $this->sqlBuilder
+        ->write($sql, $this->workingTable)
+        ->where($this->filters)->output(true);
     } else {
       // Sanitize Filter Data and replace values:
       for ($i = 0; $i < count($this->filters); $i++) {
@@ -672,7 +674,7 @@ class Dao
    * @param array $value
    * @return Dao
    */
-  private function notIn(array $value)
+  protected function notIn(array $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {

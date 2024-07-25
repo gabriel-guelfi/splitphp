@@ -1,7 +1,7 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.4.9
+- Version: 1.4.10
 - Release Date: 2024-07-25
 - Last Update: 2024-07-25
 - License: MIT
@@ -10,7 +10,7 @@ SPLIT PHP Framework - Release Notes
 
 ---
 
-In this release 1.4.9 it was added several CLI built-in commands. It also has many improvements in Data Access.
+In this release 1.4.10 it was added several CLI built-in commands. It also has many improvements in Data Access.
 
 ---
 
