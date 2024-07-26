@@ -15,6 +15,8 @@
 
 > Last Update: 2024-07-26
 
+* Added on composer. (Yes, it's finally here! xD)
+
 * A built-in scafolding command "generate" was added in this version.
 
 * DAO now has a "clearPersistence()" method to manually clear the data persistence.

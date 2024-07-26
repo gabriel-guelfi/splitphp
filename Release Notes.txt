@@ -17,7 +17,7 @@ Requests were also improved, with new features and fixes, besides some other min
 
 **New Features:**
 
-- Added composer. (Yes, it's finally here! xD)
+- Added on composer. (Yes, it's finally here! xD)
 
 - A built-in scafolding command "generate" was added in this version. Now the user is able to generate Services, Web Services and Commands using the CLI.
 
