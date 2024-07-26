@@ -57,7 +57,7 @@ class System
    * Stores the route or command which is being accessed in the current execution.
    */
   private static $route;
-  
+
   /**
    * @var string $httpVerb
    * Stores the params passed on to the endpoint or command in the current execution.
@@ -115,11 +115,11 @@ class System
     require_once __DIR__ . "/class.utils.php";
 
     $this->serverLogCleanUp();
-    
+
     if (empty($cliArgs)) {
       define('HTTP_PROTOCOL', (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443 ? "https://" : "http://"));
       define('URL_APPLICATION', HTTP_PROTOCOL . $_SERVER['HTTP_HOST']);
-      
+
       require_once __DIR__ . "/class.request.php";
       require_once __DIR__ . "/class.webservice.php";
       $this->executeRequest(new Request($_SERVER["REQUEST_URI"]));
@@ -279,7 +279,16 @@ class System
    */
   private function executeRequest(Request $request)
   {
+    // Check if the Web Service file exists:
     if (file_exists($request->getWebService()->path . $request->getWebService()->name . ".php") === false) {
+      http_response_code(404);
+      die;
+    }
+
+    // Check if the Web Service class exists:
+    include $request->getWebService()->path . $request->getWebService()->name . ".php";
+    $classFullName = ltrim(str_replace('/', '\\', str_replace(ROOT_PATH, '', "{$request->getWebService()->path}" . ucfirst($request->getWebService()->name))), '\\');
+    if (class_exists($classFullName) === false) {
       http_response_code(404);
       die;
     }

@@ -9,34 +9,32 @@
 
 ### What's New ###
 
-> Version: 1.3.5
+> Version: 1.4.10
 
-> Release Date: 2023-05-06
+> Release Date: 2024-07-26
 
-> Last Update: 2023-05-06
+> Last Update: 2024-07-26
 
-* Fixed error handling/logging failures and improved the logging.
+* A built-in scafolding command "generate" was added in this version.
 
-* Changed some classes and methods names for better representation.
+* DAO now has a "clearPersistence()" method to manually clear the data persistence.
 
-* Removed some service's dependencies (zero dependencies policy).
+* Added some Utils methods to work with string conversion.
 
-* Timezone, for application and database operations, is now configurable.
+* Dao::bindParams() method now accepts a second parameter for a placeholder name.
 
-* Fixed minor bugs, that were triggering warnings and notices.
+* Added the option of use "IN/NOT IN" in database operations.
 
-* Added a very cool CLI (Yes, finally!!), with built-in command "server" and more.
+* Expanded System::errorLog() method to include further, more detailed information.
 
-* Improved data reading from database, persisting data on RAM for better performance.
-
-* Other improvements on database operations.
+* Fixed many minor bugs related to: NULL values handling and database access.
 
 **Read more in the *Release Notes.txt* file.**
 
 ---
 
 ### Requirements ###
-* PHP 7+ and its libs (Yes, that's all! ;P )
+* PHP 7.4+ and its libs (Yes, that's all! ;P )
 
 ---
 
