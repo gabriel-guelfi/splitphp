@@ -329,54 +329,20 @@ class Dblink
   {
     if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
-    if (is_null($dataset))
-      return $dataset;
+    if (is_null($dataset)) return null;
 
-    if (is_array($dataset)) {
-      foreach ($dataset as $key => $data) {
-        if (is_null($data))
-          continue;
-
-        if (!is_numeric($data) && !is_array($data))
-          $dataset[$key] = mysqli_real_escape_string($this->connections[$this->currentConnectionName], $data);
-        elseif (is_array($data)) {
-          foreach ($data as $k => $d) {
-            if (is_null($d))
-              continue;
-
-            if (!is_numeric($d))
-              $dataset[$key][$k] = mysqli_real_escape_string($this->connections[$this->currentConnectionName], $d);
-            else {
-              if (is_float($d))
-                $dataset[$key][$k] = (float) $dataset[$key][$k];
-              elseif (is_int($d))
-                $dataset[$key][$k] = (int) $dataset[$key][$k];
-            }
-          }
-        }
+    elseif (is_array($dataset) || gettype($dataset) === "object") {
+      foreach ($dataset as &$data) {
+        $this->getConnection('writer')->escapevar($data);
       }
-    } elseif (gettype($dataset) === "object") {
-      foreach ($dataset as $key => $data) {
-        if (is_null($data))
-          continue;
+    } elseif (is_string($dataset) && !is_numeric($dataset)) $dataset = mysqli_real_escape_string($this->connections[$this->currentConnectionName], $dataset);
 
-        if (!is_numeric($data))
-          $dataset->$key = mysqli_real_escape_string($this->connections[$this->currentConnectionName], $data);
-        else {
-          if (is_float($data))
-            $dataset->$key = (float) $dataset->$key;
-          elseif (is_int($data))
-            $dataset->$key = (int) $dataset->$key;
-        }
-      }
-    } elseif (!is_numeric($dataset)) {
-      $dataset = mysqli_real_escape_string($this->connections[$this->currentConnectionName], $dataset);
-    } elseif (is_float($dataset)) {
-      $dataset = (float) $dataset;
-    } elseif (is_int($dataset)) {
-      $dataset = (int) $dataset;
-    }
+    elseif (is_float($dataset)) $dataset = (float) $dataset;
+
+    elseif (is_int($dataset)) $dataset = (int) $dataset;
+
     $this->isGetConnectionInvoked = false;
+
     return $dataset;
   }
 
@@ -405,7 +371,6 @@ class Dblink
       //Setup database's settings per connection:
       mysqli_set_charset($connection, DB_CHARSET);
       $this->syncMysqlTimezone($connection);
-
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         sleep(1);

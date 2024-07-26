@@ -112,7 +112,7 @@ class Sql
   {
     if (DB_CONNECT == 'on')
       $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
-      
+
     $this->sqlstring = "";
   }
 
@@ -146,10 +146,9 @@ class Sql
         $fields = "";
         foreach ($val as $f => $v) {
           if ($f != Dbmetadata::tbPrimaryKey($table)) {
-            if (!empty($v)) {
-              $fields .= $this->escape($f) . ",";
-              $values .= (is_numeric($v) ? $v : "'" . $v . "'") . ",";
-            }
+            $fields .= $this->escape($f) . ",";
+            if (!is_null($v)) $values .= (!is_string($v) ? $v : "'" . $v . "'") . ",";
+            else $values .= "NULL,";
           }
         }
         $values = rtrim($values, ",") . "),(";
@@ -157,7 +156,7 @@ class Sql
         if ($key != Dbmetadata::tbPrimaryKey($table)) {
           $fields .= $this->escape($key) . ",";
           if (is_null($val)) $values .= "NULL,";
-          else $values .= (is_numeric($val) ? $val : "'" . $val . "'") . ",";
+          else $values .= (!is_string($val) ? $val : "'" . $val . "'") . ",";
         }
       }
     }
@@ -184,7 +183,7 @@ class Sql
     $sql = "UPDATE " . $this->escape($table) . " SET ";
     foreach ($dataset as $key => $val) {
       if (!is_null($val) && $val !== false && $val !== "") {
-        $sql .= $this->escape($key) . "=" . (is_numeric($val) ? $val : "'" . $val . "'") . ",";
+        $sql .= $this->escape($key) . "=" . (!is_string($val) ? $val : "'" . $val . "'") . ",";
       } elseif (is_null($val) || $val === "") {
         $sql .= $this->escape($key) . '=NULL,';
       }
@@ -226,19 +225,45 @@ class Sql
         if (!is_null($join))
           $where .= ' ' . $join . ' ';
 
+        // Full text filtering with "LIKE" operator:
         if (strtoupper($operator) == "LIKE") {
           $where .= $key . ' LIKE "%' . $this->dblink->getConnection('writer')->escapevar($val) . '%"';
-        } else if (is_array($val) && !empty($val)) {
+        }
+        // Filtering by lists of values with "IN/NOT IN" operators:
+        else if (is_array($val) && !empty($val)) {
+          $val = $this->dblink->getConnection('writer')->escapevar($val);
+
           $joined_values = array();
-
+          $hasNullValue = false;
           foreach ($val as $in_val) {
-            $joined_values[] = is_numeric($in_val) ? $in_val : '"' . $in_val . '"';
+            if (is_null($in_val)) $hasNullValue = true;
+            else $joined_values[] = !is_string($in_val) ? $in_val : '"' . $in_val . '"';
           }
-          $joined_values = $this->dblink->getConnection('writer')->escapevar($joined_values);
 
-          $where .= $key . ' IN (' . join(',', $joined_values) . ')';
-        } else {
-          $where .= $key . ' ' . $operator . ' ' . (is_numeric($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
+          $complement = '';
+          $complementLogOp = '';
+          if ($hasNullValue) {
+            if ($operator == 'NOT IN') {
+              $complement = " {$key} IS NOT NULL";
+              $complementLogOp = ' AND';
+            } else {
+              $complement = " {$key} IS NULL";
+              $complementLogOp = ' OR';
+            }
+          }
+
+          if (!empty($joined_values))
+            $where .= $key . " {$operator} (" . join(',', $joined_values) . ')' . $complementLogOp . $complement;
+          else $where .= $complement;
+        }
+        // Filtering with NULL values:
+        elseif (is_null($val)) {
+          if ($operator == '<>') $where .= "{$key} IS NOT NULL";
+          else $where .= "{$key} IS NULL";
+        }
+        // General filtering:
+        else {
+          $where .= $key . ' ' . $operator . ' ' . (!is_string($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
         }
       }
       $this->write($where, null, false);

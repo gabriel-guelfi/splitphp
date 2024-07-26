@@ -77,6 +77,12 @@ class Dao
   private $params;
 
   /**
+   * @var string $globalParamsKey
+   * A string which stores the global parameters key.
+   */
+  private $globalParamsKey;
+
+  /**
    * @var array $persistence
    * Data returned from SELECT queries will be persisted here, so the next time in which the same query will be executed, 
    * it retrieves data direct frm this array, instead of performing a SQL query on the database again.
@@ -141,12 +147,13 @@ class Dao
   protected final function getTable(string $tableName)
   {
     if (DB_CONNECT != 'on') throw new Exception("The database connection is turned off. In order to use DAO, turn it on in the configs.");
-    
+
     $this->updateCurrentExecution();
 
     $this->workingTable = $tableName;
     $this->filters = [];
     $this->params = [];
+    $this->globalParamsKey = null;
 
     $this->registerNewExecution();
 
@@ -289,7 +296,9 @@ class Dao
     }
 
     if ($buildWhereClause) {
-      $sqlObj = $this->sqlBuilder->write($sql, $this->workingTable)->where($this->filters)->output(true);
+      $sqlObj = $this->sqlBuilder
+        ->write($sql, $this->workingTable)
+        ->where($this->filters)->output(true);
     } else {
       // Sanitize Filter Data and replace values:
       for ($i = 0; $i < count($this->filters); $i++) {
@@ -298,7 +307,12 @@ class Dao
         if ($f->sanitize) {
           $f->value = $this->dblink->getConnection('reader')->escapevar($f->value);
 
-          if (!is_numeric($f->value) && is_string($f->value)) {
+          if (is_array($f->value)) {
+            foreach ($f->value as &$v)
+              if (is_string($v)) $v = "'" . $v . "'";
+
+            $f->value = "(" . implode(",", $f->value) . ")";
+          } elseif (is_string($f->value)) {
             $f->value = "'" . $f->value . "'";
           }
         }
@@ -360,10 +374,12 @@ class Dao
     // Gets query result:
     $res = $this->find($sql, $debug);
 
+
     // Iterates over result, calling callback function for each iteration:
-    foreach ($res as &$row) {
-      $callback($row);
-    }
+    if (!$debug)
+      foreach ($res as &$row) {
+        $callback($row);
+      }
 
     return $res;
   }
@@ -373,14 +389,27 @@ class Dao
    * it performs automatic parameterization using SqlParams class object.
    * 
    * @param array $params
-   * @param string $tbPrefix = null
+   * @param string $placeholder = null
    * @return Dao
    */
-  protected final function bindParams(array $params)
-  {
-    $this->params = $params;
+  protected final function bindParams(array $params, string $placeholder = null)
+  { {
+      $global = is_null($placeholder);
+      $this->globalParamsKey = is_null($this->globalParamsKey) ? "key-" . uniqid() : $this->globalParamsKey;
+      $placeholder = is_null($placeholder) ? $this->globalParamsKey : $placeholder;
 
-    return $this;
+      if (empty($this->params[$placeholder]))
+        $this->params[$placeholder] = (object) [
+          'global' => $global,
+          'paramList' => []
+        ];
+
+      foreach ($params as $paramName => $paramVal) {
+        $this->params[$placeholder]->paramList[$paramName] = $paramVal;
+      }
+
+      return $this;
+    }
   }
 
   /** 
@@ -615,6 +644,52 @@ class Dao
     return $this;
   }
 
+  /**
+   * Edit the last added DAO filter data, specifying comparison operator to "IN" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   *
+   * @param array $value
+   * @return Dao
+   */
+  protected function in(array $value)
+  {
+    $i = count($this->filters);
+    if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
+      throw new Exception('This method can only be called right after one of the filtering methods.');
+      return false;
+    }
+
+    $i--;
+
+    $this->filters[$i]->value = $value;
+    $this->filters[$i]->operator = 'IN';
+
+    return $this;
+  }
+
+  /**
+   * Edit the last added DAO filter data, specifying comparison operator to "NOT IN" and setting its value based on what it has received in $value.
+   * Returns this class instance.
+   *
+   * @param array $value
+   * @return Dao
+   */
+  protected function notIn(array $value)
+  {
+    $i = count($this->filters);
+    if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
+      throw new Exception('This method can only be called right after one of the filtering methods.');
+      return false;
+    }
+
+    $i--;
+
+    $this->filters[$i]->value = $value;
+    $this->filters[$i]->operator = 'NOT IN';
+
+    return $this;
+  }
+
   /** 
    * Returns all filters set on Dao until the moment.
    * 
@@ -639,6 +714,16 @@ class Dao
   }
 
   /** 
+   * Clears current data persistence
+   * 
+   * @return void 
+   */
+  protected final function clearPersistence()
+  {
+    $this->persistence = [];
+  }
+
+  /** 
    * Updates the current execution control, with the current state of the class instance.
    * 
    * @return void 
@@ -651,6 +736,7 @@ class Dao
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
       'params' => $this->params,
+      'globalParamsKey' => $this->globalParamsKey
     ];
   }
 
@@ -669,6 +755,7 @@ class Dao
       'workingTable' => $this->workingTable,
       'filters' => $this->filters,
       'params' => $this->params,
+      'globalParamsKey' => $this->globalParamsKey
     ];
   }
 
@@ -690,5 +777,6 @@ class Dao
     $this->workingTable = $this->executionControl->executionStatesSnapshots[$remainingHash]->workingTable;
     $this->filters = $this->executionControl->executionStatesSnapshots[$remainingHash]->filters;
     $this->params = $this->executionControl->executionStatesSnapshots[$remainingHash]->params;
+    $this->globalParamsKey = $this->executionControl->executionStatesSnapshots[$remainingHash]->globalParamsKey;
   }
 }

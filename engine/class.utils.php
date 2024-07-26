@@ -405,6 +405,36 @@ class Utils
   }
 
   /** 
+   * Convert the provided $content string to UTF-8 encoding, applying safety techniques.
+   * 
+   * @param string $content
+   * @return string
+   */
+  public static function convertToUTF8(string $content)
+  {
+    # detect original encoding
+    $original_encoding = mb_detect_encoding($content, "UTF-8, ISO-8859-1, ISO-8859-15", true);
+    # now convert
+    if ($original_encoding != 'UTF-8') {
+      $content = mb_convert_encoding($content, 'UTF-8', $original_encoding);
+    }
+    $bom = chr(239) . chr(187) . chr(191); # use BOM to be on safe side
+    return $bom . $content;
+  }
+
+  /** 
+   * Test value given in $string to check if it is a json-decodable string.
+   * 
+   * @param string $string
+   * @return boolean
+   */
+  public static function isJson($string)
+  {
+    json_decode($string);
+    return json_last_error() === JSON_ERROR_NONE;
+  }
+
+  /** 
    * Registers the $path and $args of a vendor class, in the summary, under the key $name. 
    * 
    * @param string $name

@@ -1,61 +1,62 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.3.5
-- Release Date: 2023-05-06
-- Last Update: 2023-05-06
+- Version: 1.4.10
+- Release Date: 2024-07-26
+- Last Update: 2024-07-26
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-In this release 1.3.5 it was added a very cool CLI. It also has many improvements with error handling and database operations, besides some bug fixes.
+In this release 1.4.10 it was added several CLI built-in commands. It also has many improvements and fixes in data handling and access.
+Requests were also improved, with new features and fixes, besides some other minor fixes.
 
 ---
 
 **New Features:**
 
-- Now the user can forcefully commit a specific database operation, even with the transactional db setting turned on, 
-without affecting the rest of the application.
+- Added composer. (Yes, it's finally here! xD)
 
-- Database operations charset setting.
+- A built-in scafolding command "generate" was added in this version. Now the user is able to generate Services, Web Services and Commands using the CLI.
 
-- Improved error logging with more useful data.
+- DAO now has a "clearPersistence()" method to manually clear the data persistence.
 
-- Added a CLI, very simple to use, which on the user can create his own commands, in the same way he can create endpoints.
+- Added some Utils methods to work with string conversion (valid JSON check and convert data to UTF-8)
 
-- Removed some services dependencies from WebServices.
+- Dao::bindParams() method now accepts a second parameter for a placeholder name: the user define the placeholder in the second param of bindParams(), then 
+place it in the query wherever he wants the parameters to be bound
 
-- Added a cool feature on database reading: now the system persists the data in the RAM, so if you execute the exact same query multiple times, 
-it will only run the SQL once.
+- Added the option of use "IN/NOT IN" operators with bindParams() method and in DAO filter methods.  
 
-- All response's codes are now being checked, if the user try to respond with a status out of the range 100-599, the system throws an exception. 
-
-- Added a built-in command "server:start", which initiates a local development server at "http://localhost:8000"
-
-- Added a built-in command "setup", which automatically creates a "config.ini" file from the example and generates random hashes for your application's 
-PUBLIC_KEY and PRIVATE_KEY settings. 
-
-- Application's timezone is now easily set in config.ini file and this settings also affects the database operations.
+- Expanded System::errorLog() method to include further, more detailed information.
 
 ---
 
 **Fixes:**
 
-- Some specific errors and exceptions, depending on the type or level of the error or exception, was not being sent to the client, the system was 
-responding 200 with no content and no log was being generated. These issues were fixed.
+- Fixed bug in Dao::fetch() method, in which $debug argument wasn't working properly.
 
-- Service::getService() method now validates the service's path which is being passed along. If an invalid path is passed, throws an exception.
+- On requests with verb DELETE, the system was messing cookies and other request related data with 
+input data (body + route params).
 
-- Now the Dao::getTable() method check if your DB_CONNECT setting is turned on. Throws an exception otherwise.
+- Exceptions thrown within CLI commands wasn't handling code parameter properly.
 
-- Changed the name of the class "RestService" to "WebService", which represents better the concept of this class. (Don't worry, I kept a backward compatibility)
+- XSRF token wasn't available outside endpoint function context, so if the user tried to use 
+$this->xsrfToken() in a Web Service method, it would not work. Now the scope of $ths->xsrfToken() method
+is the whole Web Service not just the endpoint function context.
 
-- Fixed the name of the method Dao::lesserThan() to Dao::lessThan(). (English isn't my mother language, sorry! xD)
+- In some cases, when filtering queries, numeric strings were being converted to number values in the database.
+Now it is fixed and a numeric string is preserved as it is after enters the database.
+
+- If a Web Service file exists, but the classname of the Web Service were different from the name of the file,
+the system was throwing an exception captured in system_log, but the response were returning status 200, with no content.
+
+- Multiple inserts were not working when some of the values were NULL.
+
+- NULL values were not being handled properly in database filtering operations, which was causing the program to crash due to a 
+malformed query.
 
 ---
 
-Well, I think it's now much more stable, versatile and with some really nice new features. 
-
-Hope y'all enjoy!

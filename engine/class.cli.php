@@ -87,6 +87,13 @@ abstract class Cli extends Service
   {
     ini_set('display_errors', 1);
 
+    define('VALIDATION_FAILED', 1);
+    define('BAD_REQUEST', 2);
+    define('NOT_AUTHORIZED', 3);
+    define('NOT_FOUND', 4);
+    define('PERMISSION_DENIED', 5);
+    define('CONFLICT', 6);
+
     $this->commands = [];
     $this->cmdString = "";
     $this->timeStart = 0;
@@ -245,25 +252,5 @@ abstract class Cli extends Service
     }
 
     return $result;
-  }
-
-  /** 
-   * Nullify string representations od empty values, like 'null' or 'undefined', then returns the modified dataset.
-   * 
-   * @param mixed $data
-   * @return mixed
-   */
-  private function actualizeEmptyValues($data)
-  {
-    foreach ($data as $key => $value) {
-      if (gettype($value) == 'array' || (gettype($value) == 'object' && $value instanceof StdClass)) {
-        $data[$key] = $this->actualizeEmptyValues($data[$key]);
-        continue;
-      }
-
-      if ($value === 'null' || $value === 'undefined') $data[$key] = null;
-    }
-
-    return $data;
   }
 }
