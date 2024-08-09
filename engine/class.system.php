@@ -293,7 +293,7 @@ class System
       die;
     }
 
-    self::$webservicePath = "{$request->getWebService()->path}/{$request->getWebService()->name}";
+    self::$webservicePath = "{$request->getWebService()->path}{$request->getWebService()->name}";
     self::$route = $request->getRoute();
     self::$httpVerb = $request->getArgs()[1];
 
