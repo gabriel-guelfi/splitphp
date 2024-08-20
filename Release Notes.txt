@@ -1,16 +1,16 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.4.10
+- Version: 1.4.11
 - Release Date: 2024-07-26
-- Last Update: 2024-07-26
+- Last Update: 2024-08-20
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-In this release 1.4.10 it was added several CLI built-in commands. It also has many improvements and fixes in data handling and access.
+In this release 1.4.11 it was added several CLI built-in commands. It also has many improvements and fixes in data handling and access.
 Requests were also improved, with new features and fixes, besides some other minor fixes.
 
 ---
@@ -57,6 +57,8 @@ the system was throwing an exception captured in system_log, but the response we
 
 - NULL values were not being handled properly in database filtering operations, which was causing the program to crash due to a 
 malformed query.
+
+- Fixed a vulnerability found in input sanitizing, which was making the system open to SQL injection attacks.
 
 ---
 

@@ -31,6 +31,8 @@
 
 * Fixed many minor bugs related to: NULL values handling and database access.
 
+* Fixed SQL injection vulnerabilty. 
+
 **Read more in the *Release Notes.txt* file.**
 
 ---
