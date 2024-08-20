@@ -325,7 +325,7 @@ class Dblink
    * @param mixed $dataset
    * @return mixed 
    */
-  public function escapevar($dataset)
+  public function escapevar(&$dataset)
   {
     if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
 
