@@ -32,6 +32,8 @@ place it in the query wherever he wants the parameters to be bound
 
 - Expanded System::errorLog() method to include further, more detailed information.
 
+- Improvements in error logging, providing further, more detailed information.
+
 ---
 
 **Fixes:**

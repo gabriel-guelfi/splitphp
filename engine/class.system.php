@@ -369,6 +369,7 @@ class System
       "cli" => self::$cliPath,
       "route" => self::$route,
       "httpVerb" => self::$httpVerb,
+      "request" => $_REQUEST,
       "info" => $info,
       "stack_trace" => $exc->getTrace(),
       "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious(), []) : null),
