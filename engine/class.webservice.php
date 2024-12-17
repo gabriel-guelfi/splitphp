@@ -348,7 +348,7 @@ abstract class WebService extends Service
   private function findRoute(string $route, string $httpVerb)
   {
     foreach ($this->routeIndex as $summary) {
-      if (preg_match('/' . $summary->pattern . '/', $route) && $httpVerb == $summary->httpVerb) {
+      if (preg_match('/' . $summary->pattern . '$/', $route) && $httpVerb == $summary->httpVerb) {
         return $this->routes[$httpVerb][$summary->id];
       }
     }

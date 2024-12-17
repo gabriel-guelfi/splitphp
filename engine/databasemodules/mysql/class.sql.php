@@ -145,19 +145,15 @@ class Sql
       if (is_array($val)) {
         $fields = "";
         foreach ($val as $f => $v) {
-          if ($f != Dbmetadata::tbPrimaryKey($table)) {
-            $fields .= $this->escape($f) . ",";
-            if (!is_null($v)) $values .= (!is_string($v) ? $v : "'" . $v . "'") . ",";
-            else $values .= "NULL,";
-          }
+          $fields .= $this->escape($f) . ",";
+          if (!is_null($v)) $values .= (!is_string($v) ? $v : "'" . $v . "'") . ",";
+          else $values .= "NULL,";
         }
         $values = rtrim($values, ",") . "),(";
       } else {
-        if ($key != Dbmetadata::tbPrimaryKey($table)) {
-          $fields .= $this->escape($key) . ",";
-          if (is_null($val)) $values .= "NULL,";
-          else $values .= (!is_string($val) ? $val : "'" . $val . "'") . ",";
-        }
+        $fields .= $this->escape($key) . ",";
+        if (is_null($val)) $values .= "NULL,";
+        else $values .= (!is_string($val) ? $val : "'" . $val . "'") . ",";
       }
     }
     $fields = rtrim($fields, ",") . ")";
@@ -230,15 +226,17 @@ class Sql
           $where .= $key . ' LIKE "%' . $this->dblink->getConnection('writer')->escapevar($val) . '%"';
         }
         // Filtering by lists of values with "IN/NOT IN" operators:
-        else if (is_array($val) && !empty($val)) {
+        else if (is_array($val)) {
           $val = $this->dblink->getConnection('writer')->escapevar($val);
 
           $joined_values = array();
           $hasNullValue = false;
-          foreach ($val as $in_val) {
-            if (is_null($in_val)) $hasNullValue = true;
-            else $joined_values[] = !is_string($in_val) ? $in_val : '"' . $in_val . '"';
-          }
+          if (!empty($val)) {
+            foreach ($val as $in_val) {
+              if (is_null($in_val)) $hasNullValue = true;
+              else $joined_values[] = !is_string($in_val) ? $in_val : '"' . $in_val . '"';
+            }
+          } else $hasNullValue = true;
 
           $complement = '';
           $complementLogOp = '';
@@ -253,7 +251,7 @@ class Sql
           }
 
           if (!empty($joined_values))
-            $where .= $key . " {$operator} (" . join(',', $joined_values) . ')' . $complementLogOp . $complement;
+            $where .= $key . " {$operator} (" . implode(',', $joined_values) . ')' . $complementLogOp . $complement;
           else $where .= $complement;
         }
         // Filtering with NULL values:

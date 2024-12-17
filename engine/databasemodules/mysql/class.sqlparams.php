@@ -73,7 +73,15 @@ class SqlParams
    */
   public function parameterize(array $paramSet = [], string $sql = null)
   {
-    $sql = !empty($sql) ? "SELECT * FROM ({$sql}) as derived_table " : null;
+    if (!empty($sql)) {
+      if (strpos($sql, '<MainQuery>') !== false && strpos($sql, '</MainQuery>') !== false) {
+        $sql = str_replace('<MainQuery>', "SELECT * FROM (", $sql);
+        $sql = str_replace('</MainQuery>', ") as main_results ", $sql);
+      } else {
+        $sql = "SELECT * FROM ({$sql}) as main_results ";
+      }
+    }
+
     $finalFilters = [];
 
     foreach ($paramSet as $placeholder => $paramObj) {
@@ -128,7 +136,6 @@ class SqlParams
 
       $finalFilters = array_merge($finalFilters, $this->filters);
     }
-
 
     return (object) [
       "filters" => $finalFilters,
@@ -248,7 +255,7 @@ class SqlParams
           foreach ($instruction[1] as $k => $in_val)
             if (is_null($in_val) || strtoupper($in_val) === 'NULL') {
               $hasNullValue = true;
-              unset($instruction[1][$k]);
+              $instruction[1][$k] = null;
             }
 
           $complement = '';
@@ -270,6 +277,7 @@ class SqlParams
         elseif (is_null($instruction[1])) {
           $comparisonOperator = $comparisonOperator == '!=' ? 'IS NOT' : 'IS';
           $condition = "{$paramName} {$comparisonOperator} NULL";
+          $this->$logicalOperatorMethod($paramName)->$comparisonOperatorMethod($instruction[1]);
         }
 
         $sqlBlock .= $logicalOperator . ' ' . $filterGroupStart .  $condition . $filterGroupEnd . " ";
