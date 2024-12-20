@@ -1,23 +1,21 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.4.11
+- Version: 1.4.16
 - Release Date: 2024-07-26
-- Last Update: 2024-08-20
+- Last Update: 2024-12-20
 - License: MIT
 - Authors: 
     * Gabriel Valentoni Guelfi (https://github.com/gabriel-guelfi)
 
 ---
 
-In this release 1.4.11 it was added several CLI built-in commands. It also has many improvements and fixes in data handling and access.
+In this release 1.4.16 it was added several CLI built-in commands. It also has many improvements and fixes in data handling and access.
 Requests were also improved, with new features and fixes, besides some other minor fixes.
 
 ---
 
 **New Features:**
-
-- Added on composer. (Yes, it's finally here! xD)
 
 - A built-in scafolding command "generate" was added in this version. Now the user is able to generate Services, Web Services and Commands using the CLI.
 
@@ -61,6 +59,12 @@ the system was throwing an exception captured in system_log, but the response we
 malformed query.
 
 - Fixed a vulnerability found in input sanitizing, which was making the system open to SQL injection attacks.
+
+- A bug was fixed, where there were some misbehaviors when passing NULL values do database operations.
+
+- Fixed a bug in "in/notIn" DAO operations, when processing empty arrays of values.
+
+- Fixed a minor bug with endpoints pattern recognition.
 
 ---
 

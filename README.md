@@ -9,13 +9,11 @@
 
 ### What's New ###
 
-> Version: 1.4.10
+> Version: 1.4.16
 
 > Release Date: 2024-07-26
 
-> Last Update: 2024-07-26
-
-* Added on composer. (Yes, it's finally here! xD)
+> Last Update: 2024-12-20
 
 * A built-in scafolding command "generate" was added in this version.
 
