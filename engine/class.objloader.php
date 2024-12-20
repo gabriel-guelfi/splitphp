@@ -56,7 +56,7 @@ class ObjLoader
    * @param array $args = []
    * @return mixed 
    */
-  public static function load(string $path, string $classname, array $args = [])
+  public static final function load(string $path, string $classname, array $args = [])
   {
     $arrClassPath = explode("/", str_replace(ROOT_PATH, "", $path));
     unset($arrClassPath[count($arrClassPath) - 1]);
