@@ -150,14 +150,14 @@ abstract class Cli extends Service
 
       if (APPLICATION_LOG == "on") {
         if ($exc instanceof DatabaseException) {
-          System::errorLog('db_error', $exc, [
+          Helpers::Log()->error('db_error', $exc, [
             'sqlState' => $exc->getSqlState(),
             'sqlCommand' => $exc->getSqlCmd()
           ]);
           echo "ERROR[Database]: " . $exc->getMessage() . ". In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
           echo PHP_EOL;
         } else {
-          System::errorLog('application_error', $exc);
+          Helpers::Log()->error('application_error', $exc);
           echo "ERROR[Application]: " . $exc->getMessage() . ". In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
           echo PHP_EOL;
         }

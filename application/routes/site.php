@@ -2,7 +2,7 @@
 
 namespace application\routes;
 
-use engine\DbConnections;
+use engine\Helpers;
 use \engine\WebService;
 
 class Site extends WebService
@@ -22,18 +22,10 @@ class Site extends WebService
     });
 
     $this->addEndpoint('GET', '/', function () {
-      // DbConnections::change('readonly', [
-      //   'api.erp-mqvending.com.br',
-      //   3306,
-      //   'mqvending',
-      //   'mqvending_prod_ro',
-      //   'beVr6f8u1I!m@lpq'
-      // ]);
+      $response = Helpers::cURL()
+        ->get('https://api.sampleapis.com/beers/ale');
 
-      $data = $this->getDao('APM_MODULE')
-        ->find();
-
-      return $this->response->withData($data);
+      return $this->response->withData($response);
     });
   }
 }

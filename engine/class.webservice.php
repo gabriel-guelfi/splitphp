@@ -170,12 +170,12 @@ abstract class WebService extends Service
 
       if (APPLICATION_LOG == "on") {
         if ($exc instanceof DatabaseException) {
-          System::errorLog('db_error', $exc, [
+          Helpers::Log()->error('db_error', $exc, [
             'sqlState' => $exc->getSqlState(),
             'sqlCommand' => $exc->getSqlCmd()
           ]);
         } else {
-          System::errorLog('application_error', $exc);
+          Helpers::Log()->error('application_error', $exc);
         }
       }
 
@@ -430,7 +430,7 @@ abstract class WebService extends Service
             ]
           ];
 
-          System::log('security', json_encode($info));
+          Helpers::Log()->add('security', json_encode($info));
 
           throw new Exception("Invalid input.", 400);
         }

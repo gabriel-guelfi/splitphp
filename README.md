@@ -25,7 +25,7 @@
 
 * Added the option of use "IN/NOT IN" in database operations.
 
-* Expanded System::errorLog() method to include further, more detailed information.
+* Expanded Helpers::Log()->error() method to include further, more detailed information.
 
 * Fixed many minor bugs related to: NULL values handling and database access.
 

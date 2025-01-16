@@ -28,7 +28,6 @@
 
 namespace engine;
 
-use stdClass;
 use Exception;
 
 /**
@@ -44,31 +43,31 @@ class System
    * @var string $webservicePath
    * Stores the name of the WebService which is being executed in the current execution.
    */
-  public static $webservicePath;
+  public static $webservicePath = "";
 
   /**
    * @var string $cliPath
    * Stores the name of the CLI which is being executed in the current execution.
    */
-  private static $cliPath;
+  public static $cliPath = "";
 
   /**
    * @var string $route
    * Stores the route or command which is being accessed in the current execution.
    */
-  private static $route;
+  public static $route = "";
 
   /**
    * @var string $httpVerb
    * Stores the params passed on to the endpoint or command in the current execution.
    */
-  private static $httpVerb;
+  public static $httpVerb = "";
 
   /**
    * @var array $globals
    * Used to store static data that must be available in the entire application.
    */
-  public static $globals;
+  public static $globals = [];
 
   /** 
    * This is the constructor of System class. It initiate the $globals property, create configuration constants, load and runs 
@@ -80,13 +79,6 @@ class System
   {
     // Setup error handling:
     $this->setupErrorHandling();
-
-    // Initiate System's properties:
-    self::$globals = [];
-    self::$webservicePath = "";
-    self::$cliPath = "";
-    self::$route = "";
-    self::$httpVerb = "";
 
     // Define runtime constants:
     define('ROOT_PATH', __DIR__ . "/..");
@@ -161,71 +153,6 @@ class System
     $cli = self::$cliPath;
 
     return "class:" . __CLASS__ . "(CLI:{$cli}, WebService:{$webService})";
-  }
-
-  /** 
-   * Creates a log file under /application/log with the specified $logname, writing down $logmsg with the current datetime 
-   * 
-   * @param string $logname
-   * @param mixed $logmsg
-   * @param boolean $limit
-   * @return void 
-   */
-  public static function log(string $logname, $logmsg, $limit = true)
-  {
-    if ($logname == 'server') throw new Exception("You cannot manually write data in server's log.");
-
-    $path = ROOT_PATH . "/application/log/";
-
-    if (!file_exists($path))
-      mkdir($path, 0755, true);
-    touch($path);
-    chmod($path, 0755);
-
-    if (is_array($logmsg) || (gettype($logmsg) == 'object' && $logmsg instanceof stdClass)) {
-      $logmsg = json_encode($logmsg);
-    }
-
-    if (file_exists($path . $logname . '.log'))
-      $currentLogData = array_filter(explode(str_repeat(PHP_EOL, 2), file_get_contents($path . $logname . '.log')));
-    else $currentLogData = [];
-
-    if (count($currentLogData) >= MAX_LOG_ENTRIES && $limit) {
-      $currentLogData = array_slice($currentLogData, ((MAX_LOG_ENTRIES - 1) * -1));
-      $currentLogData[] = "[" . date('Y-m-d H:i:s') . "] - " . $logmsg;
-      file_put_contents($path . $logname . '.log', implode(str_repeat(PHP_EOL, 2), $currentLogData) . str_repeat(PHP_EOL, 2));
-    } else {
-      $log = fopen($path . $logname . '.log', 'a');
-      fwrite($log, "[" . date('Y-m-d H:i:s') . "] - " . $logmsg . str_repeat(PHP_EOL, 2));
-      fclose($log);
-    }
-  }
-
-  /** 
-   * Creates a log file under /application/log with the specified $logname, with specific information about the exception received in $exc. 
-   * Use $info to add extra information on the log.
-   * 
-   * @param string $logname
-   * @param Exception $exc
-   * @param array $info = []
-   * @return void 
-   */
-  public static function errorLog(string $logname, Exception $exc, array $info = [])
-  {
-    self::log($logname, self::exceptionBuildLog($exc, $info));
-  }
-
-  /** 
-   * Navigate the user agent to the specified $url.
-   * 
-   * @param string $url
-   * @return void 
-   */
-  public static function navigateToUrl(string $url)
-  {
-    header('Location: ' . $url);
-
-    die;
   }
 
   /** 
@@ -354,32 +281,6 @@ class System
         if ($file != '.' && $file != '..') include_once __DIR__ . '/exceptions/' . $file;
       }
     }
-  }
-
-  /** 
-   * Using the information of the exception received in $exc, and the extra $info, builds a fittable 
-   * error log object to be used as $logmsg.  
-   * 
-   * @param Exception $exc
-   * @param array $info
-   * @return void 
-   */
-  private static function exceptionBuildLog(Exception $exc, array $info)
-  {
-    return (object) [
-      "datetime" => date('Y-m-d H:i:s'),
-      "message" => $exc->getMessage(),
-      "file" => $exc->getFile(),
-      "line" => $exc->getLine(),
-      "webService" => self::$webservicePath,
-      "cli" => self::$cliPath,
-      "route" => self::$route,
-      "httpVerb" => self::$httpVerb,
-      "request" => $_REQUEST,
-      "info" => $info,
-      "stack_trace" => $exc->getTrace(),
-      "previous_exception" => ($exc->getPrevious() != null ? self::exceptionBuildLog($exc->getPrevious(), []) : null),
-    ];
   }
 
   /** 

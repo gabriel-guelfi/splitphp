@@ -170,6 +170,19 @@ class Response
   }
 
   /** 
+   * Set the response's content type to "application/xml" and the response's payload data, with the data passed on $data.
+   * 
+   * @param mixed $data
+   * @return Response 
+   */
+  public function withCSS($content)
+  {
+    $this->contentType = 'Content-Type: text/css';
+    $this->data = $content;
+    return $this;
+  }
+
+  /** 
    * Returns the collection of response's custom headers.
    * 
    * @return array 

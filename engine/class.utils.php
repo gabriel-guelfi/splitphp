@@ -158,7 +158,7 @@ class Utils
 
       return call_user_func_array(self::$methodsCollection[$name], $arguments);
     } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
+      Helpers::Log()->add('sys_error', $ex->getMessage());
       die;
     }
   }
@@ -268,8 +268,8 @@ class Utils
           "route" => $_SERVER["REQUEST_URI"],
           "input_name" => $field
         ];
-        System::log('input_validation', json_encode($logObj));
-        if (!empty($_rule->message)) throw new Exception($_rule->message, VALIDATION_FAILED_ERROR);
+        Helpers::Log()->add('input_validation', json_encode($logObj));
+        if (!empty($_rule->message)) throw new Exception($_rule->message);
         else return false;
       }
     }
@@ -292,8 +292,8 @@ class Utils
           "input_name" => $key,
           "input_value" => $value
         ];
-        System::log('input_validation', json_encode($logObj));
-        if (!empty($rule->message)) throw new Exception($rule->message, VALIDATION_FAILED_ERROR);
+        Helpers::Log()->add('input_validation', json_encode($logObj));
+        if (!empty($rule->message)) throw new Exception($rule->message);
         else return false;
       }
 
@@ -307,8 +307,8 @@ class Utils
           "input_name" => $key,
           "input_value" => $value
         ];
-        System::log('input_validation', json_encode($logObj));
-        if (!empty($rule->message)) throw new Exception($rule->message, VALIDATION_FAILED_ERROR);
+        Helpers::Log()->add('input_validation', json_encode($logObj));
+        if (!empty($rule->message)) throw new Exception($rule->message);
         else return false;
       }
 
@@ -323,8 +323,8 @@ class Utils
             "input_name" => $key,
             "input_value" => $value
           ];
-          System::log('input_validation', json_encode($logObj));
-          if (!empty($rule->message)) throw new Exception($rule->message, VALIDATION_FAILED_ERROR);
+          Helpers::Log()->add('input_validation', json_encode($logObj));
+          if (!empty($rule->message)) throw new Exception($rule->message);
           else return false;
         }
       }
@@ -341,8 +341,8 @@ class Utils
             "input_name" => $key,
             "input_value" => $value
           ];
-          System::log('input_validation', json_encode($logObj));
-          if (!empty($rule->message)) throw new Exception($rule->message, VALIDATION_FAILED_ERROR);
+          Helpers::Log()->add('input_validation', json_encode($logObj));
+          if (!empty($rule->message)) throw new Exception($rule->message);
           else return false;
         }
       }
@@ -357,8 +357,8 @@ class Utils
           "input_name" => $key,
           "input_value" => $value
         ];
-        System::log('input_validation', json_encode($logObj));
-        if (!empty($rule->message)) throw new Exception($rule->message, VALIDATION_FAILED_ERROR);
+        Helpers::Log()->add('input_validation', json_encode($logObj));
+        if (!empty($rule->message)) throw new Exception($rule->message);
         else return false;
       }
     }
@@ -432,6 +432,19 @@ class Utils
   {
     json_decode($string);
     return json_last_error() === JSON_ERROR_NONE;
+  }
+
+  /** 
+   * Navigate the user agent to the specified $url.
+   * 
+   * @param string $url
+   * @return void 
+   */
+  public static function navigateToUrl(string $url)
+  {
+    header('Location: ' . $url);
+
+    die;
   }
 
   /** 

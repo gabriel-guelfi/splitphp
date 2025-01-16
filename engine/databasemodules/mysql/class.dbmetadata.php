@@ -73,7 +73,7 @@ class Dbmetadata
         file_put_contents($p . 'database-metadata.cache', '');
       }
     } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
+      Helpers::Log()->add('sys_error', $ex->getMessage());
     }
   }
 
@@ -186,7 +186,7 @@ class Dbmetadata
     try {
       unlink(ROOT_PATH . '/application/cache/database-metadata.cache');
     } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
+      Helpers::Log()->add('sys_error', $ex->getMessage());
     }
 
     self::initCache();
@@ -202,7 +202,7 @@ class Dbmetadata
     try {
       return (array) unserialize(file_get_contents(ROOT_PATH . '/application/cache/database-metadata.cache'));
     } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
+      Helpers::Log()->add('sys_error', $ex->getMessage());
     }
   }
 
@@ -219,7 +219,7 @@ class Dbmetadata
     try {
       return file_put_contents($p, serialize(array_merge(self::readCache(), self::$collection)));
     } catch (Exception $ex) {
-      System::log('sys_error', $ex->getMessage());
+      Helpers::Log()->add('sys_error', $ex->getMessage());
     }
   }
 }

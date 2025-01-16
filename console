@@ -26,8 +26,10 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 use \engine\System;
+use \engine\Helpers;
 
 // Includes main class System:
+require_once "engine/class.helpers.php";
 require_once "engine/class.system.php";
 
 // Initiate the application, running the main class System:
@@ -35,7 +37,7 @@ try {
     new System($argv);
     die;
 } catch (Exception $exc) {
-    System::errorLog('sys_error', $exc);
+    Helpers::Log()->error('sys_error', $exc);
     echo "ERROR[System]: " . $exc->getMessage() . " In file '" . $exc->getFile() . "', line " . $exc->getLine() . ".";
     echo PHP_EOL;
 }

@@ -27,15 +27,17 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 use \engine\System;
+use \engine\Helpers;
 
 // Includes main class System:
 require_once __DIR__ . "/../engine/class.system.php";
+require_once __DIR__ . "/../engine/class.helpers.php";
 
 // Initiate the application, running the main class System:
 try {
   new System();
   die;
 } catch (Exception $ex) {
-  System::errorLog('sys_error', $ex);
+  Helpers::Log()->error('sys_error', $ex);
   throw $ex;
 }

@@ -28,7 +28,7 @@ place it in the query wherever he wants the parameters to be bound
 
 - Added the option of use "IN/NOT IN" operators with bindParams() method and in DAO filter methods.  
 
-- Expanded System::errorLog() method to include further, more detailed information.
+- Expanded Helpers::Log()->error() method to include further, more detailed information.
 
 - Improvements in error logging, providing further, more detailed information.
 
