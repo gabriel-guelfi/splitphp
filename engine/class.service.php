@@ -114,9 +114,11 @@ class Service
    * @param string $path
    * @return mixed 
    */
-  protected final function getDao(string $workingTableName)
+  protected final function getDao(string $workingTableName = null)
   {
-    $dao = ObjLoader::load(__DIR__."/class.dao.php", 'Dao');
+    $dao = ObjLoader::load(ROOT_PATH . "/engine/class.dao.php", 'Dao');
+
+    if (is_null($workingTableName)) return $dao;
 
     return $dao->startOperation($workingTableName);
   }

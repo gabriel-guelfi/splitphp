@@ -81,7 +81,7 @@ class Dao
    * Data returned from SELECT queries will be persisted here, so the next time in which the same query will be executed, 
    * it retrieves data direct frm this array, instead of performing a SQL query on the database again.
    */
-  private static $persistence;
+  private static $persistence = [];
 
   /**
    * @var object $executionControl
@@ -106,7 +106,6 @@ class Dao
     $this->workingTable = null;
     $this->filters = [];
     $this->params = [];
-    $this->persistence = [];
 
     $this->executionControl = (object) [
       'executionPileHashes' => ['initial_state'],

@@ -2,6 +2,7 @@
 
 namespace application\routes;
 
+use engine\DbConnections;
 use \engine\WebService;
 
 class Site extends WebService
@@ -21,7 +22,15 @@ class Site extends WebService
     });
 
     $this->addEndpoint('GET', '/', function () {
-      $data = $this->getDao('MQV_CUSTOMER')
+      // DbConnections::change('readonly', [
+      //   'api.erp-mqvending.com.br',
+      //   3306,
+      //   'mqvending',
+      //   'mqvending_prod_ro',
+      //   'beVr6f8u1I!m@lpq'
+      // ]);
+
+      $data = $this->getDao('APM_MODULE')
         ->find();
 
       return $this->response->withData($data);
