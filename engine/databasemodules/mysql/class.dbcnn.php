@@ -34,13 +34,13 @@ use \mysqli_sql_exception;
 use \DateTime;
 
 /**
- * Class Dblink
+ * Class Dbcnn
  * 
  * This class is responsible to establish and manage connections to the database.
  *
  * @package engine/databasemodules/mysql
  */
-class Dblink
+class Dbcnn
 {
 
   /**

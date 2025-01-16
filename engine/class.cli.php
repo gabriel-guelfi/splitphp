@@ -100,7 +100,7 @@ abstract class Cli extends Service
     $this->timeEnd = 0;
 
     if (DB_CONNECT == 'on')
-      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     parent::__construct();
   }
@@ -218,7 +218,7 @@ abstract class Cli extends Service
     $action = new Action(['console', ...explode(" ", $cmdString)]);
     if ($action->getCmd() == $this->cmdString) throw new Exception("You cannot run a command from within itself");
 
-    $CliObj = System::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
+    $CliObj = ObjLoader::load($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
     return call_user_func_array(array($CliObj, 'execute'), [...$action->getArgs(), true]);
   }
 

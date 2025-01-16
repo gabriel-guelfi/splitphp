@@ -39,7 +39,7 @@ use \Exception;
  *
  * @package engine
  */
-class Service extends Dao
+class Service
 {
   /**
    * @var Utils $utils
@@ -60,11 +60,9 @@ class Service extends Dao
    */
   public function __construct()
   {
-    parent::__construct();
-
     $this->templateRoot = "";
 
-    $this->utils = System::loadClass(ROOT_PATH . "/engine/class.utils.php", "utils");
+    $this->utils = ObjLoader::load(ROOT_PATH . "/engine/class.utils.php", "utils");
 
     $this->init();
   }
@@ -85,9 +83,7 @@ class Service extends Dao
    * 
    * @return mixed 
    */
-  public function init()
-  {
-  }
+  public function init() {}
 
   /** 
    * This returns an instance of a service specified in $path.
@@ -102,7 +98,20 @@ class Service extends Dao
     if (!file_exists(ROOT_PATH . '/application/services/' . $path . '.php'))
       throw new Exception("The requested service path could not be found.");
 
-    return System::loadClass(ROOT_PATH . '/application/services/' . $path . '.php', $className);
+    return ObjLoader::load(ROOT_PATH . '/application/services/' . $path . '.php', $className);
+  }
+
+  /** 
+   * This loads and returns the DAO, starting an operation with the specified working table.
+   * 
+   * @param string $path
+   * @return mixed 
+   */
+  protected final function getDao(string $workingTableName)
+  {
+    $dao = ObjLoader::load("./class.dao.php", 'Dao');
+
+    return $dao->startOperation($workingTableName);
   }
 
   /** 
@@ -121,64 +130,6 @@ class Service extends Dao
     include ROOT_PATH . "/application/templates/" . $this->templateRoot . $path . ".php";
 
     return ob_get_clean();
-  }
-
-  /** 
-   * Executes a cURL request on the specified $url, passing data under the $payload, using the defined $httpVerb, passing along the $headers, then returns 
-   * an object containing the status and the resulting data.
-   * 
-   * @param string $url
-   * @param array $payload = null
-   * @param string $httpVerb = "GET"
-   * @param array $headers = null
-   * @return object 
-   */
-  protected final function requestURL(string $url, array $payload = null, string $httpVerb = 'GET', array $headers = null)
-  {
-    // basic setup
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    // set options by http verb:
-    switch ($httpVerb) {
-      case 'POST':
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,  http_build_query($payload));
-        break;
-      case 'PUT':
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($ch, CURLOPT_POSTFIELDS,  http_build_query($payload));
-        break;
-      case 'PATCH':
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
-        curl_setopt($ch, CURLOPT_POSTFIELDS,  http_build_query($payload));
-        break;
-      case 'DELETE':
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
-        $url = $this->payloadToQueryString($url, $payload);
-      case 'GET':
-        $url = $this->payloadToQueryString($url, $payload);
-    }
-
-    // set URL:
-    curl_setopt($ch, CURLOPT_URL, $url);
-    // set headers:
-    $_headers = 0;
-    if (!empty($headers)) {
-      $_headers = [];
-      foreach ($headers as $key => $value) {
-        $_headers[] = $key . ": " . $value;
-      }
-    }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $_headers);
-
-    $output = (object)[
-      'data' => curl_exec($ch),
-      'status' => curl_getinfo($ch, CURLINFO_RESPONSE_CODE)
-    ];
-    curl_close($ch);
-
-    return $output;
   }
 
   /** 
@@ -212,25 +163,5 @@ class Service extends Dao
     }
 
     return $payload;
-  }
-
-  /** 
-   * Add a query string data on the given $url, based on the dataset passed in $payload, then returns the resulting URL. 
-   * 
-   * @param string $url
-   * @param array $payload
-   * @return string 
-   */
-  private function payloadToQueryString(string $url, array $payload)
-  {
-    if (!empty($payload)) {
-      if (strpos($url, '?') !== false) {
-        $url .= "&" . http_build_query($payload);
-      } else {
-        $url .= '?' . http_build_query($payload);
-      }
-    }
-
-    return $url;
   }
 }

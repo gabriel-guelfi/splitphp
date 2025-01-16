@@ -118,7 +118,7 @@ abstract class WebService extends Service
     $this->routeIndex = [];
 
     if (DB_CONNECT == 'on')
-      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     $this->inputRestriction = [
       '/<[^>]*script/mi',
@@ -130,7 +130,7 @@ abstract class WebService extends Service
     
     $this->xsrfToken = Utils::dataEncrypt((string) Request::getUserIP(), PRIVATE_KEY);
     $this->antiXsrfValidation = true;
-    $this->response = System::loadClass(ROOT_PATH . "/engine/class.response.php", 'response');
+    $this->response = ObjLoader::load(ROOT_PATH . "/engine/class.response.php", 'response');
     parent::__construct();
   }
 

@@ -110,7 +110,6 @@ class System
 
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
-    require_once __DIR__ . "/class.dao.php";
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.utils.php";
 
@@ -141,20 +140,6 @@ class System
     $cli = self::$cliPath;
 
     return "class:" . __CLASS__ . "(CLI:{$cli}, WebService:{$webService})";
-  }
-
-  /** 
-   * This is a wrapper to ObjLoader::load() method. Returns the instance of a class registered on the collection. 
-   * If the class instance isn't registered yet, create a new instance of that class, register it on the collection, then returns it.
-   * 
-   * @param string $path
-   * @param string $classname
-   * @param array $args = []
-   * @return mixed 
-   */
-  public static function loadClass(string $path, string $classname, array $args = array())
-  {
-    return ObjLoader::load($path, $classname, $args);
   }
 
   /** 

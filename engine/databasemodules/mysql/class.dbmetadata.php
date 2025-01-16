@@ -91,8 +91,8 @@ class Dbmetadata
     }
 
     if (!isset(self::$collection[$tablename]) || $updCache) {
-      $dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-      $sql = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+      $dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $sql = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
       $res_f = $dblink->getConnection('reader')->runsql($sql->write("DESCRIBE `" . $tablename . "`", array(), $tablename)->output());
 
       $fields = array();
@@ -147,8 +147,8 @@ class Dbmetadata
   public static function tbPrimaryKey(string $tablename)
   {
     if (!isset(self::$tableKeys[$tablename])) {
-      $dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-      $sql = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+      $dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+      $sql = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
       $res_f = $dblink->getConnection('reader')->runsql($sql->write("SHOW KEYS FROM `" . $tablename . "` WHERE Key_name = 'PRIMARY'", array(), $tablename)->output(true));
 
       self::$tableKeys[$tablename] = $res_f[0]->Column_name;
@@ -164,8 +164,8 @@ class Dbmetadata
    */
   public static function listTables()
   {
-    $dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-    $sql = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $sql = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
     $res = $dblink->getConnection('reader')->runsql($sql->write("SHOW TABLES")->output());
 
     $ret = array();

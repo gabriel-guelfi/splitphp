@@ -112,7 +112,7 @@ class Utils
       $this->register($name, $path, $args);
     }
 
-    return $this->$name = System::loadClass(ROOT_PATH . "/vendors/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
+    return $this->$name = ObjLoader::load(ROOT_PATH . "/vendors/" . $this->summary[$name]->path, $name, $this->summary[$name]->args);
   }
   /** 
    * Outputs a given $data followed by an end-of-line.

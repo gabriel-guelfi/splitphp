@@ -87,7 +87,7 @@ class Dao
    * Data returned from SELECT queries will be persisted here, so the next time in which the same query will be executed, 
    * it retrieves data direct frm this array, instead of performing a SQL query on the database again.
    */
-  private $persistence;
+  private static $persistence;
 
   /**
    * @var object $executionControl
@@ -103,12 +103,12 @@ class Dao
    */
   public function __construct()
   {
-    if (DB_CONNECT == 'on') {
-      require_once ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
-      $this->dblink = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-      $this->sqlBuilder = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-      $this->sqlParameters = System::loadClass(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
-    }
+    if (DB_CONNECT != 'on') throw new Exception("The database connection is turned off. In order to use DAO, turn it on in the configs.");
+
+    require_once ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
+    $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
+    $this->sqlBuilder = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
+    $this->sqlParameters = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
 
     $this->workingTable = null;
     $this->filters = [];
@@ -144,13 +144,11 @@ class Dao
    * @param string $tableName
    * @return Dao 
    */
-  protected final function getTable(string $tableName)
+  public final function startOperation(string $workingTableName)
   {
-    if (DB_CONNECT != 'on') throw new Exception("The database connection is turned off. In order to use DAO, turn it on in the configs.");
-
     $this->updateCurrentExecution();
 
-    $this->workingTable = $tableName;
+    $this->workingTable = $workingTableName;
     $this->filters = [];
     $this->params = [];
     $this->globalParamsKey = null;
@@ -168,7 +166,7 @@ class Dao
    * @param boolean $debug = false
    * @return object|Sqlobj
    */
-  protected final function insert($obj, bool $debug = false)
+  public final function insert($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -199,7 +197,7 @@ class Dao
    * @param boolean $debug = false
    * @return integer|Sqlobj
    */
-  protected final function update($obj, bool $debug = false)
+  public final function update($obj, bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -234,7 +232,7 @@ class Dao
    * @param boolean $debug = false
    * @return integer|Sqlobj
    */
-  protected final function delete(bool $debug = false)
+  public final function delete(bool $debug = false)
   {
     if (is_null($this->workingTable)) {
       throw new Exception('Invalid Working Table Name. Dao is not properly set up');
@@ -268,7 +266,7 @@ class Dao
    * @param boolean $debug = false
    * @return array|Sqlobj
    */
-  protected final function find(string $sql = null, bool $debug = false)
+  public final function find(string $sql = null, bool $debug = false)
   {
     // Check for defined entity:
     if (is_null($this->workingTable)) {
@@ -329,10 +327,10 @@ class Dao
 
     // Run SQL and store its result:
     $sqlHash = md5($sqlObj->sqlstring);
-    if (!array_key_exists($sqlHash, $this->persistence))
-      $this->persistence[$sqlHash] = $this->dblink->getConnection('reader')->runsql($sqlObj);
+    if (!array_key_exists($sqlHash, self::$persistence))
+      self::$persistence[$sqlHash] = $this->dblink->getConnection('reader')->runsql($sqlObj);
 
-    $res = $this->persistence[$sqlHash];
+    $res = self::$persistence[$sqlHash];
 
     $this->returnToPreviousExecution();
     $this->dblink->disconnect('reader');
@@ -349,7 +347,7 @@ class Dao
    * @param boolean $debug = false
    * @return object|Sqlobj
    */
-  protected final function first(string $sql = null, bool $debug = false)
+  public final function first(string $sql = null, bool $debug = false)
   {
     $dbData = $this->find($sql, $debug);
 
@@ -369,7 +367,7 @@ class Dao
    * @param boolean $debug = false
    * @return array|Sqlobj
    */
-  protected final function fetch(callable $callback, string $sql = null, $debug = false)
+  public final function fetch(callable $callback, string $sql = null, $debug = false)
   {
     // Gets query result:
     $res = $this->find($sql, $debug);
@@ -392,7 +390,7 @@ class Dao
    * @param string $placeholder = null
    * @return Dao
    */
-  protected final function bindParams(array $params, string $placeholder = null)
+  public final function bindParams(array $params, string $placeholder = null)
   { {
       $global = is_null($placeholder);
       $this->globalParamsKey = is_null($this->globalParamsKey) ? "key-" . uniqid() : $this->globalParamsKey;
@@ -419,7 +417,7 @@ class Dao
    * @param boolean $sanitize = true
    * @return Dao 
    */
-  protected final function filter(string $key, bool $sanitize = true)
+  public final function filter(string $key, bool $sanitize = true)
   {
     $filter = (object) [
       'key' => $key,
@@ -440,7 +438,7 @@ class Dao
    * @param boolean $sanitize = true
    * @return Dao 
    */
-  protected final function and(string $key, bool $sanitize = true)
+  public final function and(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -465,7 +463,7 @@ class Dao
    * @param boolean $sanitize = true
    * @return Dao 
    */
-  protected final function or(string $key, bool $sanitize = true)
+  public final function or(string $key, bool $sanitize = true)
   {
     if (count($this->filters) == 0) {
       throw new Exception('You can only call this method after calling filter() first.');
@@ -490,7 +488,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function equalsTo($value)
+  public final function equalsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -513,7 +511,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function differentFrom($value)
+  public final function differentFrom($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -536,7 +534,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function biggerThan($value)
+  public final function biggerThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -559,7 +557,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lessThan($value)
+  public final function lessThan($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -582,7 +580,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function biggerOrEqualsTo($value)
+  public final function biggerOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -605,7 +603,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function lesserOrEqualsTo($value)
+  public final function lesserOrEqualsTo($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -628,7 +626,7 @@ class Dao
    * @param mixed $value
    * @return Dao 
    */
-  protected final function likeOf($value)
+  public final function likeOf($value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -651,7 +649,7 @@ class Dao
    * @param array $value
    * @return Dao
    */
-  protected function in(array $value)
+  public function in(array $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -674,7 +672,7 @@ class Dao
    * @param array $value
    * @return Dao
    */
-  protected function notIn(array $value)
+  public function notIn(array $value)
   {
     $i = count($this->filters);
     if ($i == 0 || !is_null($this->filters[$i - 1]->value)) {
@@ -695,7 +693,7 @@ class Dao
    * 
    * @return array 
    */
-  protected final function getFilters()
+  public final function getFilters()
   {
     return $this->filters;
   }
@@ -705,7 +703,7 @@ class Dao
    * 
    * @return void 
    */
-  protected final function dbCommitChanges()
+  public static final function dbCommitChanges()
   {
     if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
       $this->dblink->getConnection('writer')->commitTransaction();
@@ -718,9 +716,20 @@ class Dao
    * 
    * @return void 
    */
-  protected final function clearPersistence()
+  public static final function clearPersistence()
   {
-    $this->persistence = [];
+    self::$persistence = [];
+  }
+
+  /** 
+   * Commits manually the current transaction, start a new one, then clears data persistence.
+   * 
+   * @return void 
+   */
+  public static final function flush()
+  {
+    self::dbCommitChanges();
+    self::clearPersistence();
   }
 
   /** 
