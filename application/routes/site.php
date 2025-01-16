@@ -10,6 +10,7 @@ class Site extends WebService
   {
     $this->setAntiXsrfValidation(false);
 
+
     // Home Page Endpoints:
     $this->addEndpoint('GET', '/home', function ($params) {
       $message = $this->getService('example')->welcomeMsg();
@@ -17,6 +18,13 @@ class Site extends WebService
       return $this->response
         ->withStatus(200)
         ->withHTML($this->renderTemplate('site/home', ['message' => $message]));
+    });
+
+    $this->addEndpoint('GET', '/', function () {
+      $data = $this->getDao('MQV_CUSTOMER')
+        ->find();
+
+      return $this->response->withData($data);
     });
   }
 }

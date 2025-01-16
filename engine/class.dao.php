@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -40,12 +40,6 @@ use engine\databasemodules\mysql\Dbmetadata;
  */
 class Dao
 {
-  /**
-   * @var Dblink $dblink
-   * Stores an instance of the class Dblink.
-   */
-  private $dblink;
-
   /**
    * @var Sql $sqlBuilder
    * Stores an instance of the class Sql.
@@ -106,7 +100,6 @@ class Dao
     if (DB_CONNECT != 'on') throw new Exception("The database connection is turned off. In order to use DAO, turn it on in the configs.");
 
     require_once ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dbmetadata.php";
-    $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
     $this->sqlBuilder = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
     $this->sqlParameters = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sqlparams.php", 'sqlParams');
 
@@ -134,7 +127,7 @@ class Dao
    */
   public function __toString()
   {
-    return "class:" . __CLASS__ . "(Table:{$this->workingTable}, DbLink:{$this->dblink})";
+    return "class:" . __CLASS__ . "(Table:{$this->workingTable})";
   }
 
   /** 
@@ -180,7 +173,7 @@ class Dao
     if ($debug)
       return $sql->output(true);
 
-    $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
+    $res = DbConnections::retrieve('main')->runsql($sql->output(true));
     $key = Dbmetadata::tbPrimaryKey($this->workingTable);
     $obj->$key = $res;
 
@@ -218,7 +211,7 @@ class Dao
     if ($debug)
       return $sql->output(true);
 
-    $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
+    $res = DbConnections::retrieve('main')->runsql($sql->output(true));
 
     $this->returnToPreviousExecution();
 
@@ -251,7 +244,7 @@ class Dao
     if ($debug)
       return $sql->output(true);
 
-    $res = $this->dblink->getConnection('writer')->runsql($sql->output(true));
+    $res = DbConnections::retrieve('main')->runsql($sql->output(true));
 
     $this->returnToPreviousExecution();
 
@@ -303,7 +296,7 @@ class Dao
         $f = &$this->filters[$i];
 
         if ($f->sanitize) {
-          $f->value = $this->dblink->getConnection('reader')->escapevar($f->value);
+          $f->value = DbConnections::retrieve('readonly')->escapevar($f->value);
 
           if (is_array($f->value)) {
             foreach ($f->value as &$v)
@@ -328,12 +321,12 @@ class Dao
     // Run SQL and store its result:
     $sqlHash = md5($sqlObj->sqlstring);
     if (!array_key_exists($sqlHash, self::$persistence))
-      self::$persistence[$sqlHash] = $this->dblink->getConnection('reader')->runsql($sqlObj);
+      self::$persistence[$sqlHash] = DbConnections::retrieve('readonly')->runsql($sqlObj);
 
     $res = self::$persistence[$sqlHash];
 
     $this->returnToPreviousExecution();
-    $this->dblink->disconnect('reader');
+    DbConnections::retrieve('readonly')->disconnect();
 
     return $res;
   }
@@ -706,8 +699,8 @@ class Dao
   public static final function dbCommitChanges()
   {
     if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
-      $this->dblink->getConnection('writer')->commitTransaction();
-      $this->dblink->getConnection('writer')->startTransaction();
+      DbConnections::retrieve('main')->commitTransaction();
+      DbConnections::retrieve('main')->startTransaction();
     }
   }
 

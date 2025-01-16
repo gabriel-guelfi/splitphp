@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -29,6 +29,8 @@ namespace engine\databasemodules\mysql;
 
 use Exception;
 use engine\System;
+use engine\ObjLoader;
+use engine\DbConnections;
 
 /**
  * Class Dbmetadata
@@ -91,9 +93,8 @@ class Dbmetadata
     }
 
     if (!isset(self::$collection[$tablename]) || $updCache) {
-      $dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
       $sql = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-      $res_f = $dblink->getConnection('reader')->runsql($sql->write("DESCRIBE `" . $tablename . "`", array(), $tablename)->output());
+      $res_f = DbConnections::retrieve('readonly')->runsql($sql->write("DESCRIBE `" . $tablename . "`", array(), $tablename)->output());
 
       $fields = array();
       $key = false;
@@ -108,7 +109,7 @@ class Dbmetadata
         }
       }
 
-      $res_r = $dblink->getConnection('reader')->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND REFERENCED_TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
+      $res_r = DbConnections::retrieve('readonly')->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND REFERENCED_TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
 
       foreach ($res_r as $k => $v) {
         $res_r[$v->TABLE_NAME] = $v;
@@ -122,7 +123,7 @@ class Dbmetadata
         'key' => $key
       );
 
-      $res_r = $dblink->getConnection('reader')->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
+      $res_r = DbConnections::retrieve('readonly')->runsql($sql->write("SELECT TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '" . DBNAME . "' AND TABLE_NAME = '" . $tablename . "';", array(), $tablename)->output());
 
       foreach ($res_r as $k => $v) {
         $res_r[$v->REFERENCED_TABLE_NAME] = $v;
@@ -147,9 +148,8 @@ class Dbmetadata
   public static function tbPrimaryKey(string $tablename)
   {
     if (!isset(self::$tableKeys[$tablename])) {
-      $dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
       $sql = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-      $res_f = $dblink->getConnection('reader')->runsql($sql->write("SHOW KEYS FROM `" . $tablename . "` WHERE Key_name = 'PRIMARY'", array(), $tablename)->output(true));
+      $res_f = DbConnections::retrieve('readonly')->runsql($sql->write("SHOW KEYS FROM `" . $tablename . "` WHERE Key_name = 'PRIMARY'", array(), $tablename)->output(true));
 
       self::$tableKeys[$tablename] = $res_f[0]->Column_name;
     }
@@ -164,9 +164,8 @@ class Dbmetadata
    */
   public static function listTables()
   {
-    $dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
     $sql = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.sql.php", 'sql');
-    $res = $dblink->getConnection('reader')->runsql($sql->write("SHOW TABLES")->output());
+    $res = DbConnections::retrieve('readonly')->runsql($sql->write("SHOW TABLES")->output());
 
     $ret = array();
     $keyname = "Tables_in_" . DBNAME;

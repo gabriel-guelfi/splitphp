@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -40,8 +40,13 @@ use \DateTime;
  *
  * @package engine/databasemodules/mysql
  */
-class Dbcnn
+class DbCnn
 {
+  /**
+   * @var object $cnn
+   * Stores database connection's resource object.
+   */
+  private $cnn;
 
   /**
    * @var array $cnnInfo
@@ -50,55 +55,62 @@ class Dbcnn
   private $cnnInfo;
 
   /**
-   * @var array $connections
-   * Stores the database connections.
-   */
-  private $connections;
-
-  /**
    * @var boolean $transactionMode
    * Holds a boolean value used as a control to whether the current database operation is transactional or not (autocommit false or true).
    */
   private $transactionMode;
 
   /**
-   * @var string $currentConnectionName
-   * Stores the current connection identifier. Dblink uses it to know which connection it shall use to perform the current operation.
+   * @var string $host
+   * Stores the current database connection's host.
    */
-  private $currentConnectionName;
+  private $host;
 
   /**
-   * @var boolean $isGetConnectionInvoked
-   * Holds a boolean value used as a control to oblige the user to call Dblink::getConnection() method before perform any database operation.
+   * @var mixed $port
+   * Stores the current database connection's port.
    */
-  private $isGetConnectionInvoked;
+  private $port;
 
   /**
-   * @var string $dbUserName
-   * Stores the current database connection's username.
+   * @var string $name
+   * Stores the current database connection's database name.
    */
-  private $dbUserName;
+  private $name;
 
   /**
-   * @var string $dbUserPass
-   * Stores the current database connection's password.
+   * @var string $user
+   * Stores the current database connection's database user.
    */
-  private $dbUserPass;
+  private $user;
+
+  /**
+   * @var string $pass
+   * Stores the current database connection's database password.
+   */
+  private $pass;
 
   /** 
-   * Changes MySQL report configs, starts the properties with their initial values, then returns an object of type Dblink(instantiate the class).
+   * Set MySQL error report on, set connection's database credentials, set connection's info and controls, then returns an instance of the class (contructor).
    * 
-   * @return Dblink 
+   * @return DbCnn 
    */
-  public final function __construct()
+  public final function __construct(string $host, $port, string $name, string $user, string $pass)
   {
+    // Set MySQL error report on:
     mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-    $this->currentConnectionName = null;
-    $this->connections = [];
-    $this->cnnInfo = [];
+    // Set connection's database credentials:
+    $this->host = $host;
+    $this->port = $port;
+    $this->name = $name;
+    $this->user = $user;
+    $this->pass = $pass;
+
+    // Set connection's info and controls:
     $this->transactionMode = false;
-    $this->isGetConnectionInvoked = false;
+
+    $this->connect();
   }
 
   /** 
@@ -109,87 +121,45 @@ class Dbcnn
   public final function __toString()
   {
     $dbType = DBTYPE;
-    $dbHost = DBHOST;
-    $dbPort = DBPORT;
-    $dbName = DBNAME;
+    $dbHost = $this->host;
+    $dbPort = $this->port;
+    $dbName = $this->name;
 
-    return "class:Dblink(type:{$dbType}, Host:{$dbHost}, Port:{$dbPort}, database:{$dbName}, Connection:{$this->currentConnectionName}, User:{$this->dbUserName}, Password:{$this->dbUserPass})";
+    return "class:DbCnn(type:{$dbType}, Host:{$dbHost}, Port:{$dbPort}, database:{$dbName}, User:{$this->user}, Password:{$this->pass})";
   }
 
   /** 
-   * Disconnects all currently open database connections.
+   * Disconnects database connection.
    * When the instance of the class is destroyed, PHP runs this method automatically.
    * 
    * @return void 
    */
   public final function __destruct()
   {
-    if (!empty($this->connections))
-      foreach ($this->connections as $cnnName => $cnn) {
-        $this->disconnect($cnnName);
-      }
+    $this->disconnect();
   }
 
   /** 
-   * Set a connection, based on the value passed in $connectionName parameter, as the current connection. 
-   * If there is no such connection established and $attemptConnection flag is set to true, create a new one.
+   * Disconnects the connection established. 
    * 
-   * @param string $connectionName
-   * @param boolean $attemptConnection = true
-   * @return Dblink 
-   */
-  public function getConnection(string $connectionName, bool $attemptConnection = true)
-  {
-    if (DB_CONNECT != 'on') throw new Exception("Database connections are turned off. Turn it on in config.ini file.");
-
-    if ($connectionName != 'reader' && $connectionName != 'writer')
-      throw new Exception("Invalid Database connection mode.");
-
-    $this->isGetConnectionInvoked = true;
-    $this->currentConnectionName = $connectionName;
-
-    if ($attemptConnection && (!array_key_exists($connectionName, $this->connections) || empty($this->connections[$this->currentConnectionName])))
-      $this->connections[$this->currentConnectionName] = $this->connect();
-
-    if (!empty($this->connections[$this->currentConnectionName]))
-      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
-
-    return $this;
-  }
-
-  /** 
-   * Tries to disconnect the connection defined by the value passed on parameter $connectionName. 
-   * Then reset Dblink instance's state to its default.
-   * 
-   * @param string $connectionName
    * @return void 
    */
-  public function disconnect($connectionName)
+  public function disconnect()
   {
-    if (array_key_exists($connectionName, $this->connections)) {
-      if (!empty($this->connections[$connectionName])) {
-        $this->connections[$connectionName]->close();
-        unset($this->connections[$connectionName]);
-      }
-    }
-
-    unset($this->cnnInfo[$this->currentConnectionName]);
-    $this->currentConnectionName = null;
-    $this->isGetConnectionInvoked = false;
+    if (!empty($this->cnn)) $this->cnn->close();
+    $this->cnn = null;
+    $this->cnnInfo = null;
   }
 
   /** 
-   * Returns an object, which contains the current connection's information. (Stored at Dblink::cnnInfo property).
+   * Returns an object, which contains the current connection's information. (Stored at Dbcnn::cnnInfo property).
    * 
    * @return object 
    */
   public function info()
   {
-    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
-
-    if (empty($this->cnnInfo[$this->currentConnectionName])) return "No connection info.";
-    $this->isGetConnectionInvoked = false;
-    return $this->cnnInfo[$this->currentConnectionName];
+    if (empty($this->cnn)) return "No connection info.";
+    return $this->cnnInfo;
   }
 
   /** 
@@ -205,10 +175,8 @@ class Dbcnn
    */
   public function runsql(Sqlobj $sqlobj, int $currentTry = 1)
   {
-    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
-
     try {
-      $res = $this->connections[$this->currentConnectionName]->query($sqlobj->sqlstring);
+      $res = $this->cnn->query($sqlobj->sqlstring);
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         sleep(1);
@@ -223,9 +191,9 @@ class Dbcnn
 
     if ($res === true || $res === false) {
       if (strpos(strtoupper($sqlobj->sqlstring), 'INSERT') !== false) {
-        $ret = $this->connections[$this->currentConnectionName]->insert_id;
+        $ret = $this->cnn->insert_id;
       } else {
-        $ret = mysqli_affected_rows($this->connections[$this->currentConnectionName]);
+        $ret = mysqli_affected_rows($this->cnn);
       }
     } else {
       $ret = array();
@@ -236,87 +204,64 @@ class Dbcnn
       $res->close();
     }
 
-    $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
-    $this->isGetConnectionInvoked = false;
-
+    $this->cnnInfo = (object) get_object_vars($this->cnn);
     return $ret;
   }
 
   /** 
-   * Check if the connection specified on $connectionName exists.
-   * 
-   * @param string $connectionName
-   * @return boolean 
-   */
-  public function checkConnection($connectionName)
-  {
-    return empty($this->connections[$connectionName]);
-  }
-
-  /** 
-   * Changes Dblink::transactionMode to true, set current connection's autocommit to false and updates connection's information.
+   * Changes DbCnn::transactionMode to true, set current connection's autocommit to false and updates connection's information.
    * 
    * @return void 
    */
   public function startTransaction()
   {
-    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
-
     if ($this->transactionMode) {
       throw new Exception("There is already an active transaction. It must be finished before starting a new one.");
     }
 
-    if (!empty($this->connections[$this->currentConnectionName])) {
-      $this->connections[$this->currentConnectionName]->autocommit(false);
-      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
+    if (!empty($this->cnn)) {
+      $this->cnn->autocommit(false);
+      $this->cnnInfo = (object) get_object_vars($this->cnn);
       $this->transactionMode = true;
     }
-
-    $this->isGetConnectionInvoked = false;
   }
 
   /** 
-   * Changes Dblink::transactionMode to false, commits the previously opened transaction, 
+   * Changes DbCnn::transactionMode to false, commits the previously opened transaction, 
    * containing the database operations, and updates connection's information.
    * 
    * @return void 
    */
   public function commitTransaction()
   {
-    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
-
     if ($this->transactionMode) {
       $this->transactionMode = false;
 
-      if (!empty($this->connections[$this->currentConnectionName]))
-        $this->connections[$this->currentConnectionName]->commit();
+      if (!empty($this->cnn))
+        $this->cnn->commit();
     }
 
-    if (!empty($this->connections[$this->currentConnectionName]))
-      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
-    $this->isGetConnectionInvoked = false;
+    if (!empty($this->cnn))
+      $this->cnnInfo = (object) get_object_vars($this->cnn);
   }
 
   /** 
-   * Changes Dblink::transactionMode to false, rolls back the previously opened transaction, 
+   * Changes DbCnn::transactionMode to false, rolls back the previously opened transaction, 
    * cancelling all the database operations contained, and updates connection's information.
    * 
    * @return void 
    */
   public function rollbackTransaction()
   {
-    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
-
     if ($this->transactionMode) {
       $this->transactionMode = false;
 
-      if (!empty($this->connections[$this->currentConnectionName]))
-        $this->connections[$this->currentConnectionName]->rollBack();
+      if (!empty($this->cnn))
+        $this->cnn->rollBack();
     }
 
-    if (!empty($this->connections[$this->currentConnectionName]))
-      $this->cnnInfo[$this->currentConnectionName] = (object) get_object_vars($this->connections[$this->currentConnectionName]);
-    $this->isGetConnectionInvoked = false;
+    if (!empty($this->cnn))
+      $this->cnnInfo = (object) get_object_vars($this->cnn);
   }
 
   /** 
@@ -327,21 +272,17 @@ class Dbcnn
    */
   public function escapevar(&$dataset)
   {
-    if (!$this->isGetConnectionInvoked) throw new Exception("You must invoke getConnection() before perform this operation");
-
     if (is_null($dataset)) return null;
 
     elseif (is_array($dataset) || gettype($dataset) === "object") {
       foreach ($dataset as &$data) {
-        $this->getConnection('writer')->escapevar($data);
+        $this->escapevar($data);
       }
-    } elseif (is_string($dataset) && !is_numeric($dataset)) $dataset = mysqli_real_escape_string($this->connections[$this->currentConnectionName], $dataset);
+    } elseif (is_string($dataset) && !is_numeric($dataset)) $dataset = mysqli_real_escape_string($this->cnn, $dataset);
 
     elseif (is_float($dataset)) $dataset = (float) $dataset;
 
     elseif (is_int($dataset)) $dataset = (int) $dataset;
-
-    $this->isGetConnectionInvoked = false;
 
     return $dataset;
   }
@@ -355,26 +296,16 @@ class Dbcnn
    */
   private function connect(int $currentTry = 1)
   {
-    if ($this->currentConnectionName == 'writer') {
-      $this->dbUserName = DBUSER_MAIN;
-      $this->dbUserPass = DBPASS_MAIN;
-    } elseif ($this->currentConnectionName == 'reader') {
-      $this->dbUserName = DBUSER_READONLY;
-      $this->dbUserPass = DBPASS_READONLY;
-    } else {
-      throw new Exception("Invalid Database connection mode.");
-    }
-
     try {
-      $connection = new mysqli(DBHOST, $this->dbUserName, $this->dbUserPass, DBNAME);
+      $this->cnn = new mysqli($this->host, $this->user, $this->pass, $this->name, $this->port);
 
       //Setup database's settings per connection:
-      mysqli_set_charset($connection, DB_CHARSET);
-      $this->syncMysqlTimezone($connection);
+      mysqli_set_charset($this->cnn, DB_CHARSET);
+      $this->syncMysqlTimezone($this->cnn);
     } catch (mysqli_sql_exception $ex) {
       if ($currentTry < DB_WORK_AROUND_FACTOR) {
         sleep(1);
-        $connection = $this->connect($currentTry + 1);
+        $this->cnn = $this->connect($currentTry + 1);
       } else {
         $sqlState = "Only for PHP 8 or >";
         if (preg_match('/8\..*/', phpversion())) $sqlState = $ex->getSqlState();
@@ -382,7 +313,7 @@ class Dbcnn
         throw new DatabaseException($ex, $sqlState);
       }
     }
-    return $connection;
+    return $this->cnn;
   }
 
   private function syncMysqlTimezone($cnn)

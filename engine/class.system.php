@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -107,11 +107,32 @@ class System
     $this->loadExtensions();
     $this->loadExceptions();
 
-
     // Including main classes:
     require_once __DIR__ . "/class.objloader.php";
+    require_once __DIR__ . "/class.dbconnections.php";
     require_once __DIR__ . "/class.service.php";
     require_once __DIR__ . "/class.utils.php";
+
+    // Init basic database connections:
+    if (DB_CONNECT == 'on') {
+      // For Main user:
+      DbConnections::retrieve('main', [
+        DBHOST,
+        DBPORT,
+        DBNAME,
+        DBUSER_MAIN,
+        DBPASS_MAIN
+      ]);
+
+      // For Readonly user:
+      DbConnections::retrieve('readonly', [
+        DBHOST,
+        DBPORT,
+        DBNAME,
+        DBUSER_READONLY,
+        DBPASS_READONLY
+      ]);
+    }
 
     $this->serverLogCleanUp();
 
@@ -282,7 +303,7 @@ class System
     self::$route = $request->getRoute();
     self::$httpVerb = $request->getArgs()[1];
 
-    $webServiceObj = self::loadClass($request->getWebService()->path . $request->getWebService()->name . ".php", $request->getWebService()->name);
+    $webServiceObj = ObjLoader::load($request->getWebService()->path . $request->getWebService()->name . ".php", $request->getWebService()->name);
     call_user_func_array(array($webServiceObj, 'execute'), $request->getArgs());
   }
 
@@ -302,7 +323,7 @@ class System
     self::$cliPath = $action->getCli()->name;
     self::$route = $action->getCmd();
 
-    $CliObj = self::loadClass($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
+    $CliObj = ObjLoader::load($action->getCli()->path . $action->getCli()->name . ".php", $action->getCli()->name);
     call_user_func_array(array($CliObj, 'execute'), $action->getArgs());
   }
 

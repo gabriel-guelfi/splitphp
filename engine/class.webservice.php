@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -67,12 +67,6 @@ abstract class WebService extends Service
   private $template404;
 
   /**
-   * @var Dblink $template404
-   * Stores an instance of the class Dblink, used to perform database connections and operations.
-   */
-  private $dblink;
-
-  /**
    * @var string $xsrfToken
    * Stores a automatically generated dynamic token, which is used to authenticate requests and ensure that the request
    * is coming from an authorized application.
@@ -101,13 +95,6 @@ abstract class WebService extends Service
   {
     require_once __DIR__ . '/class.response.php';
 
-    define('VALIDATION_FAILED', 1);
-    define('BAD_REQUEST', 2);
-    define('NOT_AUTHORIZED', 3);
-    define('NOT_FOUND', 4);
-    define('PERMISSION_DENIED', 5);
-    define('CONFLICT', 6);
-
     $this->routes = [
       "GET" => [],
       "POST" => [],
@@ -117,9 +104,6 @@ abstract class WebService extends Service
 
     $this->routeIndex = [];
 
-    if (DB_CONNECT == 'on')
-      $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
-
     $this->inputRestriction = [
       '/<[^>]*script/mi',
       '/<[^>]*iframe/mi',
@@ -127,10 +111,11 @@ abstract class WebService extends Service
       '/{{.*}}/mi',
       '/<[^>]*(ng-.|data-ng.)/mi'
     ];
-    
+
     $this->xsrfToken = Utils::dataEncrypt((string) Request::getUserIP(), PRIVATE_KEY);
     $this->antiXsrfValidation = true;
     $this->response = ObjLoader::load(ROOT_PATH . "/engine/class.response.php", 'response');
+
     parent::__construct();
   }
 
@@ -158,11 +143,11 @@ abstract class WebService extends Service
       http_response_code(405);
       die;
     }
-    
+
     $routeData = $this->findRoute($route, $httpVerb);
     if (empty($routeData)) {
       if (!empty($this->template404)) $this->render404();
-      
+
       http_response_code(404);
       die;
     }
@@ -173,15 +158,15 @@ abstract class WebService extends Service
       $endpointHandler = is_callable($routeData->method) ? $routeData->method : [$this, $routeData->method];
 
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
-        $this->dblink->getConnection('writer')->startTransaction();
+        DbConnections::retrieve('main')->startTransaction();
         $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
-        $this->dblink->getConnection('writer')->commitTransaction();
+        DbConnections::retrieve('main')->commitTransaction();
       } else {
         $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
-      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && $this->dblink->checkConnection('writer'))
-        $this->dblink->getConnection('writer', false)->rollbackTransaction();
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && DbConnections::check('main'))
+        DbConnections::retrieve('main')->rollbackTransaction();
 
       if (APPLICATION_LOG == "on") {
         if ($exc instanceof DatabaseException) {
@@ -210,7 +195,7 @@ abstract class WebService extends Service
       );
     } finally {
       if (DB_CONNECT == "on")
-        $this->dblink->disconnect('writer');
+        DbConnections::retrieve('main')->disconnect();
     }
   }
 

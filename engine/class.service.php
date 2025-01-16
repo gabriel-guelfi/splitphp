@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -64,6 +64,13 @@ class Service
 
     $this->utils = ObjLoader::load(ROOT_PATH . "/engine/class.utils.php", "utils");
 
+    define('VALIDATION_FAILED', 1);
+    define('BAD_REQUEST', 2);
+    define('NOT_AUTHORIZED', 3);
+    define('NOT_FOUND', 4);
+    define('PERMISSION_DENIED', 5);
+    define('CONFLICT', 6);
+
     $this->init();
   }
 
@@ -109,7 +116,7 @@ class Service
    */
   protected final function getDao(string $workingTableName)
   {
-    $dao = ObjLoader::load("./class.dao.php", 'Dao');
+    $dao = ObjLoader::load(__DIR__."/class.dao.php", 'Dao');
 
     return $dao->startOperation($workingTableName);
   }

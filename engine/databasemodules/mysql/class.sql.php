@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -28,7 +28,7 @@
 
 namespace engine\databasemodules\mysql;
 
-use engine\System;
+use engine\DbConnections;
 
 /**
  * Class SqlObj
@@ -96,23 +96,14 @@ class Sql
    */
   private $table;
 
-  /**
-   * @var Dblink $dblink
-   * Holds the instance of the Dblink connection class.
-   */
-  private $dblink;
-
   /** 
-   * Instantiate Dblink class, storing it on Sql::dblink property, set Sql::sqlstring property to an empty string, then returns an object
+   * Set Sql::sqlstring property to an empty string, then returns an object
    * of type Sql(instantiate the class).
    * 
    * @return Sql 
    */
   public final function __construct()
   {
-    if (DB_CONNECT == 'on')
-      $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/mysql/class.dblink.php", 'dblink');
-
     $this->sqlstring = "";
   }
 
@@ -136,7 +127,7 @@ class Sql
    */
   public function insert($dataset, string $table)
   {
-    $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
+    $dataset = DbConnections::retrieve('main')->escapevar($dataset);
 
     $fields = "";
     $values = " VALUES (";
@@ -174,7 +165,7 @@ class Sql
    */
   public function update($dataset, string $table)
   {
-    $dataset = $this->dblink->getConnection('writer')->escapevar($dataset);
+    $dataset = DbConnections::retrieve('main')->escapevar($dataset);
 
     $sql = "UPDATE " . $this->escape($table) . " SET ";
     foreach ($dataset as $key => $val) {
@@ -223,11 +214,11 @@ class Sql
 
         // Full text filtering with "LIKE" operator:
         if (strtoupper($operator) == "LIKE") {
-          $where .= $key . ' LIKE "%' . $this->dblink->getConnection('writer')->escapevar($val) . '%"';
+          $where .= $key . ' LIKE "%' . DbConnections::retrieve('main')->escapevar($val) . '%"';
         }
         // Filtering by lists of values with "IN/NOT IN" operators:
         else if (is_array($val)) {
-          $val = $this->dblink->getConnection('writer')->escapevar($val);
+          $val = DbConnections::retrieve('main')->escapevar($val);
 
           $joined_values = array();
           $hasNullValue = false;
@@ -261,7 +252,7 @@ class Sql
         }
         // General filtering:
         else {
-          $where .= $key . ' ' . $operator . ' ' . (!is_string($val) ? $val : "'" . $this->dblink->getConnection('writer')->escapevar($val) . "'");
+          $where .= $key . ' ' . $operator . ' ' . (!is_string($val) ? $val : "'" . DbConnections::retrieve('main')->escapevar($val) . "'");
         }
       }
       $this->write($where, null, false);

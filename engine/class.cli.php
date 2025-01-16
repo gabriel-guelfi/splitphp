@@ -12,7 +12,7 @@
 //                                                                                                                                                                //
 // MIT License                                                                                                                                                    //
 //                                                                                                                                                                //
-// Copyright (c) 2022 SPLIT PHP Framework Community                                                                                                               //
+// Copyright (c) 2025 Lightertools Open Source Community                                                                                                               //
 //                                                                                                                                                                //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to          //
 // deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or         //
@@ -29,7 +29,6 @@
 namespace engine;
 
 use Exception;
-use stdClass;
 use \engine\exceptions\DatabaseException;
 
 /**
@@ -52,12 +51,6 @@ abstract class Cli extends Service
    * This is a summary for the $commands list.
    */
   protected $commandIndex;
-
-  /**
-   * @var Dblink $dblink
-   * Stores an instance of the class Dblink, used to perform database connections and operations.
-   */
-  private $dblink;
 
   /**
    * @var int $timeStart
@@ -87,20 +80,10 @@ abstract class Cli extends Service
   {
     ini_set('display_errors', 1);
 
-    define('VALIDATION_FAILED', 1);
-    define('BAD_REQUEST', 2);
-    define('NOT_AUTHORIZED', 3);
-    define('NOT_FOUND', 4);
-    define('PERMISSION_DENIED', 5);
-    define('CONFLICT', 6);
-
     $this->commands = [];
     $this->cmdString = "";
     $this->timeStart = 0;
     $this->timeEnd = 0;
-
-    if (DB_CONNECT == 'on')
-      $this->dblink = ObjLoader::load(ROOT_PATH . "/engine/databasemodules/" . DBTYPE . "/class.dblink.php", 'dblink');
 
     parent::__construct();
   }
@@ -145,9 +128,9 @@ abstract class Cli extends Service
       $commandHandler = is_callable($commandData->method) ? $commandData->method : [$this, $commandData->method];
 
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && !$innerExecution) {
-        $this->dblink->getConnection('writer')->startTransaction();
+        DbConnections::retrieve('main')->startTransaction();
         call_user_func_array($commandHandler, [$this->prepareArgs($args)]);
-        $this->dblink->getConnection('writer')->commitTransaction();
+        DbConnections::retrieve('main')->commitTransaction();
       } else {
         call_user_func_array($commandHandler, [$this->prepareArgs($args)]);
       }
@@ -162,8 +145,8 @@ abstract class Cli extends Service
         echo PHP_EOL;
       }
     } catch (Exception $exc) {
-      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && $this->dblink->checkConnection('writer'))
-        $this->dblink->getConnection('writer', false)->rollbackTransaction();
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && DbConnections::check('main'))
+        DbConnections::retrieve('main')->rollbackTransaction();
 
       if (APPLICATION_LOG == "on") {
         if ($exc instanceof DatabaseException) {
@@ -181,7 +164,7 @@ abstract class Cli extends Service
       }
     } finally {
       if (DB_CONNECT == "on")
-        $this->dblink->disconnect('writer');
+        DbConnections::retrieve('main')->disconnect();
     }
   }
 

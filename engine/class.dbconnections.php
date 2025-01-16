@@ -1,4 +1,5 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                                                //
 //                                                                ** SPLIT PHP FRAMEWORK **                                                                       //
@@ -26,31 +27,51 @@
 //                                                                                                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** 
- * If request method were "POST" and the content type header were "application/json", reads the payload from "php://input" file, parse it,
- * and write its data to the super global $_POST variable, applying a json_decode().
- * 
- * @return void 
- */
-function _parseJson()
+namespace engine;
+
+use \engine\databasemodules\mysql\Dbcnn;
+use Exception;
+
+class DbConnections
 {
-  if (empty($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] != 'POST' || strpos($_SERVER['CONTENT_TYPE'], 'application/json') === false) return;
+  private static $connections = [];
 
-  /* Data comes in on the stdin stream */
-  $putdata = fopen("php://input", "r");
+  public static function retrieve(string $cnnName, array $credentials = null)
+  {
+    if (!isset(self::$connections[$cnnName])) {
+      if (empty($credentials)) throw new Exception("You need to provide credentials to establish a new database connection.");
 
-  $raw_data = '';
+      $dbType = DBTYPE;
 
-  /* Read the data 1 KB at a time*/
-  while ($chunk = fread($putdata, 1024))
-    $raw_data .= $chunk;
+      require_once "./databasemodules/{$dbType}/class.dbcnn.php";
 
-  /* Close the streams */
-  fclose($putdata);
+      self::$connections[$cnnName] = new Dbcnn(...$credentials);
+    }
 
-  $_POST = empty($raw_data) ? [] : json_decode($raw_data, true);
-  $_REQUEST = array_merge($_POST, $_REQUEST);
-  return;
+    return self::$connections[$cnnName];
+  }
+
+  public static function remove(string $cnnName)
+  {
+    if (isset(self::$connections[$cnnName])) {
+      $cnn = self::retrieve($cnnName);
+      $cnn->disconnect;
+      unset(self::$connections[$cnnName]);
+
+      return true;
+    }
+    return false;
+  }
+
+  public static function change(string $cnnName, array $credentials = null)
+  {
+    self::remove($cnnName);
+
+    return self::retrieve($cnnName, $credentials);
+  }
+
+  public static function check(string $cnnName)
+  {
+    return isset(self::$connections[$cnnName]);
+  }
 }
-
-_parseJson();
