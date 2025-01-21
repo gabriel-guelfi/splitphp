@@ -2,7 +2,6 @@
 
 namespace application\routes;
 
-use engine\Helpers;
 use \engine\WebService;
 
 class Site extends WebService
@@ -19,13 +18,6 @@ class Site extends WebService
       return $this->response
         ->withStatus(200)
         ->withHTML($this->renderTemplate('site/home', ['message' => $message]));
-    });
-
-    $this->addEndpoint('GET', '/', function () {
-      $response = Helpers::cURL()
-        ->get('https://api.sampleapis.com/beers/ale');
-
-      return $this->response->withData($response);
     });
   }
 }

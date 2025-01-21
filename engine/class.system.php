@@ -81,7 +81,7 @@ class System
     $this->setupErrorHandling();
 
     // Define runtime constants:
-    define('ROOT_PATH', __DIR__ . "/..");
+    define('ROOT_PATH', dirname(__DIR__));
 
     // Setting up general configs:
     $this->loadConfigsFromFile();
@@ -103,7 +103,11 @@ class System
     require_once __DIR__ . "/class.objloader.php";
     require_once __DIR__ . "/class.dbconnections.php";
     require_once __DIR__ . "/class.service.php";
+    require_once __DIR__ . "/class.eventlistener.php";
+    require_once __DIR__ . "/interface.event.php";
     require_once __DIR__ . "/class.utils.php";
+
+    $this->loadEventListeners();
 
     // Init basic database connections:
     if (DB_CONNECT == 'on') {
@@ -212,6 +216,8 @@ class System
    */
   private function executeRequest(Request $request)
   {
+    EventListener::triggerEvent('onRequest', [$request]);
+
     // Check if the Web Service file exists:
     if (file_exists($request->getWebService()->path . $request->getWebService()->name . ".php") === false) {
       http_response_code(404);
@@ -231,7 +237,8 @@ class System
     self::$httpVerb = $request->getArgs()[1];
 
     $webServiceObj = ObjLoader::load($request->getWebService()->path . $request->getWebService()->name . ".php", $request->getWebService()->name);
-    call_user_func_array(array($webServiceObj, 'execute'), $request->getArgs());
+    $res = call_user_func_array(array($webServiceObj, 'execute'), $request->getArgs());
+    EventListener::triggerEvent('afterResponded', [$res]);
   }
 
   /** 
@@ -243,6 +250,7 @@ class System
    */
   private function executeCommand(Action $action)
   {
+    EventListener::triggerEvent('beforeRunCommand', [$action]);
     if (file_exists($action->getCli()->path . $action->getCli()->name . ".php") === false) {
       throw new Exception("Command not found.");
     }
@@ -279,6 +287,34 @@ class System
     if ($dir = opendir(__DIR__ . '/exceptions/')) {
       while (($file = readdir($dir)) !== false) {
         if ($file != '.' && $file != '..') include_once __DIR__ . '/exceptions/' . $file;
+      }
+    }
+  }
+
+  /** 
+   * Load all user-defined event listeners located at /application/eventlisteners.
+   * 
+   * @return void 
+   */
+  private function loadEventListeners()
+  {
+    $appPath = ROOT_PATH . '/application/eventlisteners/';
+
+    if (is_dir($appPath) && $dir = opendir($appPath)) {
+      while (($file = readdir($dir)) !== false) {
+        if ($file == '.' || $file == '..') continue;
+
+        $path = ROOT_PATH . '/application/eventlisteners/' . $file;
+
+        $content = file_get_contents($path);
+
+        // Use regex to extract the class name
+        if (preg_match('/class\s+([a-zA-Z0-9_]+)/', $content, $matches)) {
+          $className = $matches[1];
+        }
+
+        if (!empty($className))
+          ObjLoader::load($path, $className);
       }
     }
   }

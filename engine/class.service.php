@@ -64,12 +64,12 @@ class Service
 
     $this->utils = ObjLoader::load(ROOT_PATH . "/engine/class.utils.php", "utils");
 
-    define('VALIDATION_FAILED', 1);
-    define('BAD_REQUEST', 2);
-    define('NOT_AUTHORIZED', 3);
-    define('NOT_FOUND', 4);
-    define('PERMISSION_DENIED', 5);
-    define('CONFLICT', 6);
+    if(!defined('VALIDATION_FAILED')) define('VALIDATION_FAILED', 1);
+    if(!defined('BAD_REQUEST')) define('BAD_REQUEST', 2);
+    if(!defined('NOT_AUTHORIZED')) define('NOT_AUTHORIZED', 3);
+    if(!defined('NOT_FOUND')) define('NOT_FOUND', 4);
+    if(!defined('PERMISSION_DENIED')) define('PERMISSION_DENIED', 5);
+    if(!defined('CONFLICT')) define('CONFLICT', 6);
 
     $this->init();
   }

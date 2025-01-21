@@ -159,10 +159,10 @@ abstract class WebService extends Service
 
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
         DbConnections::retrieve('main')->startTransaction();
-        $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        return $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
         DbConnections::retrieve('main')->commitTransaction();
       } else {
-        $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        return $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
     } catch (Exception $exc) {
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && DbConnections::check('main'))
@@ -245,6 +245,8 @@ abstract class WebService extends Service
    */
   protected final function respond(Response $res)
   {
+    EventListener::triggerEvent('beforeRespond', [$res]);
+
     http_response_code($res->getStatus());
 
     if (!empty($res->getData())) {
