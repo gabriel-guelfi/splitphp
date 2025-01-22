@@ -9,29 +9,19 @@
 
 ### What's New ###
 
-> Version: 1.4.16
+> Version: 1.5.0
 
-> Release Date: 2024-07-26
+> Release Date: 2025-01-22
 
-> Last Update: 2024-12-20
+> Last Update: 2025-01-22
 
-* A built-in scafolding command "generate" was added in this version.
+* Easy support for multi-tenancy (multiple database connections)
 
-* DAO now has a "clearPersistence()" method to manually clear the data persistence.
+* Implemented a Helpers machine, with some useful stuff like cURL and Log
 
-* Added some Utils methods to work with string conversion.
+* Support for responses of type CSS
 
-* Dao::bindParams() method now accepts a second parameter for a placeholder name.
-
-* Added the option of use "IN/NOT IN" in database operations.
-
-* Expanded Helpers::Log()->error() method to include further, more detailed information.
-
-* Fixed many minor bugs related to: NULL values handling and database access.
-
-* Fixed SQL injection vulnerabilty.
-
-* Improvements in error logging, providing more detailed information.
+* Mechanics of Events and Listeners (Very useful ;D)
 
 **Read more in the *Release Notes.txt* file.**
 
