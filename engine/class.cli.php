@@ -164,7 +164,7 @@ abstract class Cli extends Service
       }
     } finally {
       if (DB_CONNECT == "on")
-        DbConnections::retrieve('main')->disconnect();
+        DbConnections::remove('main');
     }
   }
 

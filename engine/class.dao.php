@@ -325,7 +325,6 @@ class Dao
     $res = self::$persistence[$sqlHash];
 
     $this->returnToPreviousExecution();
-    DbConnections::retrieve('readonly')->disconnect();
 
     return $res;
   }

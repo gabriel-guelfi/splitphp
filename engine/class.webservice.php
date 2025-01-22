@@ -159,8 +159,9 @@ abstract class WebService extends Service
 
       if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on") {
         DbConnections::retrieve('main')->startTransaction();
-        return $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
+        $res = $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
         DbConnections::retrieve('main')->commitTransaction();
+        return $res;
       } else {
         return $this->respond(call_user_func_array($endpointHandler, [$this->prepareParams($route, $routeData, $httpVerb)]));
       }
@@ -195,7 +196,7 @@ abstract class WebService extends Service
       );
     } finally {
       if (DB_CONNECT == "on")
-        DbConnections::retrieve('main')->disconnect();
+        DbConnections::remove('main');
     }
   }
 
