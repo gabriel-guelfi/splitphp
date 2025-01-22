@@ -71,11 +71,11 @@ The **SPLIT PHP Framework** represents its API Layer as ***WebServices***, where
 ### Basic Usage ###
 Your application will be basically built within three main folders under *"/application/"*
 
-![splitphp-app-dirtree.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-application-dirtree.png)
+![splitphp-app-dirtree.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/splitphp-dirtree.png)
 
 * **Under *"/application/routes/"* you create your *WebServices*, your API Layer:**
 
-![splitphp-rest-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-restservice-example.png)
+![splitphp-webservice.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/splitphp-webservice.png)
 > An endpoint is composed by 3 parts:
 > 1. A HTTP verb ("GET")
 > 2. The route ("/home")
@@ -85,11 +85,11 @@ Your application will be basically built within three main folders under *"/appl
 
 * **Under *"/application/services/"* you create your *Services* on which all the magic happens. All business rules, data processing, database operations and so on, goes in the *Services*:**
 
-![splitphp-service.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-service-example.png)
+![splitphp-service.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/splitphp-service.png)
 
 * **Under *"/application/templates/"* goes your *Views*, your HTML templates.**
 
-![splitphp-template.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/splitphp-template-example.png)
+![splitphp-template.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/splitphp-template.png)
 
 > Note that this is the template rendered in the *WebService* in the first example, and this $data variable has the same
 > name passed when it was being rendered. In these 3 examples, if you access "http://localhost:8000/site/home" you shall see 
