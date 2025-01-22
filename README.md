@@ -1,5 +1,5 @@
 ### Introduction ###
-![splitphp-logo.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/SPLIT_PHP-logo-full-small.png)
+![splitphp-logo.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/SPLIT_PHP-logo-full.png)
 
 ***Knowing PHP should be enough!***
 
