@@ -1,5 +1,5 @@
 ### Introduction ###
-![splitphp-logo.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/SPLIT_PHP-logo-full.png)
+![splitphp-logo.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/SPLIT_PHP-logo-full-small.png)
 
 ***Knowing PHP should be enough!***
 
@@ -49,14 +49,14 @@ Why **"SPLIT"**? Firstly because the word "split" is a reference to micro-servic
 
 ### Service Oriented Architecture (SOA) ###
 A service is basically an encapsulated piece of functionality, which is **accessible from any part within the application**. So all services are accessible to one another from within the system, but not directly from the client, who only have access to an API Layer, which acts as a "gatekeeper" to the application. The result is a pool of reusable services which can be accessed from everywhere inside the application, but with controlled external access.
-![splitphp-soa-diagram.png](https://split-php-framework.s3.sa-east-1.amazonaws.com/introduction-soa-1.png)
+![splitphp-soa-diagram.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/introduction-soa-1.png)
 
 The **SPLIT PHP Framework** represents its API Layer as ***WebServices***, where the applications's endpoints are defined. From within an endpoint the *WebService* can **call services** and/or **respond to the client**. In summary, to create an API using SPLIT PHP's SOA, the dev will **create the services**, which are classes that perform the actual operations, then **register endpoints** on a *WebService*. **Simple as that!**
 
 ---
 
 ### Getting Started ###
-1. [Download](https://github.com/gabriel-guelfi/splitphp/archive/refs/tags/v1.2.12.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
+1. [Download](https://github.com/gabriel-guelfi/splitphp/archive/refs/tags/v1.5.0.zip) the framework source on the path of your application and unzip it. (the Composer solution is currently being studied)
 2. Run **`php console setup`**, which will generate a "/config.ini" file, with some auto-settings.
 3. Setup */config.ini* file according to your application's needs.
 4. Turn on your app running the command: **`php console server:start`**.
