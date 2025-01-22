@@ -1,7 +1,7 @@
 SPLIT PHP Framework - Release Notes
 ---
 
-- Version: 1.5.0
+- Version: 1.5.1
 - Release Date: 2025-01-22
 - Last Update: 2025-01-22
 - License: MIT
@@ -10,7 +10,7 @@ SPLIT PHP Framework - Release Notes
 
 ---
 
-In this release 1.5.0 it was added support for useful stuff and some very nice resources.
+In this release 1.5.1 it was added support for useful stuff and some very nice resources.
 
 ---
 
@@ -28,7 +28,9 @@ In this release 1.5.0 it was added support for useful stuff and some very nice r
 
 **Fixes:**
 
-NO FIXES SO FAR! =]
+- WebServices were returning its execution before committing transactions.
+
+- Minor namespace bug fixed on DBmetadata class.
 
 ---
 

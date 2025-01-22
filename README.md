@@ -9,7 +9,7 @@
 
 ### What's New ###
 
-> Version: 1.5.0
+> Version: 1.5.1
 
 > Release Date: 2025-01-22
 
@@ -22,6 +22,8 @@
 * Support for responses of type CSS
 
 * Mechanics of Events and Listeners (Very useful ;D)
+
+* Minor bug fixes
 
 **Read more in the *Release Notes.txt* file.**
 
