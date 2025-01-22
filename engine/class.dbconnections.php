@@ -55,7 +55,7 @@ class DbConnections
   {
     if (isset(self::$connections[$cnnName])) {
       $cnn = self::retrieve($cnnName);
-      $cnn->disconnect;
+      $cnn->disconnect();
       unset(self::$connections[$cnnName]);
 
       return true;
