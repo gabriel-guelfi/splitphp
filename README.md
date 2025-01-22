@@ -69,7 +69,7 @@ The **SPLIT PHP Framework** represents its API Layer as ***WebServices***, where
 ---
 
 ### Basic Usage ###
-Your application will be basically built within three main folders under *"/application/"*
+Your application will be basically built within the folders under *"/application/"*
 
 ![splitphp-app-dirtree.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/splitphp-dirtree.png)
 
