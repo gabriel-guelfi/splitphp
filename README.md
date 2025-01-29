@@ -9,11 +9,11 @@
 
 ### What's New ###
 
-> Version: 1.5.1
+> Version: 1.5.2
 
 > Release Date: 2025-01-22
 
-> Last Update: 2025-01-22
+> Last Update: 2025-01-29
 
 * Easy support for multi-tenancy (multiple database connections)
 
