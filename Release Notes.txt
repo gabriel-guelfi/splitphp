@@ -24,6 +24,8 @@ In this release 1.5.1 it was added support for useful stuff and some very nice r
 
 - Mechanics of Events and Listeners. You add event listeners in the same manner that you'd add a WebService and its endpoints and, besides the built-in events you can also define your own. (Very practical and useful ;D)
 
+- Implemented a parameter "$limit_multiplier" into SQLParams, which is the class that process bindParams() function, to allow more arbitrary settings for pagination.
+
 ---
 
 **Fixes:**

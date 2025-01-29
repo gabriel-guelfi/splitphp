@@ -23,6 +23,8 @@
 
 * Mechanics of Events and Listeners (Very useful ;D)
 
+* Implemented a parameter "$limit_multiplier" into SQLParams, which is the class that process bindParams() function, to allow more arbitrary settings for pagination.
+
 * Minor bug fixes
 
 **Read more in the *Release Notes.txt* file.**
