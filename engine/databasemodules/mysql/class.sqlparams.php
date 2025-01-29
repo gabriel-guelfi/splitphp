@@ -100,7 +100,8 @@ class SqlParams
 
       $pageParams = [
         "page" => isset($params['$page']) ? $params['$page'] : null,
-        "limit" => isset($params['$limit']) ? $params['$limit'] : null
+        "limit" => isset($params['$limit']) ? $params['$limit'] : null,
+        "limit_multiplier" => isset($params['$limit_multiplier']) ? $params['$limit_multiplier'] : 5,
       ];
 
       // Set filtering logical operator:
@@ -113,6 +114,7 @@ class SqlParams
       if (isset($params['$sort_direction'])) unset($params['$sort_direction']);
       if (isset($params['$page'])) unset($params['$page']);
       if (isset($params['$limit'])) unset($params['$limit']);
+      if (isset($params['$limit_multiplier'])) unset($params['$limit_multiplier']);
 
       // FILTER:
       $filterBLock = $this->filtering($params);
@@ -333,7 +335,7 @@ class SqlParams
 
       $offset = ($params['page'] - 1) * $params['limit'];
 
-      $params['limit'] = 5 * $params['limit'];
+      $params['limit'] = $params['limit_multiplier'] * $params['limit'];
 
       $sqlBlock .= "LIMIT " . $params['limit'] . " OFFSET " . $offset;
     } elseif (!empty($params['limit'])) {
