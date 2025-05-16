@@ -44,17 +44,43 @@ class EventListener extends Service
 
   public static final function triggerEvent(string $evtName, array $data = [])
   {
-    if (!array_key_exists($evtName, self::$events)) self::discoverEvents();
+    try {
+      if (!array_key_exists($evtName, self::$events)) self::discoverEvents();
 
-    $evt = self::$events[$evtName];
+      $evt = self::$events[$evtName];
 
-    $evtObj = ObjLoader::load($evt->classPath, $evt->className, $data);
+      $evtObj = ObjLoader::load($evt->classPath, $evt->className, $data);
 
-    foreach (self::$listeners as $key => $listener) {
-      if (strpos($key, $evtName) !== false) {
-        $callback = $listener->callback;
-        call_user_func_array($callback, [$evtObj]);
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on")
+        DbConnections::retrieve('main')->startTransaction();
+
+      foreach (self::$listeners as $key => $listener) {
+        if (strpos($key, $evtName) !== false) {
+          $callback = $listener->callback;
+          call_user_func_array($callback, [$evtObj]);
+        }
       }
+
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on")
+        DbConnections::retrieve('main')->commitTransaction();
+    } catch (Exception $exc) {
+      if (DB_CONNECT == "on" && DB_TRANSACTIONAL == "on" && DbConnections::check('main'))
+        DbConnections::retrieve('main')->rollbackTransaction();
+
+      if (APPLICATION_LOG == "on") {
+        Helpers::Log()->error('event_error', $exc);
+      }
+
+      $status = self::userFriendlyErrorStatus($exc);
+      http_response_code($status);
+      echo json_encode([
+        "error" => true,
+        "user_friendly" => $status !== 500,
+        "message" => $exc->getMessage(),
+        "webService" => System::$webservicePath,
+        "requestinfo" => $_REQUEST,
+      ]);
+      die;
     }
   }
 
@@ -108,5 +134,37 @@ class EventListener extends Service
       closedir($dirHandle);
     }
     return $paths;
+  }
+
+  /** 
+   * Returns an integer representing a specific http status code for predefined types of exceptions. Defaults to 500.
+   * 
+   * @param Exception $exc
+   * @return integer
+   */
+  private static function userFriendlyErrorStatus(Exception $exc)
+  {
+    switch ($exc->getCode()) {
+      case (int) VALIDATION_FAILED:
+        return 422;
+        break;
+      case (int) BAD_REQUEST:
+        return 400;
+        break;
+      case (int) NOT_AUTHORIZED:
+        return 401;
+        break;
+      case (int) NOT_FOUND:
+        return 404;
+        break;
+      case (int) PERMISSION_DENIED:
+        return 403;
+        break;
+      case (int) CONFLICT:
+        return 409;
+        break;
+    }
+
+    return 500;
   }
 }

@@ -144,6 +144,9 @@ class System
       require_once __DIR__ . "/class.cli.php";
       $this->executeCommand(new Action($cliArgs));
     }
+
+    if (DB_CONNECT == "on")
+        DbConnections::remove('main');
   }
 
   /** 

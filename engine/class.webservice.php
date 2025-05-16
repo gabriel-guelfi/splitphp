@@ -107,7 +107,7 @@ abstract class WebService extends Service
     $this->inputRestriction = [
       '/<[^>]*script/mi',
       '/<[^>]*iframe/mi',
-      '/<[^>]*on[^>]*=/mi',
+      '/<.*[^>]on[^>,\s]*=/mi',
       '/{{.*}}/mi',
       '/<[^>]*(ng-.|data-ng.)/mi'
     ];
@@ -181,7 +181,7 @@ abstract class WebService extends Service
       }
 
       $status = $this->userFriendlyErrorStatus($exc);
-      $this->respond(
+      return $this->respond(
         $this->response
           ->withStatus($status)
           ->withData([
@@ -194,9 +194,6 @@ abstract class WebService extends Service
             "params" => $this->prepareParams($route, $routeData, $httpVerb, false)
           ])
       );
-    } finally {
-      if (DB_CONNECT == "on")
-        DbConnections::remove('main');
     }
   }
 
@@ -253,7 +250,13 @@ abstract class WebService extends Service
     if (!empty($res->getData())) {
       header('Content-Type: ' . $res->getContentType());
       header('Xsrf-Token: ' . $this->xsrfToken());
-      foreach ($res->getHeaders() as $header) header($header);
+      $headerExpose = 'Access-Control-Expose-Headers: ';
+      foreach ($res->getHeaders() as $header) {
+        $headerExpose .= explode(':', $header)[0] . ',';
+        header($header);
+      }
+      rtrim($headerExpose, ',');
+      header($headerExpose);
       echo $res->getData();
     }
 
