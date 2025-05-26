@@ -1,3 +1,11 @@
+## DEPRECATED REPOSITORY
+
+In order to allow a smooth transition to Composer support, this repository was moved to the following URL:
+[New SplitPHP Repository](https://github.com/splitphp/core)
+
+**This repository here is now officially archived and will not be further updated. For the new updates on SplitPHP Framework, refer to the New SplitPHP Repository.**
+---
+
 ### Introduction ###
 ![splitphp-logo.png](https://splitphp-media-archive.s3.us-east-1.amazonaws.com/SPLIT_PHP-logo-full.png)
 
